@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7fb">
+  <title>Service details | SchemeSathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/service-detail.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="../index.html">
+      <span class="brand-mark">S</span>
+      <span>Scheme<span class="brand-accent">Sathi</span><small>YOUR CITIZEN COMPANION</small></span>
+    </a>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="services.html" class="active">Explore services</a>
+      <a href="assistant.html">AI assistant</a>
+    </nav>
+    <div class="top-right">
+      <a href="dashboard.html" class="dashboard-link">My dashboard</a>
+      <a href="profile.html" class="user-avatar" aria-label="My profile">S</a>
+    </div>
+    <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation">☰</button>
+  </header>
+
+  <main>
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a><span>/</span>
+      <a href="services.html">Explore services</a><span>/</span>
+      <strong>Service details</strong>
+    </div>
+
+    <section class="service-hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> GOVERNMENT SERVICE GUIDE</div>
+        <div class="service-tags"><span id="categoryTag">SERVICE CATEGORY</span><span class="preview-tag">PREVIEW PAGE</span></div>
+        <h1 id="serviceTitle">Understand your government service<span>.</span></h1>
+        <p id="serviceDescription">Find the information you need to understand a government service, prepare documents and identify the right official application channel.</p>
+        <div class="hero-meta">
+          <span><i>◈</i> India</span>
+          <span><i>◷</i> Information guide</span>
+          <span><i>⌁</i> Source-aware guidance</span>
+        </div>
+        <div class="hero-actions">
+          <button class="primary-btn" id="askAI">Ask AI about this service <span>→</span></button>
+          <button class="secondary-btn" id="saveService">♡ Save service</button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="visual-orbit orbit-one"></div><div class="visual-orbit orbit-two"></div>
+        <div class="visual-document">
+          <div class="doc-top"><span></span><span></span><span></span></div>
+          <div class="doc-symbol">§</div>
+          <div class="doc-line wide"></div><div class="doc-line"></div><div class="doc-line short"></div>
+          <div class="doc-stamp">GUIDE</div>
+        </div>
+        <div class="floating-chip chip-one"><span>✦</span> Clear guidance</div>
+        <div class="floating-chip chip-two"><span>✓</span> Official sources</div>
+      </div>
+    </section>
+
+    <div class="notice-bar">
+      <span class="notice-icon">ⓘ</span>
+      <p><strong>Information status:</strong> This is a page preview. Service-specific eligibility, fees, documents, deadlines and application instructions will appear only after verified source data is connected.</p>
+    </div>
+
+    <div class="content-layout">
+      <section class="details-column">
+        <nav class="section-tabs" aria-label="Service information sections">
+          <button class="tab active" data-target="overview">Overview</button>
+          <button class="tab" data-target="eligibility">Eligibility</button>
+          <button class="tab" data-target="documents">Documents</button>
+          <button class="tab" data-target="process">How to apply</button>
+          <button class="tab" data-target="sources">Sources</button>
+        </nav>
+
+        <section class="detail-section" id="overview">
+          <div class="section-heading"><div><span class="section-kicker">01 / THE BASICS</span><h2>About this service</h2></div><span class="heading-icon">✧</span></div>
+          <p class="section-intro">Government services can differ by department, state, district and applicant circumstances. SchemeSathi is designed to help you understand the relevant process before you take action.</p>
+          <div class="overview-grid">
+            <article class="info-tile"><span class="tile-icon purple">◎</span><strong>Understand the service</strong><p>Learn what the service is intended to provide and which department manages it.</p></article>
+            <article class="info-tile"><span class="tile-icon orange">▤</span><strong>Prepare documents</strong><p>Review the official document requirements before starting an application.</p></article>
+            <article class="info-tile"><span class="tile-icon green">↗</span><strong>Find the right channel</strong><p>Identify the relevant official portal or government office.</p></article>
+          </div>
+          <div class="data-placeholder"><div class="placeholder-icon">◌</div><div><strong>Detailed service information is not connected yet</strong><p>Once verified service records are available, this section will show the official description, department, jurisdiction and latest published version.</p></div></div>
+        </section>
+
+        <section class="detail-section" id="eligibility">
+          <div class="section-heading"><div><span class="section-kicker">02 / WHO CAN APPLY</span><h2>Eligibility requirements</h2></div><span class="heading-icon">◎</span></div>
+          <p class="section-intro">Eligibility can depend on the service, applicant category, location and other conditions specified by the responsible authority.</p>
+          <div class="locked-panel"><span class="lock-icon">⌑</span><div><strong>Verified eligibility details will appear here</strong><p>We won't guess eligibility criteria. The requirements will be displayed when supported by an approved official source.</p></div><span class="status-pill">AWAITING DATA</span></div>
+        </section>
+
+        <section class="detail-section" id="documents">
+          <div class="section-heading"><div><span class="section-kicker">03 / WHAT YOU MAY NEED</span><h2>Required documents</h2></div><span class="heading-icon">▤</span></div>
+          <p class="section-intro">Document requirements are service-specific. Accepted formats, copies and conditional requirements will be shown separately.</p>
+          <div class="document-empty"><div class="doc-empty-icon">▧</div><strong>No verified document list available yet</strong><p>Official document requirements will be added after source verification.</p></div>
+        </section>
+
+        <section class="detail-section" id="process">
+          <div class="section-heading"><div><span class="section-kicker">04 / THE JOURNEY</span><h2>How to apply</h2></div><span class="heading-icon">⇢</span></div>
+          <p class="section-intro">Application instructions will be presented as clear, numbered steps with the relevant official links.</p>
+          <div class="process-empty">
+            <div class="process-step"><span>01</span><div><strong>Understand the requirements</strong><p>Review the eligibility and document checklist once verified details are available.</p></div></div>
+            <div class="process-step"><span>02</span><div><strong>Follow the official process</strong><p>Use the instructions and application channel published by the responsible authority.</p></div></div>
+            <div class="process-step"><span>03</span><div><strong>Keep your reference details</strong><p>Save your acknowledgement or reference number if the official process provides one.</p></div></div>
+            <div class="process-disclaimer">These are general preparation suggestions, not confirmed application steps for this service.</div>
+          </div>
+        </section>
+
+        <section class="detail-section" id="sources">
+          <div class="section-heading"><div><span class="section-kicker">05 / TRUST & TRANSPARENCY</span><h2>Sources and verification</h2></div><span class="heading-icon">◇</span></div>
+          <p class="section-intro">SchemeSathi is being built around traceable government information. Important facts should be linked to their source and verification history.</p>
+          <div class="source-status">
+            <div class="source-status-icon">⌕</div>
+            <div><strong>No source records linked to this preview</strong><p>When sources are connected, this area will show publisher, official URL, last checked date, verification status and the facts each source supports.</p></div>
+          </div>
+          <div class="verification-legend"><span><i class="verified-dot"></i> Verified</span><span><i class="review-dot"></i> Under review</span><span><i class="missing-dot"></i> Not yet available</span></div>
+        </section>
+      </section>
+
+      <aside class="right-column">
+        <div class="ai-card">
+          <div class="ai-card-top"><span class="ai-spark">✳</span><span>SCHEMESATHI AI</span><span class="online-dot"></span></div>
+          <h3>Need this explained simply?</h3>
+          <p>Ask questions in everyday language. The assistant will be designed to explain verified service information and identify when details are missing.</p>
+          <div class="suggestion-list">
+            <button data-prompt="Explain this service in simple language.">Explain this simply <span>↗</span></button>
+            <button data-prompt="What should I check before applying for this service?">What should I check? <span>↗</span></button>
+            <button data-prompt="Help me understand the official requirements for this service.">Help me understand requirements <span>↗</span></button>
+          </div>
+          <button class="ai-cta" id="openAssistant">Start a conversation <span>→</span></button>
+          <div class="ai-disclaimer">AI guidance is not a substitute for official government instructions.</div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-heading"><span>♡</span><h3>Your shortlist</h3></div>
+          <p>Save services you're interested in and revisit them from your dashboard.</p>
+          <a href="dashboard.html#saved">View saved services ↗</a>
+        </div>
+
+        <div class="side-card help-card">
+          <div class="help-icon">?</div><h3>Not sure where to start?</h3>
+          <p>Tell SchemeSathi what you're trying to do, and explore the right service category.</p>
+          <a href="assistant.html">Ask the AI assistant ↗</a>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer"><a class="footer-brand" href="../index.html">Scheme<span>Sathi</span></a><span>Making public services easier to understand.</span><a href="services.html">Explore more services →</a></footer>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="../js/service-detail.js"></script>
+</body>
+</html>

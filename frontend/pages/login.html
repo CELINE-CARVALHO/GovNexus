@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Sign in | SchemeSathi</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/auth.css">
+</head>
+
+<body>
+
+<main class="auth-page">
+
+    <section class="auth-visual">
+        <a href="../index.html" class="brand">
+            <span class="brand-mark">S</span>
+            <span>Scheme<span class="brand-accent">Sathi</span></span>
+        </a>
+
+        <div class="visual-content">
+            <div class="visual-eyebrow">
+                <span></span> YOUR DIGITAL GOVERNMENT COMPANION
+            </div>
+
+            <h1>Government services.<br><span>Without the confusion.</span></h1>
+
+            <p>
+                One place to discover services, understand procedures
+                and get guided assistance in a language you understand.
+            </p>
+
+            <div class="visual-features">
+                <div class="visual-feature">
+                    <span class="feature-icon">✦</span>
+                    <div>
+                        <strong>AI-powered guidance</strong>
+                        <small>Understand complex procedures more easily.</small>
+                    </div>
+                </div>
+
+                <div class="visual-feature">
+                    <span class="feature-icon">◎</span>
+                    <div>
+                        <strong>Multilingual experience</strong>
+                        <small>Access assistance in your preferred language.</small>
+                    </div>
+                </div>
+
+                <div class="visual-feature">
+                    <span class="feature-icon">▤</span>
+                    <div>
+                        <strong>Organised service information</strong>
+                        <small>Explore requirements and application steps.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="visual-bottom">
+            <div class="visual-orb orb-one"></div>
+            <div class="visual-orb orb-two"></div>
+            <div class="visual-document">
+                <div class="visual-document-logo">S</div>
+                <div class="visual-document-title">Your services,<br>all in one place.</div>
+                <div class="visual-document-line"></div>
+                <div class="visual-document-line short"></div>
+                <div class="visual-document-check">✓</div>
+            </div>
+            <p>Designed to make government services easier to navigate.</p>
+        </div>
+
+        <div class="visual-footer">© 2026 SchemeSathi</div>
+    </section>
+
+    <section class="auth-panel">
+
+        <div class="mobile-brand">
+            <a href="../index.html" class="brand">
+                <span class="brand-mark">S</span>
+                <span>Scheme<span class="brand-accent">Sathi</span></span>
+            </a>
+        </div>
+
+        <div class="auth-container">
+
+            <div class="auth-topline">
+                <a href="../index.html" class="back-home">← Back to home</a>
+                <span class="secure-label"><span>●</span> Secure account access</span>
+            </div>
+
+            <div class="auth-heading">
+                <div class="auth-kicker">WELCOME TO SCHEMESATHI</div>
+                <h2 id="formHeading">Welcome back.</h2>
+                <p id="formSubheading">Sign in to continue your journey.</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" type="button">Sign in</button>
+                <button class="auth-tab" id="registerTab" type="button">Create account</button>
+            </div>
+
+            <div class="auth-message" id="authMessage" role="status" aria-live="polite" hidden></div>
+
+            <form id="authForm" novalidate>
+
+                <div class="form-field" id="nameField" hidden>
+                    <label for="fullName">Full name</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">♙</span>
+                        <input type="text" id="fullName" name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name">
+                    </div>
+                    <small class="field-error" id="nameError"></small>
+                </div>
+
+                <div class="form-field">
+                    <label for="email">Email address</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✉</span>
+                        <input type="email" id="email" name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email" required>
+                    </div>
+                    <small class="field-error" id="emailError"></small>
+                </div>
+
+                <div class="form-field">
+                    <div class="label-row">
+                        <label for="password">Password</label>
+                        <button type="button" class="text-button" id="forgotPassword">Forgot password?</button>
+                    </div>
+
+                    <div class="input-wrap">
+                        <span class="input-icon">♙</span>
+                        <input type="password" id="password" name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password" required>
+                        <button type="button" class="password-toggle" data-target="password">Show</button>
+                    </div>
+                    <small class="field-error" id="passwordError"></small>
+                </div>
+
+                <div class="password-strength" id="passwordStrength" hidden>
+                    <div class="strength-track"><span id="strengthBar"></span></div>
+                    <small id="strengthText">Password strength</small>
+                </div>
+
+                <div class="form-field" id="confirmField" hidden>
+                    <label for="confirmPassword">Confirm password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">♙</span>
+                        <input type="password" id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Re-enter your password"
+                            autocomplete="new-password">
+                        <button type="button" class="password-toggle" data-target="confirmPassword">Show</button>
+                    </div>
+                    <small class="field-error" id="confirmError"></small>
+                </div>
+
+                <div class="form-field" id="languageField" hidden>
+                    <label for="preferredLanguage">Preferred language</label>
+                    <div class="input-wrap select-wrap">
+                        <span class="input-icon">◎</span>
+                        <select id="preferredLanguage" name="preferredLanguage">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी — Hindi</option>
+                            <option value="kn">ಕನ್ನಡ — Kannada</option>
+                            <option value="mr">मराठी — Marathi</option>
+                            <option value="ta">தமிழ் — Tamil</option>
+                            <option value="te">తెలుగు — Telugu</option>
+                            <option value="bn">বাংলা — Bengali</option>
+                            <option value="gu">ગુજરાતી — Gujarati</option>
+                            <option value="ml">മലയാളം — Malayalam</option>
+                            <option value="pa">ਪੰਜਾਬੀ — Punjabi</option>
+                            <option value="ur">اردو — Urdu</option>
+                            <option value="as">অসমীয়া — Assamese</option>
+                            <option value="or">ଓଡ଼ିଆ — Odia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-options" id="rememberRow">
+                    <label class="remember-option">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                </div>
+
+                <div class="terms-row" id="termsRow" hidden>
+                    <label class="remember-option">
+                        <input type="checkbox" id="acceptTerms">
+                        <span>I agree to the <a href="#" id="termsLink">Terms of Service</a> and <a href="#" id="privacyLink">Privacy Policy</a>.</span>
+                    </label>
+                    <small class="field-error" id="termsError"></small>
+                </div>
+
+                <button type="submit" class="submit-button" id="submitButton">
+                    <span id="submitLabel">Sign in</span>
+                    <span>→</span>
+                </button>
+
+            </form>
+
+            <div class="auth-divider">
+                <span>YOUR JOURNEY STARTS HERE</span>
+            </div>
+
+            <div class="auth-footer">
+                <span id="switchText">Don't have an account?</span>
+                <button id="switchMode" type="button">Create one</button>
+            </div>
+
+            <p class="auth-disclaimer">
+                SchemeSathi is an independent citizen assistance platform.
+                Account creation does not constitute a government registration
+                or application submission.
+            </p>
+
+        </div>
+
+        <div class="panel-footer">
+            <a href="../index.html">SchemeSathi</a>
+            <span>Built for easier access to public services.</span>
+        </div>
+    </section>
+
+</main>
+
+<script src="../js/auth.js"></script>
+
+</body>
+</html>

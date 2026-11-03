@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7fb">
+  <title>My Applications | SchemeSathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/applications.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">S</span>
+        <span>Scheme<span class="brand-accent">Sathi</span><small>YOUR CITIZEN COMPANION</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="side-nav">
+        <a href="dashboard.html"><span>▦</span> Dashboard</a>
+        <a href="services.html"><span>⌕</span> Explore services</a>
+        <a href="assistant.html"><span>✳</span> AI assistant</a>
+        <a href="dashboard.html#saved"><span>♡</span> Saved services</a>
+        <a class="active" href="applications.html"><span>▤</span> My applications</a>
+        <a href="profile.html"><span>◉</span> My profile</a>
+      
+        <a href="preferences.html"><span>⚙</span> Preferences</a>
+</nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-card"><span>✦</span><strong>Your records, organised.</strong><p>Track your own application notes and reference details in one place.</p></div>
+        <a href="../index.html" class="back-home">← Back to home</a>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong>My applications</strong></div>
+        <div class="top-actions"><span class="secure-label">◈ Personal tracker</span><div class="avatar" id="topAvatar">S</div></div>
+      </header>
+
+      <section class="page-content">
+        <div class="page-heading">
+          <div>
+            <div class="eyebrow">YOUR APPLICATION WORKSPACE</div>
+            <h1>My applications<span>.</span></h1>
+            <p>Keep your application records, reference numbers and personal updates organised.</p>
+          </div>
+          <button class="add-btn" id="addApplication"><span>＋</span> Add application</button>
+        </div>
+
+        <div class="tracking-notice">
+          <span>ⓘ</span>
+          <p><strong>Personal tracking only.</strong> SchemeSathi does not currently connect to government application portals. Statuses shown here are updates you enter yourself, not live government status.</p>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Total records</span><span class="stat-icon purple">▤</span></div><strong id="totalCount">0</strong><small>Your saved application records</small></article>
+          <article class="stat-card"><div class="stat-top"><span>In progress</span><span class="stat-icon blue">◷</span></div><strong id="progressCount">0</strong><small>Marked as in progress</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Completed</span><span class="stat-icon green">✓</span></div><strong id="completedCount">0</strong><small>Marked as completed</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Needs attention</span><span class="stat-icon orange">!</span></div><strong id="attentionCount">0</strong><small>Marked for follow-up</small></article>
+        </div>
+
+        <section class="workspace-card">
+          <div class="workspace-heading">
+            <div><h2>Your application records</h2><p>Search and organise the records you've added.</p></div>
+            <div class="record-controls">
+              <div class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search applications..." aria-label="Search applications"></div>
+              <select id="statusFilter" aria-label="Filter by status">
+                <option value="all">All statuses</option>
+                <option value="draft">Draft</option>
+                <option value="in_progress">In progress</option>
+                <option value="submitted">Submitted</option>
+                <option value="follow_up">Needs follow-up</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>SERVICE / APPLICATION</th><th>REFERENCE NUMBER</th><th>YOUR STATUS</th><th>LAST UPDATED</th><th></th></tr></thead>
+              <tbody id="applicationRows"></tbody>
+            </table>
+          </div>
+
+          <div class="empty-state" id="emptyState">
+            <div class="empty-illustration"><span>▤</span><i>＋</i></div>
+            <h3>No applications to show yet</h3>
+            <p>Add an application record to start organising your personal tracking information.</p>
+            <button class="add-btn" id="emptyAdd"><span>＋</span> Add your first record</button>
+          </div>
+          <div class="table-footer"><span id="recordCount">Showing 0 records</span><span>Stored in this browser</span></div>
+        </section>
+
+        <div class="bottom-grid">
+          <section class="tip-card">
+            <div class="tip-icon">✦</div><div><span class="eyebrow">A HELPFUL HABIT</span><h3>Keep your acknowledgement details safe.</h3><p>When an official portal provides a receipt or acknowledgement, keep it securely. You can record a reference number here, but avoid storing passwords, OTPs or sensitive identity documents.</p></div>
+          </section>
+          <section class="help-card"><div class="help-icon">?</div><h3>Need help understanding a process?</h3><p>Ask the SchemeSathi assistant to explain the service information available to you.</p><a href="assistant.html">Talk to the AI assistant →</a></section>
+        </div>
+
+        <footer class="page-footer">SchemeSathi <span>·</span> Making public services easier to understand.</footer>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-heading"><div><span class="eyebrow">PERSONAL RECORD</span><h2 id="modalTitle">Add an application</h2><p>Enter the details you want to keep track of.</p></div><button class="close-modal" id="closeModal" aria-label="Close">×</button></div>
+      <form id="applicationForm">
+        <input type="hidden" id="recordId">
+        <label class="field"><span>Service / application name *</span><input id="serviceName" required maxlength="140" placeholder="e.g. Scholarship application"></label>
+        <label class="field"><span>Reference / acknowledgement number</span><input id="referenceNumber" maxlength="100" placeholder="Enter reference number (optional)"></label>
+        <div class="form-grid">
+          <label class="field"><span>Your status *</span><select id="applicationStatus" required><option value="draft">Draft</option><option value="in_progress">In progress</option><option value="submitted">Submitted</option><option value="follow_up">Needs follow-up</option><option value="completed">Completed</option></select></label>
+          <label class="field"><span>Application date</span><input id="applicationDate" type="date"></label>
+        </div>
+        <label class="field"><span>Next follow-up date</span><input id="followUpDate" type="date"></label>
+        <label class="field"><span>Personal notes</span><textarea id="applicationNotes" rows="3" maxlength="1000" placeholder="Add reminders or notes for yourself..."></textarea></label>
+        <div class="modal-disclaimer">These details are saved locally in this browser. They are not submitted to a government department.</div>
+        <div class="modal-actions"><button type="button" class="cancel-btn" id="cancelModal">Cancel</button><button type="submit" class="save-btn">Save record <span>→</span></button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="detail-backdrop" id="detailBackdrop">
+    <section class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="modal-heading"><div><span class="eyebrow">APPLICATION RECORD</span><h2 id="detailTitle">Application details</h2></div><button class="close-modal" id="closeDetail" aria-label="Close">×</button></div>
+      <div id="detailContent"></div>
+      <div class="modal-actions"><button class="cancel-btn" id="deleteRecord">Delete record</button><button class="save-btn" id="editRecord">Edit record</button></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+  <script src="../js/applications.js"></script>
+</body>
+</html>
+

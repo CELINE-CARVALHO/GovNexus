@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8f9fc">
+  <title>AI Assistant | SchemeSathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/assistant.css">
+</head>
+<body class="assistant-page">
+
+  <aside class="chat-sidebar" id="chatSidebar">
+    <a class="sidebar-brand" href="../index.html">
+      <span class="sidebar-logo">✓</span>
+      <span>scheme<strong>sathi</strong></span>
+    </a>
+
+    <button class="new-chat-button" id="newChatButton">
+      <span>＋</span> New conversation
+    </button>
+
+    <div class="sidebar-section-label">YOUR WORKSPACE</div>
+    <a class="sidebar-link" href="../index.html"><span>⌂</span> Home</a>
+    <a class="sidebar-link" href="services.html"><span>▦</span> Explore services</a>
+    <a class="sidebar-link active" href="assistant.html"><span>✳</span> AI assistant</a>
+    <a class="sidebar-link" href="profile.html"><span>◎</span> My profile</a>
+
+    <div class="history-heading">
+      <span>RECENT CONVERSATIONS</span>
+      <span class="history-count">DEMO</span>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Your conversations will appear here.</div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="sidebar-help-icon">?</div>
+      <div><strong>Need a little help?</strong><span>Explore how SchemeSathi works.</span></div>
+      <a href="../index.html#how-it-works">↗</a>
+    </div>
+  </aside>
+
+  <main class="chat-main">
+    <header class="chat-topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Open sidebar">☰</button>
+        <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>AI assistant</strong></div>
+      </div>
+      <div class="topbar-right">
+        <div class="language-control">
+          <span>◎</span>
+          <select id="chatLanguage" aria-label="Conversation language">
+            <option value="en-IN">English</option>
+            <option value="hi-IN">हिन्दी</option>
+            <option value="kn-IN">ಕನ್ನಡ</option>
+            <option value="mr-IN">मराठी</option>
+            <option value="ta-IN">தமிழ்</option>
+            <option value="te-IN">తెలుగు</option>
+            <option value="bn-IN">বাংলা</option>
+            <option value="gu-IN">ગુજરાતી</option>
+            <option value="ml-IN">മലയാളം</option>
+            <option value="pa-IN">ਪੰਜਾਬੀ</option>
+          </select>
+        </div>
+        <a href="profile.html" class="profile-button">◎</a>
+      </div>
+    </header>
+
+    <div class="chat-content" id="chatContent">
+      <div class="chat-inner">
+
+        <section class="welcome-panel" id="welcomePanel">
+          <div class="welcome-graphic">
+            <div class="graphic-ring ring-outer"></div>
+            <div class="graphic-ring ring-inner"></div>
+            <div class="graphic-core">✳</div>
+            <span class="graphic-spark spark-one">✦</span>
+            <span class="graphic-spark spark-two">✧</span>
+            <span class="graphic-spark spark-three">✳</span>
+          </div>
+
+          <div class="welcome-badge"><span></span> YOUR PERSONAL AI GUIDE</div>
+          <h1>Namaste! What can<br>we <span>help you with?</span></h1>
+          <p class="welcome-description">
+            From finding the right government scheme to understanding documents
+            and application steps, let's figure it out together.
+          </p>
+
+          <div class="prompt-heading">HERE ARE A FEW THINGS YOU CAN ASK</div>
+          <div class="prompt-grid">
+            <button class="prompt-card" data-prompt="What scholarships are available for college students?">
+              <span class="prompt-icon purple">✧</span>
+              <span><strong>Find scholarships</strong><small>Explore education support</small></span>
+              <span class="prompt-arrow">↗</span>
+            </button>
+            <button class="prompt-card" data-prompt="What documents are required to apply for a caste certificate?">
+              <span class="prompt-icon blue">▤</span>
+              <span><strong>Document checklist</strong><small>Understand what you need</small></span>
+              <span class="prompt-arrow">↗</span>
+            </button>
+            <button class="prompt-card" data-prompt="Which government schemes can support women?">
+              <span class="prompt-icon pink">♡</span>
+              <span><strong>Women's schemes</strong><small>Discover support programmes</small></span>
+              <span class="prompt-arrow">↗</span>
+            </button>
+            <button class="prompt-card" data-prompt="How do I correct details in my Aadhaar card?">
+              <span class="prompt-icon green">✎</span>
+              <span><strong>Correct a document</strong><small>Understand correction steps</small></span>
+              <span class="prompt-arrow">↗</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="conversation-area" id="conversationArea" aria-live="polite"></section>
+
+        <div class="composer-area">
+          <form class="message-composer" id="messageForm">
+            <textarea id="messageInput" rows="1" placeholder="Ask anything about government schemes or services..." aria-label="Your message"></textarea>
+            <div class="composer-tools">
+              <div class="composer-left">
+                <button type="button" class="tool-button" id="voiceInputButton" title="Voice input">
+                  <svg viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <span id="voiceLabel">Speak</span>
+                </button>
+                <span class="composer-hint" id="composerHint">Ask in your preferred language</span>
+              </div>
+              <button class="submit-message" type="submit" aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none"><path d="m5 12 14-7-5 14-2.5-6.5L5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m11.5 12.5 3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </form>
+          <div class="composer-disclaimer">
+            <span>✦</span> SchemeSathi can help you understand services. Verify important details with the official department.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="insight-sidebar">
+    <div class="insight-header">
+      <span class="insight-symbol">✳</span>
+      <div><strong>Your guide</strong><small>Helpful information</small></div>
+    </div>
+
+    <div class="insight-card">
+      <span class="insight-kicker">HOW TO GET BETTER ANSWERS</span>
+      <h3>Tell us a little more.</h3>
+      <p>Adding relevant context can help narrow down the services you need.</p>
+      <div class="context-example"><span>01</span> Your state or location</div>
+      <div class="context-example"><span>02</span> The service you're looking for</div>
+      <div class="context-example"><span>03</span> Your specific question</div>
+    </div>
+
+    <div class="insight-card source-card">
+      <div class="source-card-icon">✓</div>
+      <h3>Source-aware guidance</h3>
+      <p>Government information should be supported by reliable sources. Look for source references and verification details in connected answers.</p>
+      <div class="source-status"><i></i> Verification-first approach</div>
+    </div>
+
+    <div class="insight-card privacy-card">
+      <span class="privacy-icon">⌑</span>
+      <h3>Your information matters.</h3>
+      <p>Don't share passwords, OTPs, bank details or unnecessary identity information in chat.</p>
+    </div>
+
+    <div class="insight-footer">SCHEMESATHI <span>·</span> CITIZEN ASSISTANCE</div>
+  </aside>
+
+  <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+  <div class="assistant-toast" id="assistantToast" role="status" aria-live="polite"></div>
+
+  <script src="../js/api/client.js"></script>
+  <script src="../js/assistant.js"></script>
+</body>
+</html>

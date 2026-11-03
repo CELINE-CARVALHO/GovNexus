@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7fb">
+  <title>My Profile | SchemeSathi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">S</span>
+        <span>Scheme<span class="brand-accent">Sathi</span><small>YOUR CITIZEN COMPANION</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="side-nav">
+        <a href="dashboard.html"><span>▦</span> Dashboard</a>
+        <a href="services.html"><span>⌕</span> Explore services</a>
+        <a href="assistant.html"><span>✳</span> AI assistant</a>
+        <a href="dashboard.html#saved"><span>♡</span> Saved services</a>
+        <a href="dashboard.html#applications"><span>▤</span> My applications</a>
+        <a class="active" href="profile.html"><span>◉</span> My profile</a>
+      
+        <a href="preferences.html"><span>⚙</span> Preferences</a>
+</nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-card"><span>✦</span><strong>Your information matters</strong><p>You control the personal details you choose to share.</p></div>
+        <a href="../index.html" class="back-home">← Back to home</a>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong>My profile</strong></div>
+        <div class="top-actions"><span class="secure-label">◈ Secure profile</span><div class="avatar" id="topAvatar">C</div></div>
+      </header>
+
+      <section class="page-content">
+        <div class="page-heading">
+          <div><div class="eyebrow">YOUR PERSONAL SPACE</div><h1>My profile<span>.</span></h1>
+          <p>Manage your details and preferences for a more relevant SchemeSathi experience.</p></div>
+          <div class="profile-status"><span class="status-dot"></span> Personal profile</div>
+        </div>
+
+        <div class="profile-layout">
+          <section class="profile-main">
+            <div class="profile-card identity-card">
+              <div class="identity-top">
+                <div class="large-avatar" id="largeAvatar">C</div>
+                <div><h2 id="displayName">Welcome!</h2><p id="displayEmail">Add your email address</p><span class="member-tag">SCHEMESATHI MEMBER</span></div>
+              </div>
+              <div class="completion">
+                <div class="completion-label"><span>Profile completion</span><strong id="completionText">0%</strong></div>
+                <div class="progress-track"><div id="completionBar"></div></div>
+                <p>Complete your profile to receive more relevant service suggestions.</p>
+              </div>
+            </div>
+
+            <form id="profileForm">
+              <section class="profile-card form-card">
+                <div class="section-heading"><div><span class="section-icon">01</span><h2>Personal information</h2><p>Basic details to personalise your experience.</p></div><span class="optional-tag">EDITABLE</span></div>
+                <div class="form-grid">
+                  <label class="field full"><span>Full name</span><input id="fullName" name="fullName" type="text" placeholder="Enter your full name" maxlength="100"></label>
+                  <label class="field"><span>Email address</span><input id="email" name="email" type="email" placeholder="you@example.com"></label>
+                  <label class="field"><span>Phone number <small>Optional</small></span><input id="phone" name="phone" type="tel" placeholder="Enter phone number" maxlength="15"></label>
+                </div>
+              </section>
+
+              <section class="profile-card form-card">
+                <div class="section-heading"><div><span class="section-icon">02</span><h2>Location details</h2><p>Help us discover services relevant to your area.</p></div></div>
+                <div class="form-grid">
+                  <label class="field"><span>State / Union Territory</span>
+                    <select id="state" name="state">
+                      <option value="">Select your state</option>
+                      <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Andaman and Nicobar Islands</option><option>Chandigarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option><option>Jammu and Kashmir</option><option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option>
+                    </select>
+                  </label>
+                  <label class="field"><span>District / City</span><input id="district" name="district" type="text" placeholder="Enter district or city" maxlength="100"></label>
+                </div>
+                <div class="location-note">Your location helps distinguish central, state and local government services.</div>
+              </section>
+
+              <section class="profile-card form-card">
+                <div class="section-heading"><div><span class="section-icon">03</span><h2>Language preferences</h2><p>Choose the language you prefer while using SchemeSathi.</p></div></div>
+                <div class="form-grid">
+                  <label class="field full"><span>Preferred language</span>
+                    <select id="preferredLanguage" name="preferredLanguage">
+                      <option value="en">English</option><option value="hi">हिन्दी (Hindi)</option><option value="kn">ಕನ್ನಡ (Kannada)</option><option value="mr">मराठी (Marathi)</option><option value="ta">தமிழ் (Tamil)</option><option value="te">తెలుగు (Telugu)</option><option value="bn">বাংলা (Bengali)</option><option value="gu">ગુજરાતી (Gujarati)</option><option value="ml">മലയാളം (Malayalam)</option><option value="pa">ਪੰਜਾਬੀ (Punjabi)</option><option value="ur">اردو (Urdu)</option><option value="or">ଓଡ଼ିଆ (Odia)</option><option value="as">অসমীয়া (Assamese)</option><option value="sa">संस्कृतम् (Sanskrit)</option><option value="ks">कॉशुर (Kashmiri)</option><option value="kok">कोंकणी (Konkani)</option><option value="mai">मैथिली (Maithili)</option><option value="ne">नेपाली (Nepali)</option><option value="sd">سنڌي (Sindhi)</option><option value="doi">डोगरी (Dogri)</option><option value="mni">মৈতৈলোন্ (Manipuri)</option><option value="sat">संताली (Santali)</option><option value="brx">बर’ (Bodo)</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="language-note"><span>✦</span> Language options are being prepared for a phased multilingual experience.</div>
+              </section>
+
+              <section class="profile-card form-card">
+                <div class="section-heading"><div><span class="section-icon">04</span><h2>Accessibility preferences</h2><p>Adjust the experience to make it more comfortable.</p></div></div>
+                <div class="preference-row"><div><strong>Reduced motion</strong><p>Minimise animations and movement across the interface.</p></div><label class="switch"><input id="reducedMotion" type="checkbox"><span></span></label></div>
+                <div class="preference-row"><div><strong>Larger text</strong><p>Increase text size for improved readability.</p></div><label class="switch"><input id="largeText" type="checkbox"><span></span></label></div>
+              </section>
+
+              <div class="form-actions"><span id="saveMessage" aria-live="polite"></span><button class="save-btn" type="submit">Save changes <span>→</span></button></div>
+            </form>
+          </section>
+
+          <aside class="profile-aside">
+            <div class="aside-card">
+              <div class="aside-art"><div class="art-circle">✦</div><div class="art-lines"></div></div>
+              <h3>A more helpful experience starts here.</h3>
+              <p>Your preferences help SchemeSathi organise relevant government services and guidance.</p>
+            </div>
+            <div class="aside-card privacy-aside"><div class="privacy-icon">♧</div><h3>Your privacy, your choice.</h3><p>Only provide details you are comfortable sharing. You do not need to enter Aadhaar, PAN, bank details or other sensitive identity information here.</p><a href="#" id="privacyInfo">About profile data ↗</a></div>
+            <div class="aside-card account-card"><span class="account-label">ACCOUNT</span><h3>Account settings</h3><p>Authentication and security settings will be available when account services are connected.</p><button type="button" class="disabled-action" disabled>Security settings · Coming soon</button></div>
+          </aside>
+        </div>
+        <footer class="page-footer">SchemeSathi <span>·</span> Making public services easier to understand.</footer>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="../js/profile.js"></script>
+</body>
+</html>
+

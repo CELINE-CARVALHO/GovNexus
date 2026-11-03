@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f8f9fc">
+  <meta name="description" content="SchemeSathi helps you discover government schemes, understand eligibility and find the services you need.">
+  <title>SchemeSathi — Government services, made simpler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+  <div class="announcement">
+    <span class="announcement-dot"></span>
+    Your guide to government services across India
+    <span class="announcement-arrow">↗</span>
+  </div>
+
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="SchemeSathi home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 42 42" fill="none" aria-hidden="true">
+          <rect width="42" height="42" rx="14" fill="#2449D8"/>
+          <path d="M11 22.5 18.2 29 31 13" stroke="white" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="30" cy="30" r="4" fill="#9CE7C2"/>
+        </svg>
+      </span>
+      <span class="brand-name">scheme<span>sathi</span><small>GOVERNMENT SERVICES, SIMPLIFIED</small></span>
+    </a>
+
+    <nav class="main-nav" id="mainNav">
+      <a class="nav-link active" href="#home">Home</a>
+      <a class="nav-link" href="#explore">Explore services</a>
+      <a class="nav-link" href="#how-it-works">How it works</a>
+      <a class="nav-link" href="#assistant">AI assistant</a>
+    </nav>
+
+    <div class="header-actions">
+      <button class="language-button" id="languageButton" type="button">
+        <span class="globe-icon">◎</span> English <span class="chevron">⌄</span>
+      </button>
+      <a class="login-button" href="pages/login.html">Sign in <span>↗</span></a>
+      <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation" type="button">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section" id="home">
+      <div class="hero-glow hero-glow-one"></div>
+      <div class="hero-glow hero-glow-two"></div>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="sparkle">✳</span> YOUR PERSONAL GOVERNMENT SERVICES GUIDE</div>
+          <h1>Government services.<br><span>Made simple.</span></h1>
+          <p class="hero-description">
+            Finding the right scheme or government service shouldn't be complicated.
+            Just tell us what you need. We'll help you figure out the rest.
+          </p>
+
+          <div class="hero-trust">
+            <div class="trust-avatars">
+              <span>🇮🇳</span><span>✓</span><span>✳</span>
+            </div>
+            <p><strong>One helpful place.</strong><br>Guidance for citizens across India.</p>
+          </div>
+        </div>
+
+        <div class="assistant-preview" id="assistant">
+          <div class="assistant-card-top">
+            <div class="assistant-identity">
+              <div class="ai-avatar">
+                <span class="ai-orbit orbit-one"></span>
+                <span class="ai-orbit orbit-two"></span>
+                <span class="ai-core">✳</span>
+              </div>
+              <div>
+                <strong>SchemeSathi AI</strong>
+                <span class="online-status"><i></i> Your assistant is ready</span>
+              </div>
+            </div>
+            <span class="beta-label">AI ASSISTANT</span>
+          </div>
+
+          <div class="assistant-welcome">
+            <span class="welcome-time">NAMASTE! 🙏</span>
+            <h2>How can I help you today?</h2>
+            <p>Ask me about government schemes, documents, eligibility or application processes.</p>
+          </div>
+
+          <div class="suggestion-label">TRY ASKING</div>
+          <div class="suggestion-list">
+            <button class="suggestion-chip" data-prompt="What government scholarships can I apply for?">
+              <span class="chip-icon violet">✧</span> Find scholarships
+              <span class="chip-arrow">↗</span>
+            </button>
+            <button class="suggestion-chip" data-prompt="How can I apply for a new ration card?">
+              <span class="chip-icon orange">▤</span> Apply for a ration card
+              <span class="chip-arrow">↗</span>
+            </button>
+            <button class="suggestion-chip" data-prompt="Which government schemes are available for women?">
+              <span class="chip-icon green">♡</span> Schemes for women
+              <span class="chip-arrow">↗</span>
+            </button>
+          </div>
+
+          <form class="chat-composer" id="heroChatForm">
+            <input id="heroPrompt" type="text" placeholder="Ask anything about government services..." autocomplete="off">
+            <button class="mic-button" id="voiceButton" type="button" aria-label="Use voice input" title="Speak your question">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <button class="send-button" type="submit" aria-label="Send question">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 14-7-5 14-2.5-6.5L5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m11.5 12.5 3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </form>
+          <div class="composer-footer">
+            <span id="voiceStatus">✦ Powered by AI</span>
+            <span>Ask in your language</span>
+          </div>
+          <div class="assistant-note"><span>ⓘ</span> Answers are guided by available sources. Always check official instructions before applying.</div>
+        </div>
+      </div>
+
+      <div class="hero-bottom">
+        <span>BUILT FOR EVERY CITIZEN</span>
+        <div class="hero-bottom-line"></div>
+        <span>DISCOVER <b>·</b> UNDERSTAND <b>·</b> APPLY</span>
+      </div>
+    </section>
+
+    <section class="quick-search-section">
+      <div class="quick-search-inner">
+        <div>
+          <span class="section-kicker">NOT SURE WHERE TO START?</span>
+          <h2>Let's find what you need.</h2>
+          <p>Search by service, scheme, document or department.</p>
+        </div>
+        <form class="large-search" id="serviceSearchForm">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <input id="serviceSearch" type="search" placeholder="Try “birth certificate”, “pension”, “scholarship”...">
+          <button type="submit">Search <span>→</span></button>
+        </form>
+      </div>
+    </section>
+
+    <section class="services-section section-wrap" id="explore">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">EXPLORE GOVERNMENT SERVICES</span>
+          <h2>What are you looking for?</h2>
+          <p>Start with a category. We'll help you find the right service.</p>
+        </div>
+        <a class="text-link" href="pages/services.html">Explore all services <span>↗</span></a>
+      </div>
+
+      <div class="category-grid">
+        <a class="category-card category-blue" href="pages/services.html?category=identity">
+          <span class="category-icon">▣</span><span class="category-count">IDENTITY & DOCUMENTS</span>
+          <strong>Identity &<br>certificates</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-document">▤</span>
+        </a>
+        <a class="category-card category-peach" href="pages/services.html?category=education">
+          <span class="category-icon">✧</span><span class="category-count">EDUCATION</span>
+          <strong>Scholarships &<br>education</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-book">▱</span>
+        </a>
+        <a class="category-card category-green" href="pages/services.html?category=welfare">
+          <span class="category-icon">♡</span><span class="category-count">WELFARE</span>
+          <strong>Women &<br>child welfare</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-heart">♡</span>
+        </a>
+        <a class="category-card category-lilac" href="pages/services.html?category=finance">
+          <span class="category-icon">₹</span><span class="category-count">FINANCIAL SUPPORT</span>
+          <strong>Pensions &<br>financial aid</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-rupee">₹</span>
+        </a>
+        <a class="category-card category-yellow" href="pages/services.html?category=business">
+          <span class="category-icon">⌂</span><span class="category-count">LIVELIHOOD</span>
+          <strong>Business &<br>employment</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-briefcase">▰</span>
+        </a>
+        <a class="category-card category-mint" href="pages/services.html?category=health">
+          <span class="category-icon">＋</span><span class="category-count">HEALTH</span>
+          <strong>Healthcare &<br>insurance</strong><span class="category-arrow">↗</span>
+          <span class="category-art art-health">✚</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="personalised-section">
+      <div class="personalised-inner">
+        <div class="personalised-copy">
+          <span class="section-kicker light-kicker">A LITTLE MORE PERSONAL</span>
+          <h2>Not just information.<br><span>Guidance that fits you.</span></h2>
+          <p>Tell us a little about your needs and we'll help you discover relevant government services. You stay in control of what you share.</p>
+          <a href="pages/profile.html" class="light-button">Personalise my experience <span>→</span></a>
+        </div>
+        <div class="recommendation-card">
+          <div class="recommendation-top"><span>✦</span> YOUR DISCOVERY SPACE <span class="demo-pill">PREVIEW</span></div>
+          <h3>Services worth exploring</h3>
+          <p class="recommendation-sub">Examples of how personalised discovery could look.</p>
+          <div class="recommendation-item">
+            <div class="recommendation-icon rec-violet">✧</div>
+            <div><strong>Education scholarships</strong><span>Discover scholarship opportunities</span></div>
+            <span class="recommendation-chevron">↗</span>
+          </div>
+          <div class="recommendation-item">
+            <div class="recommendation-icon rec-green">♡</div>
+            <div><strong>Women-focused schemes</strong><span>Explore support and welfare services</span></div>
+            <span class="recommendation-chevron">↗</span>
+          </div>
+          <div class="recommendation-item">
+            <div class="recommendation-icon rec-orange">▤</div>
+            <div><strong>Document assistance</strong><span>Understand certificates and corrections</span></div>
+            <span class="recommendation-chevron">↗</span>
+          </div>
+          <div class="recommendation-disclaimer">Illustrative recommendations. Sign in and provide optional preferences to personalise your discovery.</div>
+        </div>
+        <div class="decorative-sparkle sparkle-a">✳</div>
+        <div class="decorative-sparkle sparkle-b">✦</div>
+      </div>
+    </section>
+
+    <section class="how-section section-wrap" id="how-it-works">
+      <div class="section-heading centered-heading">
+        <span class="section-kicker">A CLEARER WAY FORWARD</span>
+        <h2>From question to next step.</h2>
+        <p>Government processes can feel complicated. Getting started doesn't have to.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card"><div class="step-number">01</div><div class="step-visual step-search">⌕</div><h3>Tell us what you need</h3><p>Search, type or speak naturally in a language you're comfortable with.</p></div>
+        <div class="step-connector">→</div>
+        <div class="step-card"><div class="step-number">02</div><div class="step-visual step-ai">✳</div><h3>Understand your options</h3><p>Explore relevant services, requirements and source-backed guidance.</p></div>
+        <div class="step-connector">→</div>
+        <div class="step-card"><div class="step-number">03</div><div class="step-visual step-done">✓</div><h3>Take your next step</h3><p>Know what documents to prepare and where to find official application channels.</p></div>
+      </div>
+    </section>
+
+    <section class="closing-cta">
+      <div class="cta-orb">✳</div>
+      <span>YOUR NEXT STEP STARTS HERE</span>
+      <h2>Let's make things<br><em>easier together.</em></h2>
+      <p>Have a question? Your SchemeSathi assistant is ready.</p>
+      <a href="#assistant" class="cta-button">Talk to SchemeSathi <span>↗</span></a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="#home">
+      <span class="brand-mark"><svg viewBox="0 0 42 42" fill="none"><rect width="42" height="42" rx="14" fill="#2449D8"/><path d="M11 22.5 18.2 29 31 13" stroke="white" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="brand-name">scheme<span>sathi</span><small>GOVERNMENT SERVICES, SIMPLIFIED</small></span>
+    </a>
+    <p>Making government services easier to understand and access.</p>
+    <span class="footer-copy">© 2026 SchemeSathi. Independent citizen assistance platform.</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/api/client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Explore Services | SchemeSathi</title>
+    <meta name="description" content="Explore Indian government schemes, services, certificates and citizen support through SchemeSathi.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/services.css">
+</head>
+
+<body>
+
+<header class="site-header">
+    <a href="../index.html" class="brand">
+        <span class="brand-mark">S</span>
+        <span>Scheme<span class="brand-accent">Sathi</span></span>
+    </a>
+
+    <nav class="main-nav" id="mainNav">
+        <a href="../index.html">Home</a>
+        <a href="services.html" class="active">Explore Services</a>
+        <a href="assistant.html">AI Assistant</a>
+    </nav>
+
+    <div class="header-actions">
+        <a href="assistant.html" class="header-cta">Ask AI Assistant <span>↗</span></a>
+        <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation">☰</button>
+    </div>
+</header>
+
+<main>
+
+    <section class="catalogue-hero">
+        <div class="hero-content">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR GOVERNMENT SERVICES COMPANION</div>
+
+            <h1>Government services,<br><span>made simpler.</span></h1>
+
+            <p>
+                Discover government schemes, essential services and application
+                procedures. Find the information you need, without the confusion.
+            </p>
+
+            <div class="hero-actions">
+                <a href="#service-explorer" class="primary-button">Explore services <span>↓</span></a>
+                <a href="assistant.html" class="secondary-button">Talk to SchemeSathi <span>↗</span></a>
+            </div>
+
+            <div class="hero-trust">
+                <span>✦</span> Clear guidance
+                <span>✦</span> Source-aware information
+                <span>✦</span> Multilingual assistance
+            </div>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div>
+            <div class="orbit orbit-two"></div>
+            <div class="art-glow"></div>
+
+            <div class="art-card art-card-main">
+                <div class="art-icon">✦</div>
+                <div class="art-card-label">SCHEMESATHI AI</div>
+                <div class="art-card-title">How can we<br>help you today?</div>
+                <div class="art-card-line"></div>
+                <div class="art-card-line short"></div>
+                <div class="art-card-footer">
+                    <span>Smart assistance</span><span>↗</span>
+                </div>
+            </div>
+
+            <div class="floating-card floating-top">
+                <span class="floating-icon purple">⌕</span>
+                <span>Find a service</span>
+            </div>
+
+            <div class="floating-card floating-bottom">
+                <span class="floating-icon green">✓</span>
+                <span>Clear guidance</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="explorer-section" id="service-explorer">
+
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow dark-eyebrow">THE SERVICE DIRECTORY</div>
+                <h2>What are you looking for?</h2>
+                <p>Explore service categories or search for something specific.</p>
+            </div>
+            <div class="directory-count"><span class="count-dot"></span> Service discovery</div>
+        </div>
+
+        <div class="search-panel">
+            <div class="search-input-wrap">
+                <span class="search-icon">⌕</span>
+                <input type="search" id="serviceSearch"
+                    placeholder="Search schemes, certificates, pensions, scholarships..."
+                    autocomplete="off">
+                <button id="clearSearch" class="clear-search" aria-label="Clear search">×</button>
+            </div>
+            <button class="search-button" id="searchButton">Search <span>→</span></button>
+        </div>
+
+        <div class="popular-searches">
+            <span>Popular searches:</span>
+            <button data-query="scholarship">Scholarships</button>
+            <button data-query="pension">Pension</button>
+            <button data-query="aadhaar">Aadhaar</button>
+            <button data-query="certificate">Certificates</button>
+        </div>
+
+        <div class="explorer-layout">
+
+            <aside class="filter-sidebar">
+                <div class="filter-header">
+                    <h3>Filters</h3>
+                    <button id="resetFilters">Reset</button>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Government level</h4>
+
+                    <label class="filter-option">
+                        <input type="radio" name="level" value="all" checked>
+                        <span>All government services</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="radio" name="level" value="central">
+                        <span>Central government</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="radio" name="level" value="state">
+                        <span>State government</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Select state</h4>
+                    <select id="stateFilter">
+                        <option value="all">All states and UTs</option>
+                        <option value="andhra-pradesh">Andhra Pradesh</option>
+                        <option value="assam">Assam</option>
+                        <option value="bihar">Bihar</option>
+                        <option value="delhi">Delhi</option>
+                        <option value="goa">Goa</option>
+                        <option value="gujarat">Gujarat</option>
+                        <option value="haryana">Haryana</option>
+                        <option value="karnataka">Karnataka</option>
+                        <option value="kerala">Kerala</option>
+                        <option value="maharashtra">Maharashtra</option>
+                        <option value="punjab">Punjab</option>
+                        <option value="rajasthan">Rajasthan</option>
+                        <option value="tamil-nadu">Tamil Nadu</option>
+                        <option value="telangana">Telangana</option>
+                        <option value="uttar-pradesh">Uttar Pradesh</option>
+                        <option value="west-bengal">West Bengal</option>
+                    </select>
+                    <p class="filter-note">State-specific listings will appear when verified service data is connected.</p>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Categories</h4>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="identity">
+                        <span>Identity & certificates</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="education">
+                        <span>Education & scholarships</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="finance">
+                        <span>Financial assistance</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="health">
+                        <span>Health & welfare</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="employment">
+                        <span>Employment & skills</span>
+                    </label>
+
+                    <label class="filter-option">
+                        <input type="checkbox" name="category" value="business">
+                        <span>Business & agriculture</span>
+                    </label>
+                </div>
+
+                <div class="sidebar-help">
+                    <div class="help-symbol">✦</div>
+                    <h4>Not sure where to start?</h4>
+                    <p>Tell our AI assistant what you need. It can help you find the right service.</p>
+                    <a href="assistant.html">Ask SchemeSathi →</a>
+                </div>
+            </aside>
+
+            <div class="catalogue-content">
+                <div class="catalogue-toolbar">
+                    <div>
+                        <h3>Browse categories</h3>
+                        <p id="resultsCount">Explore available service categories</p>
+                    </div>
+
+                    <select id="sortSelect" aria-label="Sort categories">
+                        <option value="featured">Featured</option>
+                        <option value="az">Name: A to Z</option>
+                        <option value="za">Name: Z to A</option>
+                    </select>
+                </div>
+
+                <div class="active-filters" id="activeFilters"></div>
+
+                <div class="category-grid" id="categoryGrid">
+
+                    <a class="category-card category-purple" href="service-detail.html?category=identity" data-category="identity" data-title="Identity and certificates">
+                        <div class="category-top">
+                            <span class="category-icon">▤</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">DOCUMENTATION</div>
+                        <h3>Identity & certificates</h3>
+                        <p>Explore identity-related services, certificates and document procedures.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                    <a class="category-card category-blue" href="service-detail.html?category=education" data-category="education" data-title="Education and scholarships">
+                        <div class="category-top">
+                            <span class="category-icon">✎</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">LEARNING & GROWTH</div>
+                        <h3>Education & scholarships</h3>
+                        <p>Discover education-related services, student support and scholarship information.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                    <a class="category-card category-green" href="service-detail.html?category=finance" data-category="finance" data-title="Financial assistance">
+                        <div class="category-top">
+                            <span class="category-icon">₹</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">FINANCIAL SUPPORT</div>
+                        <h3>Financial assistance</h3>
+                        <p>Explore financial support programmes and related government services.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                    <a class="category-card category-orange" href="service-detail.html?category=health" data-category="health" data-title="Health and welfare">
+                        <div class="category-top">
+                            <span class="category-icon">♡</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">CARE & WELLBEING</div>
+                        <h3>Health & welfare</h3>
+                        <p>Find health, social welfare and citizen support service information.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                    <a class="category-card category-pink" href="service-detail.html?category=employment" data-category="employment" data-title="Employment and skills">
+                        <div class="category-top">
+                            <span class="category-icon">⌁</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">CAREER & OPPORTUNITY</div>
+                        <h3>Employment & skills</h3>
+                        <p>Explore employment, skill development and career-related services.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                    <a class="category-card category-yellow" href="service-detail.html?category=business" data-category="business" data-title="Business and agriculture">
+                        <div class="category-top">
+                            <span class="category-icon">⌂</span>
+                            <span class="category-arrow">↗</span>
+                        </div>
+                        <div class="category-tag">ENTERPRISE & FARMING</div>
+                        <h3>Business & agriculture</h3>
+                        <p>Discover business, entrepreneurship and agriculture-related services.</p>
+                        <span class="category-link">Explore category →</span>
+                    </a>
+
+                </div>
+
+                <div class="empty-state" id="emptyState" hidden>
+                    <div class="empty-icon">⌕</div>
+                    <h3>No matching categories found</h3>
+                    <p>Try another search or reset your filters.</p>
+                    <button id="emptyReset">Clear filters</button>
+                </div>
+
+                <div class="catalogue-disclaimer">
+                    <span>ⓘ</span>
+                    <p>
+                        These are discovery categories, not a verified list of currently
+                        available schemes. Specific scheme details, eligibility and
+                        application procedures will be displayed only when supported
+                        by verified source records.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="assistant-banner">
+        <div class="banner-orb">✦</div>
+        <div>
+            <div class="eyebrow">YOUR PERSONAL GOVERNMENT GUIDE</div>
+            <h2>Have a question? Just ask.</h2>
+            <p>Describe what you need in your own words. SchemeSathi can guide you towards relevant services.</p>
+        </div>
+        <a href="assistant.html" class="banner-button">Talk to AI assistant <span>↗</span></a>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <a href="../index.html" class="brand footer-brand">
+        <span class="brand-mark">S</span>
+        <span>Scheme<span class="brand-accent">Sathi</span></span>
+    </a>
+    <p>Making government services easier to understand and access.</p>
+    <span class="footer-copy">© 2026 SchemeSathi</span>
+</footer>
+
+<script src="../js/api/client.js"></script>
+<script src="../js/services.js"></script>
+
+</body>
+</html>

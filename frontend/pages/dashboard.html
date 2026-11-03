@@ -1,0 +1,385 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>My Dashboard | SchemeSathi</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+
+<div class="dashboard-shell">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="../index.html" class="brand">
+            <span class="brand-mark">S</span>
+            <span>Scheme<span class="brand-accent">Sathi</span></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-link active">
+                <span class="nav-icon">▦</span> Dashboard
+            </a>
+            <a href="services.html" class="nav-link">
+                <span class="nav-icon">⌕</span> Explore services
+            </a>
+            <a href="assistant.html" class="nav-link">
+                <span class="nav-icon">✦</span> AI assistant
+            </a>
+            <a href="#savedSection" class="nav-link">
+                <span class="nav-icon">♡</span> Saved services
+            </a>
+            <a href="#applicationsSection" class="nav-link">
+                <span class="nav-icon">▤</span> My applications
+            </a>
+        </nav>
+
+        <div class="sidebar-label account-label">ACCOUNT</div>
+
+        <nav class="sidebar-nav">
+            <a href="profile.html" class="nav-link">
+                <span class="nav-icon">♙</span> My profile
+            </a>
+            <a href="profile.html#preferences" class="nav-link">
+                <span class="nav-icon">⚙</span> Preferences
+            </a>
+        </nav>
+
+        <div class="sidebar-help">
+            <div class="help-icon">✦</div>
+            <h3>Need a little help?</h3>
+            <p>Ask SchemeSathi to help you understand government services.</p>
+            <a href="assistant.html">Start a conversation →</a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="avatar" id="sidebarAvatar">U</div>
+            <div class="sidebar-user-info">
+                <strong id="sidebarName">Citizen</strong>
+                <span>SchemeSathi account</span>
+            </div>
+            <button id="logoutButton" class="logout-button" title="Sign out">↗</button>
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+                <div>
+                    <div class="topbar-label">YOUR PERSONAL WORKSPACE</div>
+                    <div class="topbar-title">My Dashboard</div>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <a href="services.html" class="topbar-explore">Explore services <span>↗</span></a>
+
+                <button class="notification-button" id="notificationButton" aria-label="Notifications">
+                    ♧
+                    <span class="notification-dot"></span>
+                </button>
+
+                <a href="profile.html" class="topbar-avatar" id="topbarAvatar">U</a>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+
+            <section class="welcome-section">
+                <div class="welcome-copy">
+                    <div class="welcome-date" id="welcomeDate">YOUR CITIZEN DASHBOARD</div>
+                    <h1>Welcome back, <span id="welcomeName">there</span> <span class="wave">✦</span></h1>
+                    <p>Your government service journey, organised in one place.</p>
+
+                    <a href="assistant.html" class="welcome-button">
+                        <span>✦</span> Ask SchemeSathi AI <span>→</span>
+                    </a>
+                </div>
+
+                <div class="welcome-art" aria-hidden="true">
+                    <div class="welcome-art-orbit orbit-a"></div>
+                    <div class="welcome-art-orbit orbit-b"></div>
+                    <div class="welcome-art-card">
+                        <div class="welcome-art-mark">S</div>
+                        <div class="welcome-art-title">Your services.<br>Your journey.</div>
+                        <div class="welcome-art-line"></div>
+                        <div class="welcome-art-line short"></div>
+                        <div class="welcome-art-check">✓</div>
+                    </div>
+                    <div class="art-floating floating-one">✦</div>
+                    <div class="art-floating floating-two">✓</div>
+                </div>
+            </section>
+
+            <section class="quick-stats">
+                <article class="stat-card">
+                    <div class="stat-icon purple-bg">♡</div>
+                    <div class="stat-details">
+                        <span>Saved services</span>
+                        <strong id="savedCount">0</strong>
+                        <small>Your bookmarked services</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon blue-bg">▤</div>
+                    <div class="stat-details">
+                        <span>Applications tracked</span>
+                        <strong id="applicationCount">0</strong>
+                        <small>Records in your workspace</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon green-bg">⌕</div>
+                    <div class="stat-details">
+                        <span>Recently viewed</span>
+                        <strong id="recentCount">0</strong>
+                        <small>Services you've explored</small>
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-icon orange-bg">✦</div>
+                    <div class="stat-details">
+                        <span>Profile completion</span>
+                        <strong id="profileCompletion">0%</strong>
+                        <small>Based on optional profile fields</small>
+                    </div>
+                </article>
+            </section>
+
+            <div class="dashboard-grid">
+
+                <div class="dashboard-primary">
+
+                    <section class="panel" id="applicationsSection">
+                        <div class="panel-heading">
+                            <div>
+                                <div class="panel-eyebrow">KEEP THINGS ORGANISED</div>
+                                <h2>My applications</h2>
+                                <p>Keep track of application records you add to SchemeSathi.</p>
+                            </div>
+
+                            <button class="text-link" id="addApplicationButton">+ Add record</button>
+                        </div>
+
+                        <div class="applications-list" id="applicationsList">
+                            <div class="empty-dashboard">
+                                <div class="empty-dashboard-icon">▤</div>
+                                <h3>No applications tracked yet</h3>
+                                <p>Add an application record to organise your progress. SchemeSathi does not automatically know the status of applications submitted on government portals.</p>
+                                <button id="firstApplicationButton">Add an application record</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel" id="savedSection">
+                        <div class="panel-heading">
+                            <div>
+                                <div class="panel-eyebrow">YOUR SHORTLIST</div>
+                                <h2>Saved services</h2>
+                                <p>Keep useful service categories close at hand.</p>
+                            </div>
+                            <a href="services.html" class="text-link">Explore all →</a>
+                        </div>
+
+                        <div class="saved-grid" id="savedGrid">
+                            <div class="empty-dashboard compact-empty">
+                                <div class="empty-dashboard-icon">♡</div>
+                                <h3>No saved services yet</h3>
+                                <p>Explore the directory and save categories you want to revisit.</p>
+                                <a href="services.html">Explore services →</a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-heading">
+                            <div>
+                                <div class="panel-eyebrow">PICK UP WHERE YOU LEFT OFF</div>
+                                <h2>Recently viewed</h2>
+                                <p>Your recent service exploration history.</p>
+                            </div>
+                            <a href="services.html" class="text-link">Browse →</a>
+                        </div>
+
+                        <div class="recent-list" id="recentList">
+                            <div class="empty-dashboard compact-empty">
+                                <div class="empty-dashboard-icon">◷</div>
+                                <h3>No recent activity</h3>
+                                <p>Services you explore will appear here when browsing history is connected.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <aside class="dashboard-secondary">
+
+                    <section class="assistant-widget">
+                        <div class="assistant-widget-top">
+                            <span class="assistant-sparkle">✦</span>
+                            <span class="ai-status"><span></span> AI ASSISTANT</span>
+                        </div>
+                        <h2>How can I help you today?</h2>
+                        <p>Describe what you're trying to do. Let's find a starting point together.</p>
+
+                        <div class="assistant-prompts">
+                            <a href="assistant.html" data-prompt="I want to understand which government services I may be eligible for.">Find relevant services <span>→</span></a>
+                            <a href="assistant.html" data-prompt="Help me understand the documents required for a government service.">Understand documents <span>→</span></a>
+                            <a href="assistant.html" data-prompt="Explain how to correct an error in my government documents.">Document corrections <span>→</span></a>
+                        </div>
+
+                        <a href="assistant.html" class="assistant-full-button">Open AI assistant ↗</a>
+                        <small class="widget-demo-note">Live AI assistance requires backend integration.</small>
+                    </section>
+
+                    <section class="panel recommendation-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <div class="panel-eyebrow">DISCOVER MORE</div>
+                                <h2>Explore categories</h2>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-list">
+                            <a href="service-detail.html?category=identity">
+                                <span class="recommendation-icon purple-bg">▤</span>
+                                <span><strong>Identity & certificates</strong><small>Documentation services</small></span>
+                                <span class="recommendation-arrow">→</span>
+                            </a>
+
+                            <a href="service-detail.html?category=education">
+                                <span class="recommendation-icon blue-bg">✎</span>
+                                <span><strong>Education & scholarships</strong><small>Student support</small></span>
+                                <span class="recommendation-arrow">→</span>
+                            </a>
+
+                            <a href="service-detail.html?category=finance">
+                                <span class="recommendation-icon green-bg">₹</span>
+                                <span><strong>Financial assistance</strong><small>Financial support</small></span>
+                                <span class="recommendation-arrow">→</span>
+                            </a>
+
+                            <a href="service-detail.html?category=health">
+                                <span class="recommendation-icon orange-bg">♡</span>
+                                <span><strong>Health & welfare</strong><small>Citizen wellbeing</small></span>
+                                <span class="recommendation-arrow">→</span>
+                            </a>
+                        </div>
+
+                        <a href="services.html" class="all-categories-link">View all categories →</a>
+                    </section>
+
+                    <section class="panel profile-widget">
+                        <div class="panel-heading">
+                            <div>
+                                <div class="panel-eyebrow">YOUR ACCOUNT</div>
+                                <h2>Profile overview</h2>
+                            </div>
+                            <a href="profile.html" class="text-link">Edit →</a>
+                        </div>
+
+                        <div class="profile-progress">
+                            <div class="progress-circle" id="progressCircle">
+                                <span id="progressValue">0%</span>
+                            </div>
+                            <div>
+                                <strong id="profileProgressText">Complete your profile</strong>
+                                <p>Add optional details to personalise your experience.</p>
+                            </div>
+                        </div>
+
+                        <a href="profile.html" class="profile-edit-button">Manage my profile</a>
+                    </section>
+
+                    <section class="privacy-widget">
+                        <span>♧</span>
+                        <div>
+                            <strong>Your information matters</strong>
+                            <p>Only provide personal information when necessary. Never share OTPs or passwords.</p>
+                        </div>
+                    </section>
+
+                </aside>
+            </div>
+
+            <footer class="dashboard-footer">
+                <span>© 2026 SchemeSathi</span>
+                <span>Independent citizen assistance platform</span>
+                <a href="services.html">Explore government services →</a>
+            </footer>
+
+        </div>
+    </main>
+</div>
+
+<div class="modal-backdrop" id="applicationModal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-heading">
+            <div>
+                <div class="panel-eyebrow">PERSONAL WORKSPACE</div>
+                <h2 id="modalTitle">Add application record</h2>
+                <p>Record an application you want to keep track of.</p>
+            </div>
+            <button class="modal-close" id="closeModal" aria-label="Close">×</button>
+        </div>
+
+        <form id="applicationForm">
+            <div class="modal-field">
+                <label for="applicationName">Application or service name</label>
+                <input id="applicationName" name="applicationName" required maxlength="120" placeholder="e.g. Scholarship application">
+            </div>
+
+            <div class="modal-field">
+                <label for="applicationReference">Reference number (optional)</label>
+                <input id="applicationReference" name="applicationReference" maxlength="80" placeholder="Your application reference">
+            </div>
+
+            <div class="modal-field">
+                <label for="applicationStatus">Your recorded status</label>
+                <select id="applicationStatus" name="applicationStatus">
+                    <option value="Planning">Planning</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="In progress">In progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Needs attention">Needs attention</option>
+                </select>
+            </div>
+
+            <div class="modal-field">
+                <label for="applicationNotes">Notes (optional)</label>
+                <textarea id="applicationNotes" name="applicationNotes" rows="3" maxlength="500" placeholder="Add a reminder or personal note..."></textarea>
+            </div>
+
+            <p class="modal-disclaimer">This is a personal note only. It does not verify your application status with a government portal.</p>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-button" id="cancelModal">Cancel</button>
+                <button type="submit" class="save-button">Save record</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast" id="dashboardToast" role="status" aria-live="polite"></div>
+
+<script src="../js/dashboard.js"></script>
+
+</body>
+</html>
