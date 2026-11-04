@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Workspace | SchemeSathi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../../index.html" class="admin-brand">
+            <span class="brand-mark">S</span>
+            <span><strong>SchemeSathi</strong><small>ADMIN WORKSPACE</small></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="admin-nav">
+            <a class="active" href="dashboard.html"><span>▦</span> Overview</a>
+            <a href="services.html"><span>◈</span> Service catalogue</a>
+            <a href="sources.html"><span>◎</span> Source registry</a>
+            <a href="ingestion.html"><span>↧</span> Knowledge ingestion</a>
+            <a href="verification.html"><span>✓</span> Fact verification</a>
+        </nav>
+
+        <div class="sidebar-label">PLATFORM</div>
+        <nav class="admin-nav">
+            <a href="../../index.html"><span>⌂</span> View citizen portal</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="admin-user">
+                <div class="avatar">A</div>
+                <div><strong>Administrator</strong><small>Workspace preview</small></div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
+            <div class="breadcrumb">Workspace <span>/</span> Overview</div>
+            <div class="topbar-right">
+                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <div class="page-heading">
+                <div>
+                    <div class="eyebrow">PLATFORM CONTROL CENTRE</div>
+                    <h1>Good afternoon, Admin.</h1>
+                    <p>Monitor your knowledge platform, content quality and verification workflow.</p>
+                </div>
+                <div class="heading-date" id="currentDate">SchemeSathi 2.0</div>
+            </div>
+
+            <div class="notice">
+                <span class="notice-icon">ⓘ</span>
+                <div><strong>Preview workspace</strong><p>These are illustrative dashboard metrics. Live database and workflow data will appear after backend integration.</p></div>
+            </div>
+
+            <div class="section-heading">
+                <div><h2>Platform overview</h2><p>Illustrative operational indicators</p></div>
+                <span class="period-label">DEMO DATA</span>
+            </div>
+
+            <div class="metrics-grid">
+                <article class="metric-card">
+                    <div class="metric-top"><span>Registered services</span><span class="metric-icon purple">◈</span></div>
+                    <div class="metric-value">1,284</div>
+                    <div class="metric-foot">Illustrative catalogue count</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Registered sources</span><span class="metric-icon blue">◎</span></div>
+                    <div class="metric-value">346</div>
+                    <div class="metric-foot">Illustrative registry count</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Pending verification</span><span class="metric-icon amber">◷</span></div>
+                    <div class="metric-value">28</div>
+                    <div class="metric-foot">Example review queue</div>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-top"><span>Published facts</span><span class="metric-icon green">✓</span></div>
+                    <div class="metric-value">8,492</div>
+                    <div class="metric-foot">Illustrative verified facts</div>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <section class="panel workflow-panel">
+                    <div class="panel-heading">
+                        <div><h2>Knowledge workflow</h2><p>How information moves through SchemeSathi</p></div>
+                        <span class="live-dot">WORKFLOW</span>
+                    </div>
+
+                    <div class="workflow-list">
+                        <div class="workflow-step">
+                            <div class="workflow-symbol source-symbol">01</div>
+                            <div class="workflow-copy"><strong>Source discovery</strong><small>Register official government information sources.</small></div>
+                            <a href="sources.html">Open →</a>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-symbol ingest-symbol">02</div>
+                            <div class="workflow-copy"><strong>Knowledge ingestion</strong><small>Collect, extract and structure source information.</small></div>
+                            <a href="ingestion.html">Open →</a>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-symbol verify-symbol">03</div>
+                            <div class="workflow-copy"><strong>Fact verification</strong><small>Review evidence, confidence and extracted facts.</small></div>
+                            <a href="verification.html">Open →</a>
+                        </div>
+                        <div class="workflow-step">
+                            <div class="workflow-symbol publish-symbol">04</div>
+                            <div class="workflow-copy"><strong>Service publishing</strong><small>Manage service records and publication status.</small></div>
+                            <a href="services.html">Open →</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel queue-panel">
+                    <div class="panel-heading">
+                        <div><h2>Review queue</h2><p>Illustrative review priorities</p></div>
+                        <span class="queue-count">28</span>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-indicator high"></div>
+                        <div><strong>High-priority reviews</strong><small>Example: eligibility and benefit facts</small></div>
+                        <b>08</b>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-indicator medium"></div>
+                        <div><strong>Standard reviews</strong><small>Example: document and process facts</small></div>
+                        <b>14</b>
+                    </div>
+                    <div class="queue-item">
+                        <div class="queue-indicator low"></div>
+                        <div><strong>Source rechecks</strong><small>Example: changed or stale sources</small></div>
+                        <b>06</b>
+                    </div>
+                    <a class="primary-button queue-button" href="verification.html">Open verification queue <span>→</span></a>
+                </section>
+            </div>
+
+            <section class="panel quick-actions">
+                <div class="panel-heading">
+                    <div><h2>Quick actions</h2><p>Navigate to key administration tools</p></div>
+                </div>
+                <div class="action-grid">
+                    <a href="sources.html" class="action-card"><span class="action-icon">＋</span><strong>Register a source</strong><small>Add an official information source</small><span class="action-arrow">↗</span></a>
+                    <a href="ingestion.html" class="action-card"><span class="action-icon">↧</span><strong>Review ingestion</strong><small>Inspect collected documents</small><span class="action-arrow">↗</span></a>
+                    <a href="verification.html" class="action-card"><span class="action-icon">✓</span><strong>Verify facts</strong><small>Review extracted evidence</small><span class="action-arrow">↗</span></a>
+                    <a href="services.html" class="action-card"><span class="action-icon">◈</span><strong>Manage services</strong><small>Maintain the service catalogue</small><span class="action-arrow">↗</span></a>
+                </div>
+            </section>
+
+            <footer class="admin-footer">
+                <span>SchemeSathi 2.0 · Administration workspace</span>
+                <span>Illustrative data · Not connected to production</span>
+            </footer>
+        </section>
+    </main>
+</div>
+<script src="../../js/admin.js"></script>
+</body>
+</html>

@@ -354,9 +354,9 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.CheckConstraint('user_id IS NOT NULL OR guest_session_id IS NOT NULL', name=op.f('ck_conversation_sessions_conversation_has_owner')),
-    sa.ForeignKeyConstraint(['guest_session_id'], ['guest_sessions.id'], name=op.f('fk_conversation_sessions_guest_session_id_guest_sessions'), ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['guest_session_id'], ['guest_sessions.id'], name=op.f('fk_conversation_sessions_guest_session_id_guest_sessions'), ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['language_code'], ['languages.code'], name=op.f('fk_conversation_sessions_language_code_languages')),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_conversation_sessions_user_id_users'), ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], name=op.f('fk_conversation_sessions_user_id_users'), ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_conversation_sessions'))
     )
     op.create_index('ix_conversation_sessions_guest', 'conversation_sessions', ['guest_session_id'], unique=False)

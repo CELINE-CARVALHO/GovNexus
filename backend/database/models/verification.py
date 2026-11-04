@@ -19,6 +19,16 @@ from backend.database.models.common import (
     UUIDPrimaryKeyMixin,
     utc_now_naive,
 )
+from uuid import UUID
+
+from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from backend.database.base import Base
+from backend.database.models.common import (
+    TimestampMixin,
+    UUIDPrimaryKeyMixin,
+)
 
 
 class FactVerification(
@@ -175,4 +185,33 @@ class ReviewTask(
     assigned_admin: Mapped[AdminUser | None] = relationship(
         "AdminUser",
         foreign_keys=[assigned_to_admin_id],
+    )
+class FactReclassification(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "fact_reclassifications"
+
+    source_fact_id: Mapped[UUID] = mapped_column(
+        ForeignKey("source_facts.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+
+    admin_id: Mapped[UUID] = mapped_column(
+        ForeignKey("admin_users.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+
+    previous_fact_type: Mapped[str] = mapped_column(
+        String(60),
+        nullable=False,
+    )
+
+    new_fact_type: Mapped[str] = mapped_column(
+        String(60),
+        nullable=False,
+    )
+
+    reason: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
     )

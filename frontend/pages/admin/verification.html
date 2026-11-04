@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fact Verification | SchemeSathi Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <style>
+        .verify-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
+        .verify-stat{background:white;border:1px solid #ececf3;border-radius:13px;padding:16px}
+        .verify-stat small{font-size:10px;color:#85849a}
+        .verify-stat strong{display:block;font:800 24px Manrope;margin-top:7px}
+        .verify-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:20px 0 14px}
+        .verify-toolbar input,.verify-toolbar select{height:39px;border:1px solid #e8e7ef;border-radius:9px;padding:0 12px;background:white;font:11px "DM Sans";outline:none}
+        .verify-toolbar input{flex:1;max-width:350px}
+        .verify-controls{display:flex;gap:9px}
+        .fact-list{display:grid;gap:12px}
+        .fact-card{background:white;border:1px solid #ececf3;border-radius:14px;padding:19px}
+        .fact-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+        .fact-category{font-size:9px;font-weight:800;letter-spacing:.8px;color:#6b58cf;background:#f0edff;padding:6px 9px;border-radius:20px;text-transform:uppercase}
+        .fact-status{font-size:9px;font-weight:700;padding:6px 9px;border-radius:20px;background:#fff4df;color:#a87620}
+        .fact-status.approved{background:#e8f7ef;color:#27835e}
+        .fact-status.rejected{background:#fff0ef;color:#c15c56}
+        .fact-status.changes_requested{background:#edf3ff;color:#5079ba}
+        .fact-card h3{font:700 14px Manrope;margin:0 0 8px;line-height:1.5}
+        .fact-description{font-size:11px;color:#77768b;line-height:1.7;margin:0 0 15px}
+        .fact-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#fafafe;border:1px solid #f0eff6;border-radius:10px;padding:12px;margin-bottom:14px}
+        .fact-meta small{display:block;color:#9a98aa;font-size:9px;margin-bottom:5px}
+        .fact-meta strong{display:block;font-size:10px;color:#46445e;overflow-wrap:anywhere}
+        .confidence-row{display:flex;align-items:center;gap:10px;margin:13px 0}
+        .confidence-track{height:6px;flex:1;background:#efedf5;border-radius:20px;overflow:hidden}
+        .confidence-fill{height:100%;border-radius:20px;background:#6c58d4}
+        .confidence-label{font-size:10px;color:#79778d;white-space:nowrap}
+        .evidence-box{padding:12px;background:#f7f6fc;border-left:3px solid #8875df;border-radius:0 9px 9px 0;margin:13px 0}
+        .evidence-box small{display:block;color:#817e98;font-size:9px;font-weight:800;letter-spacing:.6px;margin-bottom:5px}
+        .evidence-box p{margin:0;font-size:10px;color:#5c5a70;line-height:1.6}
+        .fact-source{font-size:10px;color:#8d8ba0;margin:10px 0}
+        .fact-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px;padding-top:13px;border-top:1px solid #f0eff5}
+        .fact-action{border:0;border-radius:8px;padding:9px 12px;font:700 10px "DM Sans";cursor:pointer}
+        .fact-action.approve{background:#e7f7ef;color:#25845e}
+        .fact-action.reject{background:#fff0ef;color:#c15b56}
+        .fact-action.changes{background:#edf3ff;color:#4d77b6}
+        .fact-action.details{background:#f1eff8;color:#6b58c9}
+        .empty-facts{text-align:center;padding:40px 15px;color:#9694a7;font-size:11px}
+        .empty-facts strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
+        .verify-note{font-size:10px;color:#9795a9;line-height:1.6;margin-top:13px}
+        .review-modal-backdrop{position:fixed;inset:0;background:#17152d80;z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+        .review-modal-backdrop.open{display:flex}
+        .review-modal{width:100%;max-width:560px;max-height:90vh;overflow:auto;background:white;border-radius:17px;padding:23px}
+        .review-modal h2{font:800 18px Manrope;margin:0 0 7px}
+        .review-modal>p{font-size:11px;color:#88869b;line-height:1.5;margin:0 0 18px}
+        .review-modal label{display:block;font-size:10px;font-weight:700;color:#56546c;margin-bottom:7px}
+        .review-modal textarea{width:100%;min-height:110px;border:1px solid #e7e6ef;border-radius:9px;padding:12px;font:11px "DM Sans";resize:vertical;outline:none}
+        .review-modal textarea:focus{border-color:#8876e3}
+        .review-modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:15px}
+        .review-modal-actions button{border:0;border-radius:8px;padding:10px 15px;font:700 10px "DM Sans";cursor:pointer}
+        .review-cancel{background:#f0eff6;color:#66647b}
+        .review-confirm{background:#6955d9;color:white}
+        .review-toast{position:fixed;right:22px;bottom:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size:11px;z-index:90;display:none}
+        .review-toast.show{display:block}
+        @media(max-width:800px){.verify-stats{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:620px){.verify-toolbar{align-items:stretch;flex-direction:column}.verify-toolbar input{max-width:none}.verify-controls{flex-wrap:wrap}.fact-meta{grid-template-columns:1fr 1fr}.fact-card{padding:14px}}
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../../index.html" class="admin-brand">
+            <span class="brand-mark">S</span>
+            <span><strong>SchemeSathi</strong><small>ADMIN WORKSPACE</small></span>
+        </a>
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html"><span>▦</span> Overview</a>
+            <a href="services.html"><span>◈</span> Service catalogue</a>
+            <a href="sources.html"><span>◎</span> Source registry</a>
+            <a href="ingestion.html"><span>↧</span> Knowledge ingestion</a>
+            <a class="active" href="verification.html"><span>✓</span> Fact verification</a>
+        </nav>
+        <div class="sidebar-label">PLATFORM</div>
+        <nav class="admin-nav">
+            <a href="../../index.html"><span>⌂</span> View citizen portal</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
+            <div class="breadcrumb">Workspace <span>/</span> Fact verification</div>
+            <div class="topbar-right">
+                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <div class="page-heading">
+                <div>
+                    <div class="eyebrow">EVIDENCE AND QUALITY CONTROL</div>
+                    <h1>Fact verification</h1>
+                    <p>Review extracted facts and their supporting evidence before they can be trusted.</p>
+                </div>
+                <div class="heading-date">REVIEW WORKSPACE</div>
+            </div>
+
+            <div class="notice">
+                <span class="notice-icon">ⓘ</span>
+                <div><strong>Verification is not automatic</strong><p>AI confidence is only a review signal. It does not establish that a government fact is true. Review the original source and evidence before making a decision.</p></div>
+            </div>
+
+            <div class="verify-stats">
+                <div class="verify-stat"><small>Total review records</small><strong id="totalFacts">0</strong></div>
+                <div class="verify-stat"><small>Awaiting review</small><strong id="pendingFacts">0</strong></div>
+                <div class="verify-stat"><small>Approved</small><strong id="approvedFacts">0</strong></div>
+                <div class="verify-stat"><small>Rejected / changes</small><strong id="otherFacts">0</strong></div>
+            </div>
+
+            <div class="verify-toolbar">
+                <input id="factSearch" type="search" placeholder="Search facts, services or sources...">
+                <div class="verify-controls">
+                    <select id="statusFilter">
+                        <option value="all">All statuses</option>
+                        <option value="pending">Pending review</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="changes_requested">Changes requested</option>
+                    </select>
+                    <select id="categoryFilter">
+                        <option value="all">All categories</option>
+                        <option value="eligibility">Eligibility</option>
+                        <option value="benefit">Benefits</option>
+                        <option value="document">Documents</option>
+                        <option value="procedure">Procedure</option>
+                        <option value="fee">Fees</option>
+                        <option value="deadline">Deadline</option>
+                    </select>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><h2>Fact review queue</h2><p>Sample records demonstrate the review interface; they are not real government facts.</p></div>
+                    <span class="period-label" id="factResultCount">0 RECORDS</span>
+                </div>
+                <div class="fact-list" id="factList"></div>
+                <div class="empty-facts" id="emptyFacts">
+                    <strong>No facts in this view</strong>
+                    There are no matching review records.
+                </div>
+            </section>
+
+            <p class="verify-note">Preview mode: review decisions are stored locally in this browser. Approval here does not publish a fact, establish legal authority or update the production knowledge base. Actual verification must retain reviewer identity, timestamp, source snapshot and evidence location.</p>
+        </section>
+    </main>
+</div>
+
+<div class="review-modal-backdrop" id="reviewModal">
+    <form class="review-modal" id="reviewForm">
+        <h2 id="reviewTitle">Review fact</h2>
+        <p id="reviewDescription">Add a review note to record the reason for your decision.</p>
+        <label for="reviewNote">Reviewer note *</label>
+        <textarea id="reviewNote" required maxlength="1500" placeholder="Explain the evidence reviewed and why this decision is appropriate..."></textarea>
+        <div class="review-modal-actions">
+            <button type="button" class="review-cancel" id="cancelReview">Cancel</button>
+            <button type="submit" class="review-confirm" id="confirmReview">Confirm decision</button>
+        </div>
+    </form>
+</div>
+<div class="review-toast" id="reviewToast"></div>
+
+<script src="../../js/admin.js"></script>
+<script src="../../js/verification.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 ﻿from backend.database.models.language import Language
+from backend.database.models.verification import FactReclassification
 
 from backend.database.models.department import (
     Department,

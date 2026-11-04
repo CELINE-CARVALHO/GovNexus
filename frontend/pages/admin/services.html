@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Catalogue | SchemeSathi Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <style>
+        .catalog-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
+        .catalog-stat{background:#fff;border:1px solid #ececf3;border-radius:13px;padding:16px}
+        .catalog-stat small{font-size:10px;color:#85849a}
+        .catalog-stat strong{display:block;font:800 24px Manrope;margin-top:7px}
+        .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 14px}
+        .catalog-search{flex:1;max-width:350px}
+        .catalog-search input,.catalog-toolbar select{height:40px;border:1px solid #e8e7ef;border-radius:9px;padding:0 12px;background:white;font:11px "DM Sans";outline:none;width:100%}
+        .catalog-filters{display:flex;gap:9px}
+        .catalog-button{border:0;border-radius:9px;padding:11px 15px;background:#6955d9;color:white;font:700 10px "DM Sans";cursor:pointer;white-space:nowrap}
+        .catalog-button.secondary{background:#f0edff;color:#6551cc}
+        .catalog-table-wrap{overflow-x:auto}
+        .catalog-table{width:100%;border-collapse:collapse;min-width:900px}
+        .catalog-table th{text-align:left;color:#9392a5;font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:13px 11px;border-bottom:1px solid #eeeef4}
+        .catalog-table td{padding:14px 11px;border-bottom:1px solid #f0f0f5;font-size:10px;vertical-align:middle}
+        .catalog-table tr:last-child td{border-bottom:0}
+        .service-name{font-weight:700;font-size:11px;color:#29283f;display:block}
+        .service-code{font-size:9px;color:#9997aa;display:block;margin-top:4px}
+        .service-department{display:block;font-weight:600}
+        .service-jurisdiction{display:block;color:#9694a7;margin-top:4px;font-size:9px}
+        .category-pill{display:inline-block;background:#f0edff;color:#6955d9;border-radius:20px;padding:6px 8px;font-size:9px;font-weight:700}
+        .publication-status{display:inline-block;border-radius:20px;padding:6px 9px;font-size:9px;font-weight:700;white-space:nowrap}
+        .publication-status.draft{background:#f0eff5;color:#77758a}
+        .publication-status.in_review{background:#fff4df;color:#a87620}
+        .publication-status.published{background:#e8f7ef;color:#27835e}
+        .publication-status.archived{background:#edf0f5;color:#747f91}
+        .catalog-row-actions{display:flex;gap:6px}
+        .catalog-row-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:6px 8px;font-size:9px;color:#6b58cb;cursor:pointer}
+        .catalog-row-actions button.delete{color:#c35d5d}
+        .catalog-empty{text-align:center;padding:40px 15px;color:#9694a7;font-size:11px}
+        .catalog-empty strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
+        .catalog-modal-backdrop{position:fixed;inset:0;background:#17152d80;z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
+        .catalog-modal-backdrop.open{display:flex}
+        .catalog-modal{width:100%;max-width:680px;max-height:90vh;overflow:auto;background:white;border-radius:17px;padding:24px}
+        .catalog-modal-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+        .catalog-modal-heading h2{font:800 18px Manrope;margin:0}
+        .catalog-close{border:0;background:#f1f0f6;border-radius:8px;width:31px;height:31px;cursor:pointer;font-size:18px}
+        .catalog-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .catalog-field{display:grid;gap:7px}
+        .catalog-field.full{grid-column:1/-1}
+        .catalog-field label{font-size:10px;font-weight:700;color:#56546c}
+        .catalog-field input,.catalog-field select,.catalog-field textarea{width:100%;border:1px solid #e7e6ef;border-radius:9px;padding:11px;font:11px "DM Sans";outline:none;background:white;color:#29283f}
+        .catalog-field input:focus,.catalog-field select:focus,.catalog-field textarea:focus{border-color:#8876e3;box-shadow:0 0 0 3px #8876e31a}
+        .catalog-field textarea{min-height:85px;resize:vertical}
+        .catalog-form-note{font-size:10px;color:#9997aa;line-height:1.6;margin-top:13px}
+        .catalog-modal-footer{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+        .catalog-modal-footer button{border:0;border-radius:8px;padding:10px 14px;font:700 10px "DM Sans";cursor:pointer}
+        .catalog-cancel{background:#f0eff6;color:#66647b}
+        .catalog-save{background:#6955d9;color:white}
+        .catalog-toast{position:fixed;right:22px;bottom:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size:11px;z-index:90;display:none}
+        .catalog-toast.show{display:block}
+        @media(max-width:800px){.catalog-stats{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:620px){.catalog-toolbar{align-items:stretch;flex-direction:column}.catalog-search{max-width:none}.catalog-filters{flex-wrap:wrap}.catalog-filters select{flex:1;min-width:120px}.catalog-form-grid{grid-template-columns:1fr}.catalog-field.full{grid-column:auto}.catalog-modal{padding:17px}}
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../../index.html" class="admin-brand">
+            <span class="brand-mark">S</span>
+            <span><strong>SchemeSathi</strong><small>ADMIN WORKSPACE</small></span>
+        </a>
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html"><span>▦</span> Overview</a>
+            <a class="active" href="services.html"><span>◈</span> Service catalogue</a>
+            <a href="sources.html"><span>◎</span> Source registry</a>
+            <a href="ingestion.html"><span>↧</span> Knowledge ingestion</a>
+            <a href="verification.html"><span>✓</span> Fact verification</a>
+        </nav>
+        <div class="sidebar-label">PLATFORM</div>
+        <nav class="admin-nav">
+            <a href="../../index.html"><span>⌂</span> View citizen portal</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
+            <div class="breadcrumb">Workspace <span>/</span> Service catalogue</div>
+            <div class="topbar-right">
+                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <div class="page-heading">
+                <div>
+                    <div class="eyebrow">GOVERNMENT SERVICE MANAGEMENT</div>
+                    <h1>Service catalogue</h1>
+                    <p>Manage service records, classifications and publication workflow.</p>
+                </div>
+                <button class="catalog-button" id="addServiceBtn">＋ Add service</button>
+            </div>
+
+            <div class="notice">
+                <span class="notice-icon">ⓘ</span>
+                <div><strong>Publication governance</strong><p>Only services with reviewed facts, valid sources and approved translations should eventually be published. This preview does not publish records to the citizen portal.</p></div>
+            </div>
+
+            <div class="catalog-stats">
+                <div class="catalog-stat"><small>Total service records</small><strong id="totalServices">0</strong></div>
+                <div class="catalog-stat"><small>Draft services</small><strong id="draftServices">0</strong></div>
+                <div class="catalog-stat"><small>In review</small><strong id="reviewServices">0</strong></div>
+                <div class="catalog-stat"><small>Published in preview</small><strong id="publishedServices">0</strong></div>
+            </div>
+
+            <div class="catalog-toolbar">
+                <div class="catalog-search"><input id="serviceSearch" type="search" placeholder="Search service, code or department..."></div>
+                <div class="catalog-filters">
+                    <select id="categoryFilter">
+                        <option value="all">All categories</option>
+                        <option value="Identity & Certificates">Identity & Certificates</option>
+                        <option value="Education & Scholarships">Education & Scholarships</option>
+                        <option value="Health & Welfare">Health & Welfare</option>
+                        <option value="Financial Assistance">Financial Assistance</option>
+                        <option value="Employment">Employment</option>
+                        <option value="Business & Agriculture">Business & Agriculture</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="all">All statuses</option>
+                        <option value="draft">Draft</option>
+                        <option value="in_review">In review</option>
+                        <option value="published">Published</option>
+                        <option value="archived">Archived</option>
+                    </select>
+                    <button class="catalog-button secondary" id="exportServicesBtn">Export CSV ↓</button>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><h2>Registered services</h2><p>Service records stored in this browser during preview.</p></div>
+                    <span class="period-label" id="serviceResultCount">0 RECORDS</span>
+                </div>
+                <div class="catalog-table-wrap">
+                    <table class="catalog-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th><th>Category</th><th>Department</th><th>Jurisdiction</th><th>Status</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="serviceTableBody"></tbody>
+                    </table>
+                    <div class="catalog-empty" id="serviceEmpty">
+                        <strong>No services registered yet</strong>
+                        Add a service record to start building the catalogue.
+                    </div>
+                </div>
+            </section>
+
+            <p class="catalog-form-note">Preview mode: records are stored locally in this browser. No official eligibility, benefit, fee or procedure information is generated by this screen. Service publication requires backend validation and a complete evidence review.</p>
+        </section>
+    </main>
+</div>
+
+<div class="catalog-modal-backdrop" id="serviceModal">
+    <form class="catalog-modal" id="serviceForm">
+        <div class="catalog-modal-heading">
+            <h2 id="serviceModalTitle">Add service record</h2>
+            <button type="button" class="catalog-close" id="closeServiceModal">×</button>
+        </div>
+        <input type="hidden" id="serviceId">
+        <div class="catalog-form-grid">
+            <div class="catalog-field full">
+                <label for="serviceName">Service name *</label>
+                <input id="serviceName" required maxlength="200" placeholder="Enter the official service name">
+            </div>
+            <div class="catalog-field">
+                <label for="serviceCode">Unique service code *</label>
+                <input id="serviceCode" required maxlength="60" placeholder="e.g. KA-IDENTITY-001">
+            </div>
+            <div class="catalog-field">
+                <label for="serviceCategory">Category *</label>
+                <select id="serviceCategory" required>
+                    <option value="">Select category</option>
+                    <option>Identity & Certificates</option>
+                    <option>Education & Scholarships</option>
+                    <option>Health & Welfare</option>
+                    <option>Financial Assistance</option>
+                    <option>Employment</option>
+                    <option>Business & Agriculture</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="catalog-field">
+                <label for="departmentName">Department / ministry *</label>
+                <input id="departmentName" required maxlength="180" placeholder="Official department name">
+            </div>
+            <div class="catalog-field">
+                <label for="serviceJurisdiction">Jurisdiction *</label>
+                <select id="serviceJurisdiction" required>
+                    <option value="">Select jurisdiction</option>
+                    <option>Central Government</option>
+                    <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
+                    <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+                    <option>Goa</option><option>Gujarat</option><option>Haryana</option>
+                    <option>Himachal Pradesh</option><option>Jharkhand</option>
+                    <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option>
+                    <option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+                    <option>Mizoram</option><option>Nagaland</option><option>Odisha</option>
+                    <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option>
+                    <option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option>
+                    <option>Uttar Pradesh</option><option>Uttarakhand</option>
+                    <option>West Bengal</option><option>Other / Union Territory</option>
+                </select>
+            </div>
+            <div class="catalog-field">
+                <label for="serviceStatus">Publication status</label>
+                <select id="serviceStatus">
+                    <option value="draft">Draft</option>
+                    <option value="in_review">In review</option>
+                    <option value="published">Published (preview only)</option>
+                    <option value="archived">Archived</option>
+                </select>
+            </div>
+            <div class="catalog-field full">
+                <label for="serviceDescription">Short description</label>
+                <textarea id="serviceDescription" maxlength="1500" placeholder="Enter a concise description supported by an official source..."></textarea>
+            </div>
+            <div class="catalog-field full">
+                <label for="serviceSourceUrl">Official source URL</label>
+                <input id="serviceSourceUrl" type="url" placeholder="https://...">
+            </div>
+        </div>
+        <p class="catalog-form-note">Use an official source URL where available. This form does not validate source authority or verify service details.</p>
+        <div class="catalog-modal-footer">
+            <button type="button" class="catalog-cancel" id="cancelServiceModal">Cancel</button>
+            <button type="submit" class="catalog-save">Save service</button>
+        </div>
+    </form>
+</div>
+
+<div class="catalog-toast" id="catalogToast"></div>
+<script src="../../js/admin.js"></script>
+<script src="../../js/admin-services.js"></script>
+</body>
+</html>

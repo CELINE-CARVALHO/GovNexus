@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Ingestion | SchemeSathi Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <style>
+        .ingest-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:23px}
+        .ingest-stat{background:#fff;border:1px solid #ececf3;border-radius:13px;padding:16px}
+        .ingest-stat small{font-size:10px;color:#85849a}
+        .ingest-stat strong{display:block;font:800 24px Manrope;margin-top:7px}
+        .upload-zone{border:1.5px dashed #c9c3eb;border-radius:16px;background:linear-gradient(135deg,#faf9ff,#f5f3ff);padding:34px 20px;text-align:center;transition:.2s}
+        .upload-zone.dragover{border-color:#6955d9;background:#efecff;transform:scale(1.005)}
+        .upload-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#ebe7ff;color:#6955d9;font-size:26px;margin:0 auto 13px}
+        .upload-zone h2{font:800 17px Manrope;margin:0 0 7px}
+        .upload-zone p{font-size:11px;color:#89879c;margin:0 0 16px}
+        .upload-button{display:inline-flex;background:#6955d9;color:white;border:0;border-radius:9px;padding:11px 17px;font:700 11px "DM Sans";cursor:pointer}
+        .upload-hint{display:block;margin-top:13px;color:#a09eb0;font-size:9px}
+        .ingest-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:23px 0 14px}
+        .ingest-toolbar h2{font:800 16px Manrope;margin:0}
+        .ingest-toolbar p{font-size:10px;color:#9391a5;margin:5px 0 0}
+        .ingest-controls{display:flex;gap:9px}
+        .ingest-controls input,.ingest-controls select{height:38px;border:1px solid #e8e7ef;border-radius:9px;background:#fff;padding:0 11px;font:11px "DM Sans";outline:none}
+        .ingest-controls input{width:190px}
+        .ingest-controls button{border:1px solid #ecebf3;background:#fff;color:#6c58ce;border-radius:9px;padding:0 12px;font:700 10px "DM Sans";cursor:pointer}
+        .document-list{display:grid;gap:10px}
+        .document-row{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #efeff4;border-radius:12px;background:white}
+        .file-icon{width:40px;height:42px;border-radius:10px;background:#fff0ee;color:#ce655e;display:grid;place-items:center;font-size:10px;font-weight:800;flex-shrink:0}
+        .file-icon.doc{background:#edf3ff;color:#5482c1}
+        .file-icon.text{background:#eaf8f1;color:#359171}
+        .file-main{flex:1;min-width:0}
+        .file-main strong{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .file-main small{display:block;color:#9997aa;font-size:9px;margin-top:5px}
+        .file-status{display:inline-flex;padding:6px 9px;border-radius:20px;background:#f0edff;color:#6955d9;font-size:9px;font-weight:700;white-space:nowrap}
+        .file-status.error{background:#fff0ef;color:#c15c56}
+        .file-status.uploaded{background:#e8f7ef;color:#27835e}
+        .file-actions button{border:1px solid #ecebf3;background:white;color:#a05c5c;border-radius:7px;padding:7px 9px;font-size:10px;cursor:pointer}
+        .empty-ingest{text-align:center;padding:34px 15px;color:#9694a7;font-size:11px}
+        .empty-ingest strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
+        .pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
+        .pipeline-step{border:1px solid #eeeef4;border-radius:12px;padding:15px;position:relative}
+        .pipeline-number{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#f0edff;color:#6955d9;font-size:10px;font-weight:800;margin-bottom:11px}
+        .pipeline-step strong{display:block;font-size:11px}
+        .pipeline-step small{display:block;color:#9997aa;font-size:9px;line-height:1.5;margin-top:5px}
+        .pipeline-note{font-size:10px;color:#9896a9;line-height:1.6;margin-top:14px}
+        .ingest-toast{position:fixed;bottom:22px;right:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size:11px;z-index:90;display:none}
+        .ingest-toast.show{display:block}
+        .hidden-input{display:none}
+        @media(max-width:950px){.pipeline-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:800px){.ingest-stats{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:620px){.ingest-toolbar{align-items:stretch;flex-direction:column}.ingest-controls{flex-wrap:wrap}.ingest-controls input{flex:1;width:100%}.document-row{flex-wrap:wrap}.file-main{min-width:calc(100% - 60px)}.file-status{margin-left:53px}.pipeline-grid{grid-template-columns:1fr 1fr}}
+    </style>
+</head>
+<body>
+<div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <a href="../../index.html" class="admin-brand">
+            <span class="brand-mark">S</span>
+            <span><strong>SchemeSathi</strong><small>ADMIN WORKSPACE</small></span>
+        </a>
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html"><span>▦</span> Overview</a>
+            <a href="services.html"><span>◈</span> Service catalogue</a>
+            <a href="sources.html"><span>◎</span> Source registry</a>
+            <a class="active" href="ingestion.html"><span>↧</span> Knowledge ingestion</a>
+            <a href="verification.html"><span>✓</span> Fact verification</a>
+        </nav>
+        <div class="sidebar-label">PLATFORM</div>
+        <nav class="admin-nav">
+            <a href="../../index.html"><span>⌂</span> View citizen portal</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
+            <div class="breadcrumb">Workspace <span>/</span> Knowledge ingestion</div>
+            <div class="topbar-right">
+                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
+            </div>
+        </header>
+
+        <section class="admin-content">
+            <div class="page-heading">
+                <div>
+                    <div class="eyebrow">DOCUMENT PROCESSING CENTRE</div>
+                    <h1>Knowledge ingestion</h1>
+                    <p>Collect government documents and prepare them for structured knowledge extraction.</p>
+                </div>
+                <div class="heading-date">INGESTION WORKSPACE</div>
+            </div>
+
+            <div class="notice">
+                <span class="notice-icon">ⓘ</span>
+                <div><strong>Local preview mode</strong><p>Selected files are not uploaded to a server or processed by AI yet. This screen currently manages a browser-side upload queue only.</p></div>
+            </div>
+
+            <div class="ingest-stats">
+                <div class="ingest-stat"><small>Files selected</small><strong id="selectedCount">0</strong></div>
+                <div class="ingest-stat"><small>PDF documents</small><strong id="pdfCount">0</strong></div>
+                <div class="ingest-stat"><small>Other documents</small><strong id="otherCount">0</strong></div>
+                <div class="ingest-stat"><small>Ready for integration</small><strong id="readyCount">0</strong></div>
+            </div>
+
+            <section class="upload-zone" id="uploadZone">
+                <div class="upload-icon">↥</div>
+                <h2>Upload government documents</h2>
+                <p>Drag and drop files here, or browse your computer.</p>
+                <label class="upload-button" for="documentInput">Choose documents</label>
+                <input class="hidden-input" id="documentInput" type="file" multiple accept=".pdf,.docx,.txt,.md,.csv">
+                <span class="upload-hint">Supported formats: PDF, DOCX, TXT, MD, CSV · Maximum 20 MB per file</span>
+            </section>
+
+            <div class="ingest-toolbar">
+                <div><h2>Document queue</h2><p>Review selected files before backend integration.</p></div>
+                <div class="ingest-controls">
+                    <input id="documentSearch" type="search" placeholder="Search documents...">
+                    <select id="documentFilter">
+                        <option value="all">All files</option>
+                        <option value="pdf">PDF</option>
+                        <option value="docx">DOCX</option>
+                        <option value="other">Other formats</option>
+                    </select>
+                    <button id="clearQueue">Clear queue</button>
+                </div>
+            </div>
+
+            <section class="panel">
+                <div class="panel-heading">
+                    <div><h2>Selected documents</h2><p>Files remain in the current browser session.</p></div>
+                    <span class="period-label" id="queueCount">0 FILES</span>
+                </div>
+                <div class="document-list" id="documentList"></div>
+                <div class="empty-ingest" id="emptyQueue">
+                    <strong>Your document queue is empty</strong>
+                    Select one or more government documents to begin.
+                </div>
+            </section>
+
+            <section class="panel" style="margin-top:20px">
+                <div class="panel-heading">
+                    <div><h2>Knowledge processing pipeline</h2><p>Planned processing stages for the connected backend.</p></div>
+                    <span class="period-label">PIPELINE DESIGN</span>
+                </div>
+                <div class="pipeline-grid">
+                    <div class="pipeline-step"><div class="pipeline-number">01</div><strong>Document intake</strong><small>Receive files and record source metadata.</small></div>
+                    <div class="pipeline-step"><div class="pipeline-number">02</div><strong>Text extraction</strong><small>Extract text using PDF, DOCX and text parsers; OCR for scans.</small></div>
+                    <div class="pipeline-step"><div class="pipeline-number">03</div><strong>Fact extraction</strong><small>Identify scheme names, eligibility, benefits, documents and procedures.</small></div>
+                    <div class="pipeline-step"><div class="pipeline-number">04</div><strong>Verification queue</strong><small>Attach evidence and send extracted facts for review.</small></div>
+                </div>
+                <p class="pipeline-note">The pipeline is a design preview, not a running process. No extraction, OCR, AI analysis or verification is performed in this browser-only screen.</p>
+            </section>
+        </section>
+    </main>
+</div>
+<div class="ingest-toast" id="ingestToast"></div>
+<script src="../../js/admin.js"></script>
+<script src="../../js/ingestion.js"></script>
+</body>
+</html>

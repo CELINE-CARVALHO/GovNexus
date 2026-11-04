@@ -48,12 +48,12 @@ class ConversationSession(
     )
 
     user_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=True,
     )
 
     guest_session_id: Mapped[UUID | None] = mapped_column(
-        ForeignKey("guest_sessions.id", ondelete="SET NULL"),
+        ForeignKey("guest_sessions.id", ondelete="CASCADE"),
         nullable=True,
     )
 
