@@ -1,5 +1,5 @@
 ﻿from backend.database.models.language import Language
-from backend.database.models.verification import FactReclassification
+from backend.database.models.verification import FactDuplicateCandidate, FactReclassification
 
 from backend.database.models.department import (
     Department,
@@ -113,6 +113,8 @@ __all__ = [
     "AuditLog",
     "FactVerification",
     "ReviewTask",
+    "FactDuplicateCandidate",
+    "FactReclassification",
     "User",
     "UserProfile",
     "GuestSession",

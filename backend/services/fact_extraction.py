@@ -3,19 +3,34 @@ from __future__ import annotations
 
 import hashlib
 import re
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from backend.database.models.source_fact import (
     SourceFact,
     SourceSnapshot,
 )
-from backend.database.models.verification import ReviewTask
+from backend.database.models.verification import FactDuplicateCandidate, ReviewTask
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+ALLOWED_FACT_TYPES = {
+    "service_information",
+    "application_process",
+    "eligibility",
+    "required_document",
+    "fee",
+    "deadline",
+    "contact_information",
+    "location",
+    "technical_information",
+    "other",
+}
 
 # Navigation, interface and generic website text is not useful
 # evidence of a government service requirement.
@@ -54,14 +69,14 @@ FACT_PATTERNS = [
         ),
     ),
     (
-        "fee_or_amount",
+        "fee",
         re.compile(
             r"(?:₹|Rs\.?|INR)\s*[\d,]+(?:\.\d+)?",
             re.IGNORECASE,
         ),
     ),
     (
-        "deadline_or_date",
+        "deadline",
         re.compile(
             r"\b(last date to apply|application deadline|"
             r"applications close|valid until|valid till|"
@@ -78,19 +93,19 @@ FACT_PATTERNS = [
             re.IGNORECASE,
         ),
     ),
-        (
-            "application_process",
-            re.compile(
-                r"\b(mandatory to (apply|avail|access|receive)|"
-                r"required to apply|must apply|"
-                r"apply through|submit an application|"
-                r"registration is mandatory|"
-                r"register before applying|"
-                r"login with .* to apply|"
-                r"steps to apply)\b",
-                re.IGNORECASE,
-            ),
+    (
+        "application_process",
+        re.compile(
+            r"\b(mandatory to (apply|avail|access|receive)|"
+            r"required to apply|must apply|"
+            r"apply through|submit an application|"
+            r"registration is mandatory|"
+            r"register before applying|"
+            r"login with .* to apply|"
+            r"steps to apply)\b",
+            re.IGNORECASE,
         ),
+    ),
     (
         "service_information",
         re.compile(
@@ -105,6 +120,150 @@ FACT_PATTERNS = [
 ]
 
 
+class ExtractedFactPayload(BaseModel):
+    source_snapshot_id: str
+    fact_key: str = Field(min_length=8, max_length=200)
+    fact_type: str = Field(min_length=2, max_length=60)
+    value: dict = Field(default_factory=dict)
+    language: str = Field(default="en", min_length=2, max_length=10)
+    evidence_locator: dict = Field(default_factory=dict)
+    extraction_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    extraction_status: str = Field(default="pending_review")
+
+    @field_validator("fact_type")
+    @classmethod
+    def validate_fact_type(cls, value: str) -> str:
+        fact_type = value.strip().lower()
+        if fact_type not in ALLOWED_FACT_TYPES:
+            raise ValueError(
+                "Unsupported fact type. "
+                f"Allowed values: {sorted(ALLOWED_FACT_TYPES)}"
+            )
+        return fact_type
+
+    @field_validator("value")
+    @classmethod
+    def validate_value(cls, value: dict) -> dict:
+        if not isinstance(value, dict):
+            raise ValueError("Fact value must be a dictionary.")
+        if not value.get("text") or not str(value["text"]).strip():
+            raise ValueError("Fact text is required.")
+        return value
+
+    @field_validator("evidence_locator")
+    @classmethod
+    def validate_evidence_locator(cls, value: dict) -> dict:
+        if not isinstance(value, dict):
+            raise ValueError("Evidence locator must be a dictionary.")
+        if not value.get("quoted_text"):
+            raise ValueError("Evidence excerpt is required.")
+        return value
+
+
+def normalize_fact_text(sentence: str) -> str:
+    return re.sub(r"\s+", " ", sentence.strip().lower())
+
+
+def build_fact_key(fact_type: str, sentence: str) -> str:
+    normalized = normalize_fact_text(sentence)
+    digest = hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
+    return f"{fact_type}:{digest}"
+
+
+def find_existing_fact(db: Session, fact_key: str) -> SourceFact | None:
+    return db.query(SourceFact).filter(SourceFact.fact_key == fact_key).first()
+
+
+def validate_extracted_fact(fact_data: dict, source_text: str) -> dict:
+    if not source_text or not source_text.strip():
+        raise ValueError("Source content is empty, so no fact can be validated.")
+
+    payload = ExtractedFactPayload.model_validate(fact_data)
+    quoted = str(payload.evidence_locator.get("quoted_text", "")).strip()
+    if quoted not in source_text:
+        raise ValueError("Evidence excerpt is missing from the source snapshot text.")
+
+    normalized_text = normalize_fact_text(str(payload.value.get("text", "")))
+    if len(normalized_text) < 8:
+        raise ValueError("Fact text is incomplete or truncated.")
+    if normalized_text in {"", "null", "none"}:
+        raise ValueError("Fact text is not usable.")
+
+    return payload.model_dump()
+
+
+def identify_duplicate_reason(left: str, right: str) -> tuple[str, float] | None:
+    left_text = normalize_fact_text(left)
+    right_text = normalize_fact_text(right)
+
+    if left_text == right_text:
+        return ("exact_duplicate", 1.0)
+
+    similarity = SequenceMatcher(None, left_text, right_text).ratio()
+    if similarity >= 0.96:
+        return ("near_duplicate", similarity)
+    if similarity >= 0.88:
+        return ("repeated_across_snapshots", similarity)
+    return None
+
+
+def create_duplicate_suggestion(
+    db: Session,
+    source_fact: SourceFact,
+    duplicate_fact: SourceFact,
+    reason: str,
+    similarity: float,
+) -> None:
+    existing = (
+        db.query(FactDuplicateCandidate)
+        .filter(
+            FactDuplicateCandidate.source_fact_id == source_fact.id,
+            FactDuplicateCandidate.duplicate_fact_id == duplicate_fact.id,
+            FactDuplicateCandidate.reason == reason,
+        )
+        .first()
+    )
+    if existing:
+        return
+
+    db.add(
+        FactDuplicateCandidate(
+            source_fact_id=source_fact.id,
+            duplicate_fact_id=duplicate_fact.id,
+            similarity_score=round(similarity, 4),
+            reason=reason,
+            review_status="pending",
+        )
+    )
+
+
+def detect_duplicate_candidates(db: Session, fact: SourceFact) -> list[str]:
+    reasons: list[str] = []
+    if not fact.value_data or not fact.value_data.get("text"):
+        return reasons
+
+    candidates = (
+        db.query(SourceFact)
+        .filter(SourceFact.id != fact.id, SourceFact.fact_type == fact.fact_type)
+        .all()
+    )
+
+    for candidate in candidates:
+        if not candidate.value_data or not candidate.value_data.get("text"):
+            continue
+        duplicate = identify_duplicate_reason(
+            str(fact.value_data["text"]),
+            str(candidate.value_data["text"]),
+        )
+        if not duplicate:
+            continue
+        reason, similarity = duplicate
+        create_duplicate_suggestion(db, fact, candidate, reason, similarity)
+        reasons.append(reason)
+
+    return reasons
+
+
 def resolve_snapshot_text_path(storage_uri: str) -> Path:
     relative_path = Path(storage_uri)
 
@@ -112,48 +271,28 @@ def resolve_snapshot_text_path(storage_uri: str) -> Path:
         raise ValueError("Absolute snapshot paths are not allowed.")
 
     candidate = (PROJECT_ROOT / relative_path).resolve()
-
-    snapshot_root = (
-        PROJECT_ROOT / "data" / "source_snapshots"
-    ).resolve()
+    snapshot_root = (PROJECT_ROOT / "data" / "source_snapshots").resolve()
 
     if not candidate.is_relative_to(snapshot_root):
-        raise ValueError(
-            "Snapshot path is outside the snapshot directory."
-        )
+        raise ValueError("Snapshot path is outside the snapshot directory.")
 
     if candidate.suffix.lower() != ".html":
         raise ValueError("Expected an HTML snapshot storage URI.")
 
     text_path = candidate.with_suffix(".txt")
-
     if not text_path.exists():
-        raise FileNotFoundError(
-            f"Extracted text file not found: {text_path}"
-        )
+        raise FileNotFoundError(f"Extracted text file not found: {text_path}")
 
     return text_path
 
 
-def split_into_sentences(
-    text: str,
-) -> list[tuple[str, int, int]]:
+def split_into_sentences(text: str) -> list[tuple[str, int, int]]:
     results = []
-
     for match in re.finditer(r"[^.!?\n]+(?:[.!?]+|$)", text):
-        sentence = re.sub(
-            r"\s+",
-            " ",
-            match.group(0),
-        ).strip()
-
+        sentence = re.sub(r"\s+", " ", match.group(0)).strip()
         if len(sentence) < 35 or len(sentence) > 1200:
             continue
-
-        results.append(
-            (sentence, match.start(), match.end())
-        )
-
+        results.append((sentence, match.start(), match.end()))
     return results
 
 
@@ -169,44 +308,7 @@ def classify_sentence(sentence: str) -> str | None:
     return None
 
 
-def normalize_fact_text(sentence: str) -> str:
-    return re.sub(
-        r"\s+",
-        " ",
-        sentence.strip().lower(),
-    )
-
-
-def build_fact_key(
-    fact_type: str,
-    sentence: str,
-) -> str:
-    normalized = normalize_fact_text(sentence)
-
-    digest = hashlib.sha256(
-        normalized.encode("utf-8")
-    ).hexdigest()[:32]
-
-    return f"{fact_type}:{digest}"
-
-
-def find_existing_fact(
-    db: Session,
-    fact_key: str,
-) -> SourceFact | None:
-    # Search across snapshots, not just the current snapshot.
-    return (
-        db.query(SourceFact)
-        .filter(SourceFact.fact_key == fact_key)
-        .first()
-    )
-
-
-def extract_snapshot_facts(
-    db: Session,
-    snapshot: SourceSnapshot,
-) -> dict[str, Any]:
-
+def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, Any]:
     if snapshot.http_status != 200:
         return {
             "snapshot_id": str(snapshot.id),
@@ -225,14 +327,8 @@ def extract_snapshot_facts(
             "existing": 0,
         }
 
-    text_path = resolve_snapshot_text_path(
-        snapshot.storage_uri
-    )
-
-    source_text = text_path.read_text(
-        encoding="utf-8",
-        errors="replace",
-    )
+    text_path = resolve_snapshot_text_path(snapshot.storage_uri)
+    source_text = text_path.read_text(encoding="utf-8", errors="replace")
 
     if not source_text.strip():
         return {
@@ -247,50 +343,57 @@ def extract_snapshot_facts(
     existing = 0
 
     for sentence, start, end in split_into_sentences(source_text):
-
         fact_type = classify_sentence(sentence)
-
         if fact_type is None:
             continue
 
-        fact_key = build_fact_key(
-            fact_type,
-            sentence,
-        )
-
-        duplicate = find_existing_fact(
-            db,
-            fact_key,
-        )
-
+        fact_key = build_fact_key(fact_type, sentence)
+        duplicate = find_existing_fact(db, fact_key)
         if duplicate:
             existing += 1
             continue
 
-        fact = SourceFact(
-            source_snapshot_id=snapshot.id,
-            fact_key=fact_key,
-            fact_type=fact_type,
-            value_data={
+        fact_data = {
+            "source_snapshot_id": str(snapshot.id),
+            "fact_key": fact_key,
+            "fact_type": fact_type,
+            "value": {
                 "text": sentence,
                 "language": "en",
                 "review_required": True,
             },
-            evidence_locator={
-                "file": str(
-                    text_path.relative_to(PROJECT_ROOT)
-                ),
+            "language": "en",
+            "evidence_locator": {
+                "source_url": snapshot.source.url,
+                "snapshot_id": str(snapshot.id),
+                "file": str(text_path.relative_to(PROJECT_ROOT)),
                 "character_start": start,
                 "character_end": end,
                 "quoted_text": sentence,
             },
-            extraction_confidence=None,
-            extraction_status="pending_review",
+            "extraction_confidence": 0.5,
+            "extraction_status": "pending_review",
+        }
+
+        try:
+            validated = validate_extracted_fact(fact_data, source_text)
+        except ValueError:
+            continue
+
+        fact = SourceFact(
+            source_snapshot_id=snapshot.id,
+            fact_key=validated["fact_key"],
+            fact_type=validated["fact_type"],
+            value_data=validated["value"],
+            evidence_locator=validated["evidence_locator"],
+            extraction_confidence=validated["extraction_confidence"],
+            extraction_status=validated["extraction_status"],
         )
 
         db.add(fact)
         db.flush()
 
+        detect_duplicate_candidates(db, fact)
         db.add(
             ReviewTask(
                 source_fact_id=fact.id,
@@ -299,11 +402,9 @@ def extract_snapshot_facts(
                 priority="normal",
             )
         )
-
         created += 1
 
     db.commit()
-
     return {
         "snapshot_id": str(snapshot.id),
         "status": "completed",
@@ -312,34 +413,21 @@ def extract_snapshot_facts(
     }
 
 
-def extract_all_snapshot_facts(
-    db: Session,
-) -> list[dict[str, Any]]:
-
+def extract_all_snapshot_facts(db: Session) -> list[dict[str, Any]]:
     snapshots = (
         db.query(SourceSnapshot)
-        .filter(
-            SourceSnapshot.http_status == 200,
-            SourceSnapshot.extraction_status == "completed",
-        )
+        .filter(SourceSnapshot.http_status == 200, SourceSnapshot.extraction_status == "completed")
         .order_by(SourceSnapshot.fetched_at.asc())
         .all()
     )
 
     results = []
-
     for snapshot in snapshots:
         try:
-            result = extract_snapshot_facts(
-                db,
-                snapshot,
-            )
-
+            result = extract_snapshot_facts(db, snapshot)
             results.append(result)
-
-        except Exception as exc:
+        except Exception as exc:  # pragma: no cover - defensive path
             db.rollback()
-
             results.append({
                 "snapshot_id": str(snapshot.id),
                 "status": "failed",

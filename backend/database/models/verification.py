@@ -14,20 +14,11 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.database.base import Base
+from backend.database.models.administration import AdminUser
 from backend.database.models.common import (
     TimestampMixin,
     UUIDPrimaryKeyMixin,
     utc_now_naive,
-)
-from uuid import UUID
-
-from sqlalchemy import ForeignKey, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
-
-from backend.database.base import Base
-from backend.database.models.common import (
-    TimestampMixin,
-    UUIDPrimaryKeyMixin,
 )
 
 
@@ -186,6 +177,8 @@ class ReviewTask(
         "AdminUser",
         foreign_keys=[assigned_to_admin_id],
     )
+
+
 class FactReclassification(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     __tablename__ = "fact_reclassifications"
 
@@ -214,4 +207,66 @@ class FactReclassification(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     reason: Mapped[str] = mapped_column(
         Text,
         nullable=False,
+    )
+
+
+class FactDuplicateCandidate(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "fact_duplicate_candidates"
+
+    source_fact_id: Mapped[UUID] = mapped_column(
+        ForeignKey("source_facts.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+
+    duplicate_fact_id: Mapped[UUID] = mapped_column(
+        ForeignKey("source_facts.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+
+    similarity_score: Mapped[float] = mapped_column(
+        nullable=False,
+    )
+
+    reason: Mapped[str] = mapped_column(
+        String(120),
+        nullable=False,
+    )
+
+    review_status: Mapped[str] = mapped_column(
+        String(30),
+        default="pending",
+        nullable=False,
+    )
+
+    notes: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    reviewed_by_admin_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("admin_users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+
+    reviewed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(),
+        nullable=True,
+    )
+
+    source_fact: Mapped[SourceFact] = relationship(
+        "SourceFact",
+        foreign_keys=[source_fact_id],
+    )
+
+    duplicate_fact: Mapped[SourceFact] = relationship(
+        "SourceFact",
+        foreign_keys=[duplicate_fact_id],
+    )
+
+    reviewer: Mapped[AdminUser | None] = relationship(
+        "AdminUser",
+        foreign_keys=[reviewed_by_admin_id],
     )

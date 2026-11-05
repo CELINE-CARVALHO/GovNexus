@@ -10,6 +10,7 @@ from backend.config import settings
 from backend.database.connection import get_db
 from backend.api.v1.catalogue import router as catalogue_router
 from backend.api.v1.sources import router as sources_router
+from backend.api.v1.services import router as services_router
 
 from fastapi.middleware.cors import CORSMiddleware
 from backend.api.v1 import verification
@@ -38,6 +39,7 @@ app.add_middleware(
 )
 app.include_router(catalogue_router, prefix=settings.API_V1_PREFIX)
 app.include_router(sources_router, prefix=settings.API_V1_PREFIX)
+app.include_router(services_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/")

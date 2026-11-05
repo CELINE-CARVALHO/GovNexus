@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from backend.database.connection import get_db
 from backend.database.models.source_fact import SourceFact
 from backend.database.models.verification import (
+    FactDuplicateCandidate,
     FactVerification,
     ReviewTask,
     FactReclassification,
@@ -42,6 +43,11 @@ ALLOWED_FACT_TYPES = {
 class ReclassificationRequest(BaseModel):
     new_fact_type: str = Field(min_length=2, max_length=60)
     reason: str = Field(min_length=10, max_length=1000)
+
+
+class DuplicateSuggestionReview(BaseModel):
+    decision: str = Field(default="dismissed")
+    notes: str | None = Field(default=None, max_length=2000)
 
 
 # ---------------------------------------------------------
@@ -87,6 +93,67 @@ def get_review_queue(
         })
 
     return {"total": len(results), "items": results}
+
+
+@router.get("/duplicate-suggestions")
+def list_duplicate_suggestions(
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    rows = (
+        db.query(FactDuplicateCandidate)
+        .order_by(FactDuplicateCandidate.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "total": len(rows),
+        "items": [
+            {
+                "id": str(item.id),
+                "source_fact_id": str(item.source_fact_id),
+                "duplicate_fact_id": str(item.duplicate_fact_id),
+                "similarity_score": item.similarity_score,
+                "reason": item.reason,
+                "review_status": item.review_status,
+                "notes": item.notes,
+            }
+            for item in rows
+        ],
+    }
+
+
+@router.post("/{suggestion_id}/duplicate-review")
+def review_duplicate_suggestion(
+    suggestion_id: UUID,
+    payload: DuplicateSuggestionReview,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    decision = payload.decision.strip().lower()
+    if decision not in {"accepted", "dismissed"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Decision must be accepted or dismissed.",
+        )
+
+    suggestion = db.query(FactDuplicateCandidate).filter(FactDuplicateCandidate.id == suggestion_id).first()
+    if not suggestion:
+        raise HTTPException(status_code=404, detail="Duplicate suggestion not found.")
+
+    suggestion.review_status = decision
+    suggestion.reviewed_by_admin_id = current_admin.id
+    suggestion.reviewed_at = __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
+    suggestion.notes = payload.notes or suggestion.notes
+
+    db.commit()
+    return {
+        "message": "Duplicate suggestion reviewed.",
+        "suggestion_id": str(suggestion.id),
+        "decision": decision,
+    }
 
 
 # ---------------------------------------------------------
@@ -136,6 +203,12 @@ def reclassify_fact(
                 "This fact already has a final review status. "
                 "A separate review workflow is required to reopen it."
             ),
+        )
+
+    if fact.extraction_status == "pending_review" and fact.fact_type == new_type:
+        raise HTTPException(
+            status_code=400,
+            detail="The fact already has this classification.",
         )
 
     previous_type = fact.fact_type
@@ -269,6 +342,12 @@ def review_fact(
         raise HTTPException(
             status_code=404,
             detail="Fact not found.",
+        )
+
+    if fact.extraction_status in {"verified", "rejected"}:
+        raise HTTPException(
+            status_code=409,
+            detail="This fact already has a final verification record and cannot be overwritten.",
         )
 
     verification = FactVerification(

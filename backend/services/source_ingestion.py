@@ -24,7 +24,8 @@ from urllib.request import (
 
 from sqlalchemy.orm import Session
 from backend.database.models.source import Source
-from backend.database.models.source_fact import SourceSnapshot
+from backend.database.models.source_fact import SourceFact, SourceSnapshot
+from backend.database.models.verification import ReviewTask
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -143,45 +144,36 @@ def fetch_page(url: str) -> dict:
     validate_public_url(url)
 
     redirect_handler = SafeRedirectHandler()
-
     ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-
-    opener = build_opener(
-        HTTPSHandler(context=ssl_context),
-        redirect_handler,
-    )
+    opener = build_opener(HTTPSHandler(context=ssl_context), redirect_handler)
 
     request = Request(
         url,
         headers={
             "User-Agent": USER_AGENT,
-            "Accept": "text/html,application/xhtml+xml",
+            "Accept": "text/html,application/xhtml+xml,application/pdf",
         },
         method="GET",
     )
 
     with opener.open(request, timeout=REQUEST_TIMEOUT) as response:
         final_url = response.geturl()
-
         validate_public_url(final_url)
-
         content_type = response.headers.get_content_type()
 
-        if content_type not in {
+        allowed_content_types = {
             "text/html",
             "application/xhtml+xml",
-        }:
-            raise ValueError(
-                f"Unsupported content type: {content_type}"
-            )
+            "application/pdf",
+        }
+        if content_type not in allowed_content_types:
+            raise ValueError(f"Unsupported content type: {content_type}")
 
         content = response.read(MAX_RESPONSE_BYTES + 1)
-
         if len(content) > MAX_RESPONSE_BYTES:
             raise ValueError("Source exceeds 10 MB limit.")
 
         encoding = response.headers.get_content_charset() or "utf-8"
-
         return {
             "content": content,
             "content_type": content_type,
@@ -196,18 +188,60 @@ def extract_page_text(content: bytes, encoding: str) -> str:
 
     parser = SafeHTMLParser()
     parser.feed(decoded)
-
     return "\n".join(parser.parts)
 
 
-def get_snapshot_paths(source_id: str, content_hash: str):
+def extract_pdf_text(content: bytes) -> str:
+    text = content.decode("latin-1", errors="ignore")
+    words = [part for part in text.split() if len(part) > 1]
+    if not words:
+        return ""
+    return "\n".join(words[:1000])
+
+
+def get_snapshot_paths(source_id: str, content_hash: str, content_type: str = "text/html"):
     directory = SNAPSHOT_DIR / str(source_id)
     directory.mkdir(parents=True, exist_ok=True)
 
+    extension = "pdf" if content_type == "application/pdf" else "html"
     return (
-        directory / f"{content_hash}.html",
+        directory / f"{content_hash}.{extension}",
         directory / f"{content_hash}.txt",
     )
+
+
+def create_source_freshness_review_tasks(db: Session, source_id: str, prior_snapshot_id: str | None) -> None:
+    if prior_snapshot_id is None:
+        return
+
+    prior_facts = (
+        db.query(SourceFact)
+        .filter(SourceFact.source_snapshot_id == prior_snapshot_id)
+        .all()
+    )
+
+    for fact in prior_facts:
+        if fact.extraction_status in {"verified", "rejected"}:
+            continue
+        existing_task = (
+            db.query(ReviewTask)
+            .filter(
+                ReviewTask.source_fact_id == fact.id,
+                ReviewTask.task_type == "source_freshness_review",
+                ReviewTask.status == "open",
+            )
+            .first()
+        )
+        if existing_task:
+            continue
+        db.add(
+            ReviewTask(
+                source_fact_id=fact.id,
+                task_type="source_freshness_review",
+                status="open",
+                priority="high",
+            )
+        )
 
 
 def ingest_source(db: Session, source: Source) -> dict:
@@ -222,49 +256,37 @@ def ingest_source(db: Session, source: Source) -> dict:
 
     try:
         page = fetch_page(source.url)
-
         content = page["content"]
-
         content_hash = hashlib.sha256(content).hexdigest()
 
-        existing = (
+        latest_snapshot = (
             db.query(SourceSnapshot)
-            .filter(
-                SourceSnapshot.source_id == source.id,
-                SourceSnapshot.content_hash == content_hash,
-            )
+            .filter(SourceSnapshot.source_id == source.id)
+            .order_by(SourceSnapshot.fetched_at.desc())
             .first()
         )
 
-        if existing:
+        if latest_snapshot and latest_snapshot.content_hash == content_hash:
             source.last_checked_at = now
-            source.next_check_at = now + timedelta(
-                hours=source.retrieval_interval_hours
-            )
+            source.next_check_at = now + timedelta(hours=source.retrieval_interval_hours)
             db.commit()
-
             return {
                 "source_id": str(source.id),
                 "status": "unchanged",
-                "snapshot_id": str(existing.id),
+                "snapshot_id": str(latest_snapshot.id),
                 "content_hash": content_hash,
             }
 
-        text_content = extract_page_text(
-            content,
-            page["encoding"],
-        )
+        if page["content_type"] == "application/pdf":
+            text_content = extract_pdf_text(content)
+            extraction_status = "needs_ocr" if not text_content.strip() else "completed"
+        else:
+            text_content = extract_page_text(content, page["encoding"])
+            extraction_status = "completed" if text_content.strip() else "failed"
 
-        html_path, text_path = get_snapshot_paths(
-            str(source.id),
-            content_hash,
-        )
-
+        html_path, text_path = get_snapshot_paths(str(source.id), content_hash, page["content_type"])
         html_path.write_bytes(content)
-        text_path.write_text(
-            text_content,
-            encoding="utf-8",
-        )
+        text_path.write_text(text_content, encoding="utf-8")
 
         snapshot = SourceSnapshot(
             source_id=source.id,
@@ -272,19 +294,17 @@ def ingest_source(db: Session, source: Source) -> dict:
             content_hash=content_hash,
             content_type=page["content_type"],
             http_status=page["status"],
-            storage_uri=html_path.relative_to(
-                PROJECT_ROOT
-            ).as_posix(),
-            extraction_status="completed",
-            extracted_at=now,
+            storage_uri=html_path.relative_to(PROJECT_ROOT).as_posix(),
+            extraction_status=extraction_status,
+            extracted_at=now if extraction_status == "completed" else None,
         )
 
         db.add(snapshot)
-
         source.last_checked_at = now
-        source.next_check_at = now + timedelta(
-            hours=source.retrieval_interval_hours
-        )
+        source.next_check_at = now + timedelta(hours=source.retrieval_interval_hours)
+        if latest_snapshot and latest_snapshot.content_hash != content_hash:
+            source.content_changed_at = now
+            create_source_freshness_review_tasks(db, str(source.id), str(latest_snapshot.id))
 
         db.commit()
         db.refresh(snapshot)
@@ -297,25 +317,15 @@ def ingest_source(db: Session, source: Source) -> dict:
             "text_characters": len(text_content),
             "storage_uri": snapshot.storage_uri,
             "final_url": page["final_url"],
+            "extraction_status": extraction_status,
         }
 
     except Exception as exc:
         db.rollback()
-
-        source = (
-            db.query(Source)
-            .filter(Source.id == source.id)
-            .first()
-        )
-
+        source = db.query(Source).filter(Source.id == source.id).first()
         if source:
             source.last_checked_at = now
-            source.next_check_at = now + timedelta(
-                hours=min(
-                    source.retrieval_interval_hours,
-                    6,
-                )
-            )
+            source.next_check_at = now + timedelta(hours=min(source.retrieval_interval_hours, 6))
             db.commit()
 
         return {

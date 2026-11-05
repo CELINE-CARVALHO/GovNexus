@@ -284,6 +284,14 @@ def published_service_query(db: Session, language: str):
         .filter(
             ServiceVersion.service_id == Service.id,
             ServiceVersion.publication_status == "published",
+            or_(
+                ServiceVersion.effective_from.is_(None),
+                ServiceVersion.effective_from <= func.current_date(),
+            ),
+            or_(
+                ServiceVersion.effective_to.is_(None),
+                ServiceVersion.effective_to >= func.current_date(),
+            ),
         )
         .correlate(Service)
         .scalar_subquery()

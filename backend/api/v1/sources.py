@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from backend.config import settings
 from backend.database.dependencies import get_db
 from backend.database.models.source import Source
+from backend.services.source_ingestion import ingest_source, validate_public_url
 
 
 router = APIRouter(prefix="/sources", tags=["Knowledge Sources"])
@@ -57,8 +58,10 @@ class SourceCreate(BaseModel):
 
         if parsed.fragment:
             parsed = parsed._replace(fragment="")
+            value = urlunsplit(parsed)
 
-        return urlunsplit(parsed)
+        validate_public_url(value)
+        return value
 
 
 class SourceUpdate(BaseModel):
@@ -92,6 +95,11 @@ def source_to_dict(source: Source) -> dict:
         "next_check_at": (
             source.next_check_at.isoformat()
             if source.next_check_at
+            else None
+        ),
+        "content_changed_at": (
+            source.content_changed_at.isoformat()
+            if source.content_changed_at
             else None
         ),
         "is_active": source.is_active,
@@ -240,4 +248,59 @@ def update_source(
     return {
         "message": "Source updated.",
         "source": source_to_dict(source),
+    }
+
+
+@router.patch(
+    "/{source_id}/activation",
+    dependencies=[Depends(require_source_admin)],
+)
+def set_source_activation(
+    source_id: str,
+    is_active: bool = Query(default=True),
+    db: Session = Depends(get_db),
+):
+    source = db.query(Source).filter(Source.id == source_id).first()
+
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Source not found.",
+        )
+
+    source.is_active = is_active
+    db.commit()
+    db.refresh(source)
+
+    return {
+        "message": (
+            "Source activated." if is_active else "Source deactivated."
+        ),
+        "source": source_to_dict(source),
+    }
+
+
+@router.post(
+    "/{source_id}/ingest",
+    dependencies=[Depends(require_source_admin)],
+)
+def trigger_source_ingest(
+    source_id: str,
+    db: Session = Depends(get_db),
+):
+    source = db.query(Source).filter(Source.id == source_id).first()
+
+    if not source:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Source not found.",
+        )
+
+    result = ingest_source(db, source)
+    db.refresh(source)
+
+    return {
+        "message": "Ingestion completed.",
+        "source": source_to_dict(source),
+        "ingest": result,
     }

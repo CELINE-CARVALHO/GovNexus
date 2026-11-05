@@ -83,6 +83,11 @@ class Source(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=True,
     )
 
+    content_changed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(),
+        nullable=True,
+    )
+
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
