@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/applications.css">
+  <link rel="stylesheet" href="../css/accessibility.css">
 </head>
 <body>
   <div class="app-shell">
@@ -46,7 +47,7 @@
           <div>
             <div class="eyebrow">YOUR APPLICATION WORKSPACE</div>
             <h1>My applications<span>.</span></h1>
-            <p>Keep your application records, reference numbers and personal updates organised.</p>
+            <p>Keep citizen-recorded application references and personal updates organised.</p>
           </div>
           <button class="add-btn" id="addApplication"><span>＋</span> Add application</button>
         </div>
@@ -70,10 +71,13 @@
               <div class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Search applications..." aria-label="Search applications"></div>
               <select id="statusFilter" aria-label="Filter by status">
                 <option value="all">All statuses</option>
-                <option value="draft">Draft</option>
-                <option value="in_progress">In progress</option>
-                <option value="submitted">Submitted</option>
-                <option value="follow_up">Needs follow-up</option>
+                <option value="planning">Planning</option>
+                <option value="submitted_externally">Submitted externally</option>
+                <option value="under_review">Under review</option>
+                <option value="additional_information_requested">Additional information requested</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="withdrawn">Withdrawn</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
@@ -92,7 +96,7 @@
             <p>Add an application record to start organising your personal tracking information.</p>
             <button class="add-btn" id="emptyAdd"><span>＋</span> Add your first record</button>
           </div>
-          <div class="table-footer"><span id="recordCount">Showing 0 records</span><span>Stored in this browser</span></div>
+          <div class="table-footer"><span id="recordCount">Showing 0 records</span><div><button type="button" id="previousPage" disabled>Previous</button><button type="button" id="nextPage" disabled>Next</button></div><span>Citizen-recorded only</span></div>
         </section>
 
         <div class="bottom-grid">
@@ -112,15 +116,14 @@
       <div class="modal-heading"><div><span class="eyebrow">PERSONAL RECORD</span><h2 id="modalTitle">Add an application</h2><p>Enter the details you want to keep track of.</p></div><button class="close-modal" id="closeModal" aria-label="Close">×</button></div>
       <form id="applicationForm">
         <input type="hidden" id="recordId">
-        <label class="field"><span>Service / application name *</span><input id="serviceName" required maxlength="140" placeholder="e.g. Scholarship application"></label>
+        <label class="field"><span>Published service *</span><select id="serviceId" required><option value="">Loading published services…</option></select></label>
         <label class="field"><span>Reference / acknowledgement number</span><input id="referenceNumber" maxlength="100" placeholder="Enter reference number (optional)"></label>
         <div class="form-grid">
-          <label class="field"><span>Your status *</span><select id="applicationStatus" required><option value="draft">Draft</option><option value="in_progress">In progress</option><option value="submitted">Submitted</option><option value="follow_up">Needs follow-up</option><option value="completed">Completed</option></select></label>
+          <label class="field"><span>Your status *</span><select id="applicationStatus" required><option value="planning">Planning</option><option value="submitted_externally">Submitted externally</option><option value="under_review">Under review</option><option value="additional_information_requested">Additional information requested</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="withdrawn">Withdrawn</option><option value="completed">Completed</option></select></label>
           <label class="field"><span>Application date</span><input id="applicationDate" type="date"></label>
         </div>
-        <label class="field"><span>Next follow-up date</span><input id="followUpDate" type="date"></label>
         <label class="field"><span>Personal notes</span><textarea id="applicationNotes" rows="3" maxlength="1000" placeholder="Add reminders or notes for yourself..."></textarea></label>
-        <div class="modal-disclaimer">These details are saved locally in this browser. They are not submitted to a government department.</div>
+        <div class="modal-disclaimer">This creates a citizen-recorded tracking record only. It does not submit an application to a government department or reflect live portal status.</div>
         <div class="modal-actions"><button type="button" class="cancel-btn" id="cancelModal">Cancel</button><button type="submit" class="save-btn">Save record <span>→</span></button></div>
       </form>
     </section>
@@ -135,7 +138,7 @@
   </div>
 
   <div class="toast" id="toast" role="status"></div>
+  <script src="../js/api/client.js"></script>
   <script src="../js/applications.js"></script>
 </body>
 </html>
-

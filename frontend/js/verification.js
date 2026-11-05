@@ -1,9 +1,11 @@
-﻿const API_BASE = "http://127.0.0.1:8000/api/v1";
+const apiClient = window.SchemeSathiAPI;
 
 const state = {
     facts: [],
     selectedFact: null,
-    selectedDecision: null
+    selectedDecision: null,
+    approvedThisSession: 0,
+    otherDecisionsThisSession: 0
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -32,29 +34,12 @@ function notify(message, error = false) {
     }, 3500);
 }
 
-async function api(path, options = {}) {
-    const response = await fetch(`${API_BASE}${path}`, {
-        ...options,
-        headers: {
-            ...(options.headers || {})
-        }
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data.detail || `API error: ${response.status}`);
-    }
-
-    return data;
-}
-
 async function loadFacts() {
     const list = $("#factList");
     if (list) list.innerHTML = "<p>Loading facts from the backend...</p>";
 
     try {
-        const result = await api("/verification/queue?status=open");
+        const result = await apiClient.get("/verification/queue?status=open&limit=200", "admin");
 
         state.facts = (result.items || []).map(item => ({
             ...item,
@@ -65,7 +50,10 @@ async function loadFacts() {
         renderFacts();
         updateStats();
     } catch (error) {
+        state.facts = [];
         if (list) list.innerHTML = "";
+        updateStats();
+        if ($("#emptyFacts")) $("#emptyFacts").style.display = "block";
         notify(`Could not load verification queue: ${error.message}`, true);
     }
 }
@@ -153,13 +141,11 @@ function renderFacts() {
 function updateStats() {
     const total = state.facts.length;
     const pending = state.facts.filter(f => f.status === "pending").length;
-    const approved = state.facts.filter(f => f.status === "approved").length;
-    const other = total - pending - approved;
 
     $("#totalFacts").textContent = total;
     $("#pendingFacts").textContent = pending;
-    $("#approvedFacts").textContent = approved;
-    $("#otherFacts").textContent = other;
+    $("#approvedFacts").textContent = state.approvedThisSession;
+    $("#otherFacts").textContent = state.otherDecisionsThisSession;
 }
 
 function openReview(factId, decision) {
@@ -207,14 +193,28 @@ async function confirmReview(event) {
             decision: state.selectedDecision,
             notes: note
         });
+        const factId = state.selectedFact.fact_id;
+        const decision = state.selectedDecision;
 
-        await api(
-            `/verification/${encodeURIComponent(state.selectedFact.fact_id)}/decision?${params}`,
-            { method: "POST" }
+        await apiClient.post(
+            `/verification/${encodeURIComponent(factId)}/decision?${params}`,
+            undefined,
+            "admin"
         );
+        if (decision === "approved") state.approvedThisSession += 1;
+        else state.otherDecisionsThisSession += 1;
 
         closeReview();
         notify("Review decision saved.");
+        if (decision === "approved" &&
+            window.confirm("Fact approved. Index this verified fact now?")) {
+            try {
+                await apiClient.post("/chat/admin/index-facts", { fact_ids: [factId] }, "admin");
+                notify("Verified fact indexing completed.");
+            } catch (error) {
+                notify(`Fact approved, but indexing failed: ${error.message}`, true);
+            }
+        }
         await loadFacts();
     } catch (error) {
         notify(error.message, true);
@@ -237,4 +237,6 @@ $("#categoryFilter")?.addEventListener("change", renderFacts);
 $("#reviewForm")?.addEventListener("submit", confirmReview);
 $("#cancelReview")?.addEventListener("click", closeReview);
 
-document.addEventListener("DOMContentLoaded", loadFacts);
+document.addEventListener("DOMContentLoaded", () => {
+    if (apiClient.requireAdmin()) loadFacts();
+});

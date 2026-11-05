@@ -4,14 +4,19 @@ from datetime import date, datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+import re
 
 from backend.core.security import get_current_admin
 from backend.database.connection import get_db
 from backend.database.models.administration import AdminUser
+from backend.database.models.category import Category
+from backend.database.models.department import Department
 from backend.database.models.service import Service
-from backend.database.models.service_version import ServiceVersion
+from backend.database.models.language import Language
+from backend.database.models.service_version import ServiceTranslation, ServiceVersion
 from backend.database.models.source_fact import ServiceFactLink, SourceFact
 
 router = APIRouter(prefix="/services", tags=["Services"])
@@ -49,6 +54,62 @@ class ServiceVersionCreate(BaseModel):
     change_summary: str | None = Field(default=None, max_length=2000)
 
 
+class ServiceCreate(BaseModel):
+    code: str = Field(min_length=2, max_length=100)
+    slug: str = Field(min_length=2, max_length=200)
+    department_id: UUID
+    category_id: UUID
+
+    @field_validator("code")
+    @classmethod
+    def normalize_code(cls, value: str) -> str:
+        normalized = value.strip().upper()
+        if not re.fullmatch(r"[A-Z0-9_-]+", normalized):
+            raise ValueError("Service code may contain only letters, numbers, underscores, and hyphens.")
+        return normalized
+
+    @field_validator("slug")
+    @classmethod
+    def normalize_slug(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", normalized):
+            raise ValueError("Service slug must contain lowercase letters, numbers, and hyphens.")
+        return normalized
+
+
+class ServiceStatusUpdate(BaseModel):
+    status: str
+    is_active: bool | None = None
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if normalized not in {"active", "inactive", "archived"}:
+            raise ValueError("Unsupported service status.")
+        return normalized
+
+
+class ServiceTranslationInput(BaseModel):
+    language_code: str = Field(min_length=2, max_length=10)
+    title: str = Field(min_length=1, max_length=500)
+    description: str | None = None
+    application_url: AnyHttpUrl | None = None
+
+    @field_validator("language_code")
+    @classmethod
+    def normalize_language(cls, value: str) -> str:
+        return value.strip().lower()
+
+    @field_validator("title")
+    @classmethod
+    def trim_title(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Service title is required.")
+        return value
+
+
 def validate_service_version_for_publication(version: ServiceVersion) -> None:
     if version.effective_from is None:
         raise ValueError("Effective start date is required for publication.")
@@ -62,32 +123,69 @@ def validate_service_version_for_publication(version: ServiceVersion) -> None:
             raise ValueError("Only approved facts can support publication.")
 
 
-@router.get("", status_code=status.HTTP_200_OK)
-def list_services(
-    active_only: bool = True,
-    limit: int = Query(default=50, ge=1, le=200),
-    offset: int = Query(default=0, ge=0),
+@router.post("", status_code=status.HTTP_201_CREATED)
+def create_service(
+    payload: ServiceCreate,
     db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
 ):
-    query = db.query(Service)
-    if active_only:
-        query = query.filter(Service.is_active.is_(True))
+    department = db.query(Department).filter(
+        Department.id == payload.department_id
+    ).first()
+    category = db.query(Category).filter(
+        Category.id == payload.category_id
+    ).first()
+    if department is None or not department.is_active:
+        raise HTTPException(status_code=422, detail="An active department is required.")
+    if category is None or not category.is_active:
+        raise HTTPException(status_code=422, detail="An active category is required.")
 
-    rows = query.order_by(Service.code.asc()).offset(offset).limit(limit).all()
+    service = Service(
+        code=payload.code,
+        slug=payload.slug,
+        department_id=department.id,
+        category_id=category.id,
+        status="active",
+        is_active=True,
+    )
+    db.add(service)
+    try:
+        db.commit()
+        db.refresh(service)
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="A service with this code or slug already exists.",
+        ) from exc
     return {
-        "total": query.count(),
-        "limit": limit,
-        "offset": offset,
-        "items": [
-            {
-                "id": str(item.id),
-                "code": item.code,
-                "slug": item.slug,
-                "status": item.status,
-                "is_active": item.is_active,
-            }
-            for item in rows
-        ],
+        "id": str(service.id),
+        "code": service.code,
+        "slug": service.slug,
+        "status": service.status,
+        "is_active": service.is_active,
+        "message": "Service created. It remains unavailable to citizens until a version is published.",
+    }
+
+
+@router.patch("/{service_id}")
+def update_service_status(
+    service_id: UUID,
+    payload: ServiceStatusUpdate,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+    if service is None:
+        raise HTTPException(status_code=404, detail="Service not found.")
+    service.status = payload.status
+    if payload.is_active is not None:
+        service.is_active = payload.is_active
+    db.commit()
+    return {
+        "id": str(service.id),
+        "status": service.status,
+        "is_active": service.is_active,
     }
 
 
@@ -95,6 +193,7 @@ def list_services(
 def list_service_versions(
     service_id: UUID,
     db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
 ):
     service = db.query(Service).filter(Service.id == service_id).first()
     if not service:
@@ -171,6 +270,66 @@ def create_service_version(
             "effective_from": version.effective_from.isoformat() if version.effective_from else None,
             "effective_to": version.effective_to.isoformat() if version.effective_to else None,
         },
+    }
+
+
+@router.put(
+    "/{service_id}/versions/{version_id}/translations",
+    status_code=status.HTTP_200_OK,
+)
+def upsert_service_translation(
+    service_id: UUID,
+    version_id: UUID,
+    payload: ServiceTranslationInput,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    service = db.query(Service).filter(Service.id == service_id).first()
+    if service is None:
+        raise HTTPException(status_code=404, detail="Service not found.")
+    version = db.query(ServiceVersion).filter(
+        ServiceVersion.id == version_id,
+        ServiceVersion.service_id == service.id,
+    ).first()
+    if version is None:
+        raise HTTPException(status_code=404, detail="Service version not found.")
+    if version.publication_status == "published":
+        raise HTTPException(
+            status_code=409,
+            detail="Published service versions are immutable; create a new draft version.",
+        )
+    language = db.query(Language).filter(
+        Language.code == payload.language_code,
+        Language.is_active.is_(True),
+    ).first()
+    if language is None:
+        raise HTTPException(status_code=422, detail="The selected language is not available.")
+
+    translation = db.query(ServiceTranslation).filter(
+        ServiceTranslation.service_version_id == version.id,
+        ServiceTranslation.language_code == language.code,
+    ).first()
+    if translation is None:
+        translation = ServiceTranslation(
+            service_version_id=version.id,
+            language_code=language.code,
+            title=payload.title,
+        )
+        db.add(translation)
+    translation.title = payload.title
+    translation.description = payload.description
+    translation.application_url = (
+        str(payload.application_url) if payload.application_url else None
+    )
+    db.commit()
+    db.refresh(translation)
+    return {
+        "id": str(translation.id),
+        "service_version_id": str(version.id),
+        "language_code": translation.language_code,
+        "title": translation.title,
+        "description": translation.description,
+        "application_url": translation.application_url,
     }
 
 
@@ -289,6 +448,7 @@ def list_service_version_facts(
     service_id: UUID,
     version_id: UUID,
     db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
 ):
     service = db.query(Service).filter(Service.id == service_id).first()
     if not service:

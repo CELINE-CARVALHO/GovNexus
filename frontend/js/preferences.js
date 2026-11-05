@@ -1,89 +1,212 @@
-﻿(() => {
-  const STORAGE_KEY = "schemesathi_preferences";
-  const PROFILE_KEY = "schemesathi_profile";
-  const $ = id => document.getElementById(id);
-  const toggleIds = ["applicationReminders","savedUpdates","newServices","productTips","largeText","reducedMotion","highContrast"];
-  let toastTimer;
+document.addEventListener("DOMContentLoaded", async () => {
+    const api = window.SchemeSathiAPI;
+    if (!api.requireCitizen()) return;
 
-  function read(key) {
-    try { return JSON.parse(localStorage.getItem(key) || "{}"); }
-    catch { return {}; }
-  }
+    const $ = id => document.getElementById(id);
+    const channelControls = {
+        email: "emailNotifications",
+        sms: "smsNotifications",
+        in_app: "inAppNotifications"
+    };
+    let profile = null;
+    let toastTimer;
 
-  function notify(message) {
-    $("toast").textContent = message;
-    $("toast").classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => $("toast").classList.remove("show"),2600);
-  }
+    function notify(message) {
+        $("toast").textContent = message;
+        $("toast").classList.add("show");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => $("toast").classList.remove("show"), 2800);
+    }
 
-  function applyAccessibility(settings) {
-    document.body.classList.toggle("large-text",Boolean(settings.largeText));
-    document.body.classList.toggle("reduced-motion",Boolean(settings.reducedMotion));
-    document.body.classList.toggle("high-contrast",Boolean(settings.highContrast));
-  }
+    function applyAccessibility(settings) {
+        api.applyAccessibilityPreferences(settings);
+    }
 
-  function loadSettings() {
-    const settings = read(STORAGE_KEY);
-    const profile = read(PROFILE_KEY);
-    $("language").value = settings.language || profile.preferredLanguage || "en";
-    toggleIds.forEach(id => $(id).checked = Boolean(settings[id]));
-    applyAccessibility(settings);
-    $("topAvatar").textContent = profile.fullName?.trim()?.charAt(0)?.toUpperCase() || "S";
-  }
+    function updateAvatar() {
+        $("topAvatar").textContent = profile?.display_name?.trim()?.charAt(0)?.toUpperCase() || "S";
+    }
 
-  function collectSettings() {
-    const settings = {language:$("language").value,updatedAt:new Date().toISOString()};
-    toggleIds.forEach(id => settings[id] = $(id).checked);
-    return settings;
-  }
+    function getNotificationPreferences() {
+        const values = {};
+        Object.entries(channelControls).forEach(([key, id]) => {
+            values[key] = $(id).checked;
+        });
+        return values;
+    }
 
-  function saveSettings() {
-    const settings = collectSettings();
+    function getAccessibilityPreferences() {
+        return {
+            font_size: $("fontSize").value,
+            text_scale_percent: Number($("textScale").value),
+            high_contrast: $("highContrast").checked,
+            increased_spacing: $("increasedSpacing").checked,
+            large_buttons: $("largeButtons").checked,
+            simple_mode: $("simpleMode").checked,
+            read_aloud: $("readAloud").checked,
+            reduced_motion: $("reducedMotion").checked
+        };
+    }
+
+    function setAccessibilityControls(settings) {
+        const preferences = {
+            ...api.getAccessibilityPreferences(),
+            ...(settings || {})
+        };
+        $("fontSize").value = preferences.font_size;
+        $("textScale").value = String(preferences.text_scale_percent);
+        $("textScaleValue").value = `${preferences.text_scale_percent}%`;
+        $("textScaleValue").textContent = `${preferences.text_scale_percent}%`;
+        $("highContrast").checked = Boolean(preferences.high_contrast);
+        $("increasedSpacing").checked = Boolean(preferences.increased_spacing);
+        $("largeButtons").checked = Boolean(preferences.large_buttons);
+        $("simpleMode").checked = Boolean(preferences.simple_mode);
+        $("readAloud").checked = Boolean(preferences.read_aloud);
+        $("reducedMotion").checked = Boolean(preferences.reduced_motion);
+        applyAccessibility(preferences);
+    }
+
+    const fontScalePresets = {
+        small: 90,
+        medium: 100,
+        large: 120,
+        extra_large: 140
+    };
+
+    function fontSizeForScale(value) {
+        if (value <= 95) return "small";
+        if (value <= 110) return "medium";
+        if (value <= 130) return "large";
+        return "extra_large";
+    }
+
+    $("fontSize").addEventListener("change", () => {
+        $("textScale").value = String(fontScalePresets[$("fontSize").value]);
+        $("textScale").dispatchEvent(new Event("input"));
+    });
+
+    $("textScale").addEventListener("input", () => {
+        const value = Number($("textScale").value);
+        $("fontSize").value = fontSizeForScale(value);
+        $("textScaleValue").value = `${value}%`;
+        $("textScaleValue").textContent = `${value}%`;
+        applyAccessibility(getAccessibilityPreferences());
+    });
+
+    [
+        "highContrast",
+        "increasedSpacing",
+        "largeButtons",
+        "simpleMode",
+        "readAloud",
+        "reducedMotion"
+    ].forEach(id => {
+        $(id).addEventListener("change", () =>
+            applyAccessibility(getAccessibilityPreferences())
+        );
+    });
+
+    $("readAloudPreview").addEventListener("click", () => {
+        if (!("speechSynthesis" in window)) {
+            notify("Built-in read-aloud is not available in this browser.");
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(
+            "Accessibility settings. You can adjust text size, contrast, spacing, button size, and read-aloud preferences."
+        );
+        utterance.lang = document.documentElement.lang || "en";
+        window.speechSynthesis.speak(utterance);
+    });
+
+    $("saveSettings").addEventListener("click", async () => {
+        const saveButton = $("saveSettings");
+        saveButton.disabled = true;
+        $("saveMessage").textContent = "Saving…";
+        try {
+            profile = await api.patch("/users/me", {
+                preferred_language_code: $("language").value,
+                notification_preferences: getNotificationPreferences(),
+                accessibility_preferences: getAccessibilityPreferences()
+            }, "citizen");
+            applyAccessibility(profile.accessibility_preferences);
+            $("saveMessage").textContent = "Account and accessibility preferences saved.";
+            notify("Your preferences have been saved.");
+        } catch (error) {
+            $("saveMessage").textContent = error.message;
+            notify(`Could not save preferences: ${error.message}`);
+        } finally {
+            saveButton.disabled = false;
+        }
+    });
+
+    $("resetSettings").addEventListener("click", async () => {
+        if (!window.confirm("Reset notification and accessibility preferences? Your preferred language will not change.")) return;
+        const resetButton = $("resetSettings");
+        resetButton.disabled = true;
+        try {
+            profile = await api.patch("/users/me", {
+                notification_preferences: { email: false, sms: false, in_app: false },
+                accessibility_preferences: {
+                    font_size: "medium",
+                    text_scale_percent: 100,
+                    high_contrast: false,
+                    increased_spacing: false,
+                    large_buttons: false,
+                    simple_mode: false,
+                    read_aloud: false,
+                    reduced_motion: false
+                }
+            }, "citizen");
+            $("emailNotifications").checked = false;
+            $("smsNotifications").checked = false;
+            $("inAppNotifications").checked = false;
+            setAccessibilityControls(profile.accessibility_preferences);
+            $("saveMessage").textContent = "Notification and accessibility preferences reset.";
+            notify("Preferences have been reset.");
+        } catch (error) {
+            $("saveMessage").textContent = error.message;
+            notify(`Could not reset preferences: ${error.message}`);
+        } finally {
+            resetButton.disabled = false;
+        }
+    });
+
+    $("menuBtn").addEventListener("click", () => $("sidebar").classList.toggle("open"));
+    document.addEventListener("click", event => {
+        if (window.innerWidth <= 760 &&
+            !$("sidebar").contains(event.target) &&
+            !$("menuBtn").contains(event.target)) {
+            $("sidebar").classList.remove("open");
+        }
+    });
+
     try {
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(settings));
-      const profile = read(PROFILE_KEY);
-      profile.preferredLanguage = settings.language;
-      profile.largeText = settings.largeText;
-      profile.reducedMotion = settings.reducedMotion;
-      localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
-      applyAccessibility(settings);
-      $("saveMessage").textContent = "Preferences saved on this device.";
-      notify("Your preferences have been saved.");
-    } catch {
-      $("saveMessage").textContent = "Could not save preferences. Check browser storage settings.";
+        const [profileResult, languagesResult] = await Promise.all([
+            api.get("/users/me", "citizen"),
+            api.get("/languages?active_only=true")
+        ]);
+        profile = profileResult;
+        const languageSelect = $("language");
+        const languages = Array.isArray(languagesResult.items) ? languagesResult.items : [];
+        languageSelect.replaceChildren();
+        languages.forEach(language => {
+            const option = document.createElement("option");
+            option.value = language.code;
+            option.textContent = language.native_name
+                ? `${language.native_name} — ${language.english_name}`
+                : language.english_name;
+            languageSelect.appendChild(option);
+        });
+        languageSelect.value = profile.preferred_language_code || "";
+        Object.entries(channelControls).forEach(([key, id]) => {
+            $(id).checked = Boolean(profile.notification_preferences?.[key]);
+        });
+        setAccessibilityControls(profile.accessibility_preferences);
+        updateAvatar();
+    } catch (error) {
+        $("saveMessage").textContent = `Preferences could not be loaded: ${error.message}`;
+        notify(`Preferences could not be loaded: ${error.message}`);
+        $("saveSettings").disabled = true;
+        $("resetSettings").disabled = true;
     }
-  }
-
-  $("saveSettings").addEventListener("click",saveSettings);
-
-  $("resetSettings").addEventListener("click",() => {
-    if (!window.confirm("Reset all preferences to their default values?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    toggleIds.forEach(id => $(id).checked = false);
-    $("language").value = "en";
-    const profile = read(PROFILE_KEY);
-    profile.preferredLanguage = "en";
-    profile.largeText = false;
-    profile.reducedMotion = false;
-    localStorage.setItem(PROFILE_KEY,JSON.stringify(profile));
-    applyAccessibility({});
-    $("saveMessage").textContent = "Preferences reset.";
-    notify("Preferences have been reset.");
-  });
-
-  $("clearSearchHistory").addEventListener("click",() => {
-    if (!window.confirm("Clear your recently viewed service history from this browser?")) return;
-    localStorage.removeItem("schemesathi_recent_services");
-    notify("Recent service history cleared.");
-  });
-
-  $("menuBtn").addEventListener("click",() => $("sidebar").classList.toggle("open"));
-  document.addEventListener("click",event => {
-    if (window.innerWidth <= 760 && !$("sidebar").contains(event.target) && !$("menuBtn").contains(event.target)) {
-      $("sidebar").classList.remove("open");
-    }
-  });
-
-  loadSettings();
-})();
+});

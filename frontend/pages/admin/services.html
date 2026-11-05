@@ -38,6 +38,16 @@
         .catalog-row-actions button.delete{color:#c35d5d}
         .catalog-empty{text-align:center;padding:40px 15px;color:#9694a7;font-size:11px}
         .catalog-empty strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
+        .catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding-top:16px}
+        .version-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eeeef4}
+        .version-actions{display:flex;flex-wrap:wrap;gap:6px}
+        .version-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:7px 9px;color:#6b58cb;font-size:10px;cursor:pointer}
+        .version-form-note{font-size:10px;color:#88869b;margin:10px 0}
+        .catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding-top:16px}
+        .version-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eeeef4}
+        .version-actions{display:flex;flex-wrap:wrap;gap:6px}
+        .version-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:7px 9px;color:#6b58cb;font-size:10px;cursor:pointer}
+        .version-form-note{font-size:10px;color:#88869b;margin:10px 0}
         .catalog-modal-backdrop{position:fixed;inset:0;background:#17152d80;z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
         .catalog-modal-backdrop.open{display:flex}
         .catalog-modal{width:100%;max-width:680px;max-height:90vh;overflow:auto;background:white;border-radius:17px;padding:24px}
@@ -82,7 +92,7 @@
             <a href="../../index.html"><span>⌂</span> View citizen portal</a>
         </nav>
         <div class="sidebar-bottom">
-            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Authenticated workspace</small></div></div>
         </div>
     </aside>
 
@@ -91,7 +101,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Service catalogue</div>
             <div class="topbar-right">
-                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <span class="environment-tag">ADMIN API</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -108,62 +118,56 @@
 
             <div class="notice">
                 <span class="notice-icon">ⓘ</span>
-                <div><strong>Publication governance</strong><p>Only services with reviewed facts, valid sources and approved translations should eventually be published. This preview does not publish records to the citizen portal.</p></div>
+                <div><strong>Publication governance</strong><p>Only services with reviewed facts, valid sources and approved translations should be published. Publication is submitted through the authenticated administration API.</p></div>
             </div>
 
             <div class="catalog-stats">
-                <div class="catalog-stat"><small>Total service records</small><strong id="totalServices">0</strong></div>
-                <div class="catalog-stat"><small>Draft services</small><strong id="draftServices">0</strong></div>
-                <div class="catalog-stat"><small>In review</small><strong id="reviewServices">0</strong></div>
-                <div class="catalog-stat"><small>Published in preview</small><strong id="publishedServices">0</strong></div>
+                <div class="catalog-stat"><small>Total service records</small><strong id="totalServices">—</strong></div>
+                <div class="catalog-stat"><small>Active service records</small><strong id="draftServices">—</strong></div>
+                <div class="catalog-stat"><small>Inactive / archived</small><strong id="reviewServices">—</strong></div>
+                <div class="catalog-stat"><small>Records on this page</small><strong id="publishedServices">—</strong></div>
             </div>
 
             <div class="catalog-toolbar">
                 <div class="catalog-search"><input id="serviceSearch" type="search" placeholder="Search service, code or department..."></div>
                 <div class="catalog-filters">
-                    <select id="categoryFilter">
-                        <option value="all">All categories</option>
-                        <option value="Identity & Certificates">Identity & Certificates</option>
-                        <option value="Education & Scholarships">Education & Scholarships</option>
-                        <option value="Health & Welfare">Health & Welfare</option>
-                        <option value="Financial Assistance">Financial Assistance</option>
-                        <option value="Employment">Employment</option>
-                        <option value="Business & Agriculture">Business & Agriculture</option>
-                        <option value="Other">Other</option>
-                    </select>
                     <select id="statusFilter">
-                        <option value="all">All statuses</option>
-                        <option value="draft">Draft</option>
-                        <option value="in_review">In review</option>
-                        <option value="published">Published</option>
+                        <option value="all">All service states</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
                         <option value="archived">Archived</option>
                     </select>
-                    <button class="catalog-button secondary" id="exportServicesBtn">Export CSV ↓</button>
+                    <button class="catalog-button secondary" id="exportServicesBtn">Export current page ↓</button>
                 </div>
             </div>
 
             <section class="panel">
                 <div class="panel-heading">
-                    <div><h2>Registered services</h2><p>Service records stored in this browser during preview.</p></div>
+                    <div><h2>Registered services</h2><p>Service records retrieved from the administration API.</p></div>
                     <span class="period-label" id="serviceResultCount">0 RECORDS</span>
                 </div>
                 <div class="catalog-table-wrap">
                     <table class="catalog-table">
                         <thead>
                             <tr>
-                                <th>Service</th><th>Category</th><th>Department</th><th>Jurisdiction</th><th>Status</th><th>Actions</th>
+                                <th>Code</th><th>Slug</th><th>Service status</th><th>Active</th><th>Versions</th><th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="serviceTableBody"></tbody>
                     </table>
                     <div class="catalog-empty" id="serviceEmpty">
                         <strong>No services registered yet</strong>
-                        Add a service record to start building the catalogue.
+                        No service records are available.
                     </div>
+                </div>
+                <div class="catalog-pagination">
+                    <button class="catalog-button secondary" id="previousServices" type="button">Previous</button>
+                    <span id="servicePageLabel">Page 1</span>
+                    <button class="catalog-button secondary" id="nextServices" type="button">Next</button>
                 </div>
             </section>
 
-            <p class="catalog-form-note">Preview mode: records are stored locally in this browser. No official eligibility, benefit, fee or procedure information is generated by this screen. Service publication requires backend validation and a complete evidence review.</p>
+            <p class="catalog-form-note">Published versions are immutable. Create a draft version to update its translation, link verified facts, and submit it for publication.</p>
         </section>
     </main>
 </div>
@@ -171,73 +175,48 @@
 <div class="catalog-modal-backdrop" id="serviceModal">
     <form class="catalog-modal" id="serviceForm">
         <div class="catalog-modal-heading">
-            <h2 id="serviceModalTitle">Add service record</h2>
+            <h2 id="serviceModalTitle">Create service record</h2>
             <button type="button" class="catalog-close" id="closeServiceModal">×</button>
         </div>
         <input type="hidden" id="serviceId">
         <div class="catalog-form-grid">
-            <div class="catalog-field full">
-                <label for="serviceName">Service name *</label>
-                <input id="serviceName" required maxlength="200" placeholder="Enter the official service name">
-            </div>
             <div class="catalog-field">
                 <label for="serviceCode">Unique service code *</label>
                 <input id="serviceCode" required maxlength="60" placeholder="e.g. KA-IDENTITY-001">
             </div>
             <div class="catalog-field">
+                <label for="serviceSlug">Unique service slug *</label>
+                <input id="serviceSlug" required maxlength="200" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="example-service">
+            </div>
+            <div class="catalog-field">
                 <label for="serviceCategory">Category *</label>
-                <select id="serviceCategory" required>
-                    <option value="">Select category</option>
-                    <option>Identity & Certificates</option>
-                    <option>Education & Scholarships</option>
-                    <option>Health & Welfare</option>
-                    <option>Financial Assistance</option>
-                    <option>Employment</option>
-                    <option>Business & Agriculture</option>
-                    <option>Other</option>
-                </select>
+                <select id="serviceCategory" required><option value="">Select category</option></select>
             </div>
             <div class="catalog-field">
                 <label for="departmentName">Department / ministry *</label>
-                <input id="departmentName" required maxlength="180" placeholder="Official department name">
+                <select id="departmentName" required><option value="">Select department</option></select>
             </div>
             <div class="catalog-field">
-                <label for="serviceJurisdiction">Jurisdiction *</label>
-                <select id="serviceJurisdiction" required>
-                    <option value="">Select jurisdiction</option>
-                    <option>Central Government</option>
-                    <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
-                    <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
-                    <option>Goa</option><option>Gujarat</option><option>Haryana</option>
-                    <option>Himachal Pradesh</option><option>Jharkhand</option>
-                    <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option>
-                    <option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
-                    <option>Mizoram</option><option>Nagaland</option><option>Odisha</option>
-                    <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option>
-                    <option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option>
-                    <option>Uttar Pradesh</option><option>Uttarakhand</option>
-                    <option>West Bengal</option><option>Other / Union Territory</option>
-                </select>
+                <label for="serviceLanguage">Translation language *</label>
+                <select id="serviceLanguage" required></select>
             </div>
-            <div class="catalog-field">
-                <label for="serviceStatus">Publication status</label>
-                <select id="serviceStatus">
-                    <option value="draft">Draft</option>
-                    <option value="in_review">In review</option>
-                    <option value="published">Published (preview only)</option>
-                    <option value="archived">Archived</option>
-                </select>
+            <div class="catalog-field full">
+                <label for="serviceName">Service title *</label>
+                <input id="serviceName" required maxlength="500" placeholder="Enter the official service title">
             </div>
             <div class="catalog-field full">
                 <label for="serviceDescription">Short description</label>
                 <textarea id="serviceDescription" maxlength="1500" placeholder="Enter a concise description supported by an official source..."></textarea>
             </div>
             <div class="catalog-field full">
-                <label for="serviceSourceUrl">Official source URL</label>
-                <input id="serviceSourceUrl" type="url" placeholder="https://...">
+                <label for="applicationUrl">Official application URL (optional)</label>
+                <input id="applicationUrl" type="url" placeholder="https://...">
             </div>
+            <div class="catalog-field"><label for="effectiveFrom">Effective from *</label><input id="effectiveFrom" type="date" required></div>
+            <div class="catalog-field"><label for="effectiveTo">Effective to (optional)</label><input id="effectiveTo" type="date"></div>
+            <div class="catalog-field full"><label for="versionSummary">Draft change summary</label><textarea id="versionSummary" maxlength="2000"></textarea></div>
         </div>
-        <p class="catalog-form-note">Use an official source URL where available. This form does not validate source authority or verify service details.</p>
+        <p class="catalog-form-note">Creating a service and its first draft version uses separate API requests. If a later request fails, earlier changes remain saved and are reported.</p>
         <div class="catalog-modal-footer">
             <button type="button" class="catalog-cancel" id="cancelServiceModal">Cancel</button>
             <button type="submit" class="catalog-save">Save service</button>
@@ -245,7 +224,49 @@
     </form>
 </div>
 
+<div class="catalog-modal-backdrop" id="versionsModal">
+    <section class="catalog-modal" aria-labelledby="versionsTitle">
+        <div class="catalog-modal-heading">
+            <h2 id="versionsTitle">Service versions</h2>
+            <button type="button" class="catalog-close" id="closeVersionsModal" aria-label="Close">×</button>
+        </div>
+        <div id="versionList" aria-live="polite"></div>
+        <button class="catalog-button secondary" id="openVersionForm" type="button">＋ Create draft version</button>
+        <form id="versionForm" class="catalog-form-grid" hidden>
+            <div class="catalog-field"><label for="versionEffectiveFrom">Effective from *</label><input id="versionEffectiveFrom" type="date" required></div>
+            <div class="catalog-field"><label for="versionEffectiveTo">Effective to (optional)</label><input id="versionEffectiveTo" type="date"></div>
+            <div class="catalog-field full"><label for="versionChangeSummary">Change summary</label><textarea id="versionChangeSummary" maxlength="2000"></textarea></div>
+            <div class="catalog-field full"><button class="catalog-button" type="submit">Create draft version</button></div>
+        </form>
+        <form id="translationForm" class="catalog-form-grid" hidden>
+            <input id="translationVersionId" type="hidden">
+            <div class="catalog-field"><label for="translationLanguage">Language *</label><select id="translationLanguage" required></select></div>
+            <div class="catalog-field"><label for="translationTitle">Title *</label><input id="translationTitle" required maxlength="500"></div>
+            <div class="catalog-field full"><label for="translationDescription">Description</label><textarea id="translationDescription"></textarea></div>
+            <div class="catalog-field full"><label for="translationApplicationUrl">Application URL (optional)</label><input id="translationApplicationUrl" type="url"></div>
+            <div class="catalog-field full"><button class="catalog-button" type="submit">Save draft translation</button></div>
+        </form>
+        <form id="factLinkForm" class="catalog-form-grid" hidden>
+            <input id="factVersionId" type="hidden">
+            <div class="catalog-field full"><label for="linkableFact">Verified fact *</label><select id="linkableFact" required></select></div>
+            <div class="catalog-field full"><label for="factRelationship">Relationship *</label>
+                <select id="factRelationship" required>
+                    <option value="general_information">General information</option>
+                    <option value="eligibility">Eligibility</option>
+                    <option value="required_document">Required document</option>
+                    <option value="application_step">Application step</option>
+                    <option value="fee">Fee</option>
+                    <option value="deadline">Deadline</option>
+                </select>
+            </div>
+            <div class="catalog-field full"><button class="catalog-button" type="submit">Link verified fact</button></div>
+        </form>
+        <p class="catalog-form-note">Only verified facts can be linked. Published versions are immutable; create a draft before changing published information. Translation updates replace the selected language's title, description and URL.</p>
+    </section>
+</div>
+
 <div class="catalog-toast" id="catalogToast"></div>
+<script src="../../js/api/client.js"></script>
 <script src="../../js/admin.js"></script>
 <script src="../../js/admin-services.js"></script>
 </body>

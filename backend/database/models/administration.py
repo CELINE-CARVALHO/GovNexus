@@ -7,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     Index,
+    Integer,
     JSON,
     String,
     Text,
@@ -57,6 +58,13 @@ class AdminUser(
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
+        nullable=False,
+    )
+
+    auth_token_version: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default="0",
         nullable=False,
     )
 
@@ -124,4 +132,3 @@ class AuditLog(
         String(100),
         nullable=True,
     )
-

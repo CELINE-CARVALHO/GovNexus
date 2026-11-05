@@ -1,32 +1,11 @@
 ﻿from backend.database.connection import SessionLocal
 from backend.database.models.language import Language
 from backend.database.models.category import Category, CategoryTranslation
+from backend.master_data import EIGHTH_SCHEDULE_LANGUAGES
 
 
-LANGUAGES = [
-    ("en", "English", "English", True),
-    ("as", "Assamese", "অসমীয়া", False),
-    ("bn", "Bengali", "বাংলা", False),
-    ("brx", "Bodo", "बड़ो", False),
-    ("doi", "Dogri", "डोगरी", False),
-    ("gu", "Gujarati", "ગુજરાતી", False),
-    ("hi", "Hindi", "हिन्दी", False),
-    ("kn", "Kannada", "ಕನ್ನಡ", False),
-    ("ks", "Kashmiri", "कॉशुर", False),
-    ("kok", "Konkani", "कोंकणी", False),
-    ("mai", "Maithili", "मैथिली", False),
-    ("ml", "Malayalam", "മലയാളം", False),
-    ("mni", "Manipuri", "মৈতৈলোন্", False),
-    ("mr", "Marathi", "मराठी", False),
-    ("ne", "Nepali", "नेपाली", False),
-    ("or", "Odia", "ଓଡ଼ିଆ", False),
-    ("pa", "Punjabi", "ਪੰਜਾਬੀ", False),
-    ("sa", "Sanskrit", "संस्कृतम्", False),
-    ("sat", "Santali", "ᱥᱟᱱᱛᱟᱲᱤ", False),
-    ("sd", "Sindhi", "سنڌي", False),
-    ("ta", "Tamil", "தமிழ்", False),
-    ("te", "Telugu", "తెలుగు", False),
-    ("ur", "Urdu", "اردو", False),
+LANGUAGES = [("en", "English", "English", True)] + [
+    (*language, True) for language in EIGHTH_SCHEDULE_LANGUAGES
 ]
 
 CATEGORIES = [
@@ -59,6 +38,36 @@ CATEGORIES = [
         "health",
         "Health & insurance",
         "Public health services, health coverage, and insurance-related support.",
+    ),
+    (
+        "agriculture",
+        "Agriculture",
+        "Agriculture and farmer support services.",
+    ),
+    (
+        "employment",
+        "Employment",
+        "Employment and livelihood services.",
+    ),
+    (
+        "skills",
+        "Skill development",
+        "Skill development and vocational training services.",
+    ),
+    (
+        "housing",
+        "Housing",
+        "Housing and shelter support services.",
+    ),
+    (
+        "senior-citizens",
+        "Senior citizens",
+        "Services and support for senior citizens.",
+    ),
+    (
+        "disability",
+        "Disability assistance",
+        "Accessibility, disability assistance, and related services.",
     ),
 ]
 

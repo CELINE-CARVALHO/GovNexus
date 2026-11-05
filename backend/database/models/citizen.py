@@ -11,6 +11,7 @@ from sqlalchemy import (
     JSON,
     String,
     Text,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -76,6 +77,12 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=True,
     )
 
+    auth_token_version: Mapped[int] = mapped_column(
+        default=0,
+        server_default=text("0"),
+        nullable=False,
+    )
+
     profile: Mapped[UserProfile | None] = relationship(
         "UserProfile",
         back_populates="user",
@@ -101,6 +108,12 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
 
     saved_services: Mapped[list[SavedService]] = relationship(
         "SavedService",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    applications: Mapped[list[CitizenApplication]] = relationship(
+        "CitizenApplication",
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -242,6 +255,4 @@ class UserContext(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         "User",
         back_populates="contexts",
     )
-
-
 

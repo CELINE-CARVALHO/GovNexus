@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/profile.css">
+  <link rel="stylesheet" href="../css/accessibility.css">
 </head>
 <body>
   <div class="app-shell">
@@ -66,9 +67,9 @@
               <section class="profile-card form-card">
                 <div class="section-heading"><div><span class="section-icon">01</span><h2>Personal information</h2><p>Basic details to personalise your experience.</p></div><span class="optional-tag">EDITABLE</span></div>
                 <div class="form-grid">
-                  <label class="field full"><span>Full name</span><input id="fullName" name="fullName" type="text" placeholder="Enter your full name" maxlength="100"></label>
-                  <label class="field"><span>Email address</span><input id="email" name="email" type="email" placeholder="you@example.com"></label>
-                  <label class="field"><span>Phone number <small>Optional</small></span><input id="phone" name="phone" type="tel" placeholder="Enter phone number" maxlength="15"></label>
+                  <label class="field full"><span>Full name</span><input id="fullName" name="fullName" type="text" placeholder="Enter your full name" maxlength="255" autocomplete="name"></label>
+                  <label class="field"><span>Email address</span><input id="email" name="email" type="email" readonly></label>
+                  <label class="field"><span>Phone number</span><input id="phone" name="phone" type="tel" readonly></label>
                 </div>
               </section>
 
@@ -78,12 +79,11 @@
                   <label class="field"><span>State / Union Territory</span>
                     <select id="state" name="state">
                       <option value="">Select your state</option>
-                      <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option><option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option><option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option><option>Odisha</option><option>Punjab</option><option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option><option>Andaman and Nicobar Islands</option><option>Chandigarh</option><option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option><option>Jammu and Kashmir</option><option>Ladakh</option><option>Lakshadweep</option><option>Puducherry</option>
                     </select>
                   </label>
-                  <label class="field"><span>District / City</span><input id="district" name="district" type="text" placeholder="Enter district or city" maxlength="100"></label>
+                  <label class="field"><span>District / City</span><select id="district" name="district" disabled><option value="">Select your district</option></select></label>
                 </div>
-                <div class="location-note">Your location helps distinguish central, state and local government services.</div>
+                <div class="location-note">Choose a state and district from the active government location catalogue.</div>
               </section>
 
               <section class="profile-card form-card">
@@ -95,7 +95,7 @@
                     </select>
                   </label>
                 </div>
-                <div class="language-note"><span>✦</span> Language options are being prepared for a phased multilingual experience.</div>
+                <div class="language-note"><span>✦</span> Available language options are loaded from SchemeSathi.</div>
               </section>
 
               <section class="profile-card form-card">
@@ -115,7 +115,7 @@
               <p>Your preferences help SchemeSathi organise relevant government services and guidance.</p>
             </div>
             <div class="aside-card privacy-aside"><div class="privacy-icon">♧</div><h3>Your privacy, your choice.</h3><p>Only provide details you are comfortable sharing. You do not need to enter Aadhaar, PAN, bank details or other sensitive identity information here.</p><a href="#" id="privacyInfo">About profile data ↗</a></div>
-            <div class="aside-card account-card"><span class="account-label">ACCOUNT</span><h3>Account settings</h3><p>Authentication and security settings will be available when account services are connected.</p><button type="button" class="disabled-action" disabled>Security settings · Coming soon</button></div>
+            <div class="aside-card account-card"><span class="account-label">ACCOUNT</span><h3>Account settings</h3><p>Email and phone are read-only here. Change your password from account recovery when that API is available.</p><button type="button" class="disabled-action" disabled>Password change · Not available here</button></div>
           </aside>
         </div>
         <footer class="page-footer">SchemeSathi <span>·</span> Making public services easier to understand.</footer>
@@ -123,7 +123,7 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status"></div>
+  <script src="../js/api/client.js"></script>
   <script src="../js/profile.js"></script>
 </body>
 </html>
-

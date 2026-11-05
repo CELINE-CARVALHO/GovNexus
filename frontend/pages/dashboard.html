@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/dashboard.css">
 </head>
 
@@ -246,7 +247,7 @@
                         </div>
 
                         <a href="assistant.html" class="assistant-full-button">Open AI assistant ↗</a>
-                        <small class="widget-demo-note">Live AI assistance requires backend integration.</small>
+                        <small class="widget-demo-note">Responses use the grounded assistant API and currently verified evidence.</small>
                     </section>
 
                     <section class="panel recommendation-panel">
@@ -379,6 +380,7 @@
 
 <div class="toast" id="dashboardToast" role="status" aria-live="polite"></div>
 
+<script src="../js/api/client.js"></script>
 <script src="../js/dashboard.js"></script>
 
 </body>

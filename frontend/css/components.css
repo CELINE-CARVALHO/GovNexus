@@ -33,7 +33,9 @@
 .mic-button svg, .send-button svg { width:17px; height:17px; }
 .send-button { color:#fff; background:var(--blue); transition:.2s; }
 .send-button:hover { background:var(--blue-dark); transform:translateY(-1px); }
-.composer-footer { display:flex; justify-content:space-between; margin-top:9px; color:#a0a9ba; font-size:8px; }
+.composer-footer { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:9px; color:#a0a9ba; font-size:8px; }
+.voice-language { display:flex; align-items:center; gap:5px; }
+.voice-language select { border:0; color:#7583a6; background:transparent; font:inherit; }
 .assistant-note { margin-top:16px; padding-top:12px; border-top:1px solid #f0f2f7; color:#9aa3b5; font-size:8px; line-height:1.6; }
 .assistant-note span { color:#6f83d6; margin-right:4px; }
 .large-search { display:flex; align-items:center; gap:12px; width:min(590px,58%); padding:7px 8px 7px 15px; background:#fff; border:1px solid #e7ebf4; border-radius:12px; box-shadow:0 7px 25px #263b7510; }

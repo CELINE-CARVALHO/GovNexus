@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/accessibility.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/responsive.css">
@@ -119,7 +120,9 @@
           </form>
           <div class="composer-footer">
             <span id="voiceStatus">✦ Powered by AI</span>
-            <span>Ask in your language</span>
+            <label class="voice-language" for="voiceLanguage">Language
+              <select id="voiceLanguage" aria-label="Voice input language"></select>
+            </label>
           </div>
           <div class="assistant-note"><span>ⓘ</span> Answers are guided by available sources. Always check official instructions before applying.</div>
         </div>
@@ -157,37 +160,8 @@
         <a class="text-link" href="pages/services.html">Explore all services <span>↗</span></a>
       </div>
 
-      <div class="category-grid">
-        <a class="category-card category-blue" href="pages/services.html?category=identity">
-          <span class="category-icon">▣</span><span class="category-count">IDENTITY & DOCUMENTS</span>
-          <strong>Identity &<br>certificates</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-document">▤</span>
-        </a>
-        <a class="category-card category-peach" href="pages/services.html?category=education">
-          <span class="category-icon">✧</span><span class="category-count">EDUCATION</span>
-          <strong>Scholarships &<br>education</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-book">▱</span>
-        </a>
-        <a class="category-card category-green" href="pages/services.html?category=welfare">
-          <span class="category-icon">♡</span><span class="category-count">WELFARE</span>
-          <strong>Women &<br>child welfare</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-heart">♡</span>
-        </a>
-        <a class="category-card category-lilac" href="pages/services.html?category=finance">
-          <span class="category-icon">₹</span><span class="category-count">FINANCIAL SUPPORT</span>
-          <strong>Pensions &<br>financial aid</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-rupee">₹</span>
-        </a>
-        <a class="category-card category-yellow" href="pages/services.html?category=business">
-          <span class="category-icon">⌂</span><span class="category-count">LIVELIHOOD</span>
-          <strong>Business &<br>employment</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-briefcase">▰</span>
-        </a>
-        <a class="category-card category-mint" href="pages/services.html?category=health">
-          <span class="category-icon">＋</span><span class="category-count">HEALTH</span>
-          <strong>Healthcare &<br>insurance</strong><span class="category-arrow">↗</span>
-          <span class="category-art art-health">✚</span>
-        </a>
+      <div class="category-grid" id="homeCategoryGrid" aria-live="polite">
+        <p role="status">Loading published service categories…</p>
       </div>
     </section>
 
@@ -200,25 +174,13 @@
           <a href="pages/profile.html" class="light-button">Personalise my experience <span>→</span></a>
         </div>
         <div class="recommendation-card">
-          <div class="recommendation-top"><span>✦</span> YOUR DISCOVERY SPACE <span class="demo-pill">PREVIEW</span></div>
-          <h3>Services worth exploring</h3>
-          <p class="recommendation-sub">Examples of how personalised discovery could look.</p>
-          <div class="recommendation-item">
-            <div class="recommendation-icon rec-violet">✧</div>
-            <div><strong>Education scholarships</strong><span>Discover scholarship opportunities</span></div>
-            <span class="recommendation-chevron">↗</span>
+          <div class="recommendation-top"><span>♡</span> YOUR ACCOUNT</div>
+          <h3>Your saved services</h3>
+          <p class="recommendation-sub">Published services saved to your SchemeSathi account.</p>
+          <div id="homeSavedServices" aria-live="polite">
+            <p role="status">Loading your saved services…</p>
           </div>
-          <div class="recommendation-item">
-            <div class="recommendation-icon rec-green">♡</div>
-            <div><strong>Women-focused schemes</strong><span>Explore support and welfare services</span></div>
-            <span class="recommendation-chevron">↗</span>
-          </div>
-          <div class="recommendation-item">
-            <div class="recommendation-icon rec-orange">▤</div>
-            <div><strong>Document assistance</strong><span>Understand certificates and corrections</span></div>
-            <span class="recommendation-chevron">↗</span>
-          </div>
-          <div class="recommendation-disclaimer">Illustrative recommendations. Sign in and provide optional preferences to personalise your discovery.</div>
+          <div class="recommendation-disclaimer">Only services saved to your account are listed here.</div>
         </div>
         <div class="decorative-sparkle sparkle-a">✳</div>
         <div class="decorative-sparkle sparkle-b">✦</div>

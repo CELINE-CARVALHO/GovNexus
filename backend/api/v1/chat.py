@@ -5,7 +5,7 @@ import json
 import re
 import secrets
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Annotated, Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,10 +13,11 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from backend.core.security import get_current_admin
+from backend.core.security import get_current_admin, get_optional_current_citizen
 from backend.database.connection import get_db
 from backend.database.models.administration import AdminUser
 from backend.database.models.citizen import GuestSession
+from backend.database.models.citizen import User
 from backend.database.models.conversation import (
     ConversationMessage,
     ConversationSession,
@@ -152,67 +153,107 @@ def _new_guest_session(db: Session) -> tuple[GuestSession, str]:
 def _resolve_conversation(
     db: Session,
     payload: ChatRequest,
+    current_citizen: User | None = None,
 ) -> tuple[ConversationSession, str | None, list[str]]:
     stored_language = _language_for_storage(db, payload.language_code)
     guest_token: str | None = None
 
-    if payload.guest_session_token:
-        token_hash = hashlib.sha256(
-            payload.guest_session_token.encode("utf-8")
-        ).hexdigest()
-        guest = (
-            db.query(GuestSession)
-            .filter(
-                GuestSession.token_hash == token_hash,
-                GuestSession.is_revoked.is_(False),
-                GuestSession.claimed_by_user_id.is_(None),
-                GuestSession.expires_at > _utc_naive(),
-            )
-            .with_for_update()
-            .first()
-        )
-        if guest is None:
-            raise HTTPException(status_code=401, detail="Invalid or expired chat session.")
-    else:
-        if payload.conversation_id is not None:
+    if current_citizen is not None:
+        if payload.guest_session_token:
             raise HTTPException(
-                status_code=401,
-                detail="A guest session token is required for this conversation.",
+                status_code=422,
+                detail="Citizen conversations must not include a guest session token.",
             )
-        guest, guest_token = _new_guest_session(db)
-
-    if payload.conversation_id is not None:
-        conversation = (
-            db.query(ConversationSession)
-            .filter(
-                ConversationSession.id == payload.conversation_id,
-                ConversationSession.guest_session_id == guest.id,
-                ConversationSession.status == "active",
+        if payload.conversation_id is not None:
+            conversation = (
+                db.query(ConversationSession)
+                .filter(
+                    ConversationSession.id == payload.conversation_id,
+                    ConversationSession.user_id == current_citizen.id,
+                    ConversationSession.status == "active",
+                )
+                .with_for_update()
+                .first()
             )
-            .with_for_update()
-            .first()
-        )
-        if conversation is None:
-            raise HTTPException(status_code=404, detail="Conversation not found.")
+            if conversation is None:
+                raise HTTPException(status_code=404, detail="Conversation not found.")
+        else:
+            conversation = (
+                db.query(ConversationSession)
+                .filter(
+                    ConversationSession.user_id == current_citizen.id,
+                    ConversationSession.status == "active",
+                )
+                .order_by(ConversationSession.started_at.desc())
+                .first()
+            )
+            if conversation is None:
+                conversation = ConversationSession(
+                    user_id=current_citizen.id,
+                    language_code=stored_language,
+                    status="active",
+                    started_at=_utc_naive(),
+                )
+                db.add(conversation)
+                db.flush()
     else:
-        conversation = (
-            db.query(ConversationSession)
-            .filter(
-                ConversationSession.guest_session_id == guest.id,
-                ConversationSession.status == "active",
+        if payload.guest_session_token:
+            token_hash = hashlib.sha256(
+                payload.guest_session_token.encode("utf-8")
+            ).hexdigest()
+            guest = (
+                db.query(GuestSession)
+                .filter(
+                    GuestSession.token_hash == token_hash,
+                    GuestSession.is_revoked.is_(False),
+                    GuestSession.claimed_by_user_id.is_(None),
+                    GuestSession.expires_at > _utc_naive(),
+                )
+                .with_for_update()
+                .first()
             )
-            .order_by(ConversationSession.started_at.desc())
-            .first()
-        )
-        if conversation is None:
-            conversation = ConversationSession(
-                guest_session_id=guest.id,
-                language_code=stored_language,
-                status="active",
-                started_at=_utc_naive(),
+            if guest is None:
+                raise HTTPException(status_code=401, detail="Invalid or expired chat session.")
+        else:
+            if payload.conversation_id is not None:
+                raise HTTPException(
+                    status_code=401,
+                    detail="A guest session token is required for this conversation.",
+                )
+            guest, guest_token = _new_guest_session(db)
+
+        if payload.conversation_id is not None:
+            conversation = (
+                db.query(ConversationSession)
+                .filter(
+                    ConversationSession.id == payload.conversation_id,
+                    ConversationSession.guest_session_id == guest.id,
+                    ConversationSession.status == "active",
+                )
+                .with_for_update()
+                .first()
             )
-            db.add(conversation)
-            db.flush()
+            if conversation is None:
+                raise HTTPException(status_code=404, detail="Conversation not found.")
+        else:
+            conversation = (
+                db.query(ConversationSession)
+                .filter(
+                    ConversationSession.guest_session_id == guest.id,
+                    ConversationSession.status == "active",
+                )
+                .order_by(ConversationSession.started_at.desc())
+                .first()
+            )
+            if conversation is None:
+                conversation = ConversationSession(
+                    guest_session_id=guest.id,
+                    language_code=stored_language,
+                    status="active",
+                    started_at=_utc_naive(),
+                )
+                db.add(conversation)
+                db.flush()
 
     conversation.language_code = stored_language
 
@@ -431,8 +472,16 @@ def _save_messages(
 async def send_chat_message(
     payload: ChatRequest,
     db: Session = Depends(get_db),
+    current_citizen: Annotated[
+        User | None,
+        Depends(get_optional_current_citizen),
+    ] = None,
 ):
-    conversation, new_guest_token, history = _resolve_conversation(db, payload)
+    conversation, new_guest_token, history = _resolve_conversation(
+        db,
+        payload,
+        current_citizen,
+    )
     retrieval_question = payload.message
     if len(query_terms(payload.message)) < 2 and history:
         retrieval_question = " ".join([*history[-2:], payload.message])

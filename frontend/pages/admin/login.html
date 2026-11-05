@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f8fc">
+    <title>Admin sign in | SchemeSathi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/auth.css">
+</head>
+<body>
+<main class="auth-page">
+    <section class="auth-visual">
+        <a href="../../index.html" class="brand">
+            <span class="brand-mark">S</span>
+            <span>Scheme<span class="brand-accent">Sathi</span></span>
+        </a>
+        <div class="visual-content">
+            <div class="visual-eyebrow"><span></span> ADMINISTRATION WORKSPACE</div>
+            <h1>Trusted information.<br><span>Carefully governed.</span></h1>
+            <p>Sign in with an authorised SchemeSathi administrator account to manage service records and review evidence.</p>
+        </div>
+    </section>
+    <section class="auth-panel">
+        <div class="auth-container">
+            <div class="auth-topline">
+                <a href="../../index.html" class="back-home">← Citizen portal</a>
+                <span class="secure-label"><span>●</span> Admin account access</span>
+            </div>
+            <div class="auth-heading">
+                <div class="auth-kicker">SCHEMESATHI ADMIN</div>
+                <h2>Administrator sign in.</h2>
+                <p>Use your administrator credentials to continue.</p>
+            </div>
+            <div class="auth-message" id="adminAuthMessage" role="status" aria-live="polite" hidden></div>
+            <form id="adminAuthForm" novalidate>
+                <div class="form-field">
+                    <label for="adminEmail">Email address</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">✉</span>
+                        <input id="adminEmail" type="email" autocomplete="username" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="adminPassword">Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">♙</span>
+                        <input id="adminPassword" type="password" autocomplete="current-password" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button" id="adminSubmitButton">
+                    <span>Sign in</span><span>→</span>
+                </button>
+            </form>
+            <p class="auth-disclaimer">Administrator accounts are managed outside this page. Contact your platform administrator if you need access.</p>
+        </div>
+    </section>
+</main>
+<script src="../../js/api/client.js"></script>
+<script src="../../js/admin-auth.js"></script>
+</body>
+</html>

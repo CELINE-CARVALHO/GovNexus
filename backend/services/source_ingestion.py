@@ -14,7 +14,7 @@ from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.request import (
     HTTPRedirectHandler,
     HTTPSHandler,
@@ -39,6 +39,17 @@ USER_AGENT = "SchemeSathiKnowledgeBot/1.0"
 
 class UnsafeSourceURL(ValueError):
     pass
+
+
+def canonical_url_hash(url: str) -> str:
+    parsed = urlsplit(url.strip())
+    hostname = (parsed.hostname or "").lower()
+    port = parsed.port
+    netloc = hostname if not port or port == 443 else f"{hostname}:{port}"
+    canonical_url = urlunsplit(
+        ("https", netloc, parsed.path or "/", parsed.query, "")
+    )
+    return hashlib.sha256(canonical_url.encode("utf-8")).hexdigest()
 
 
 class SafeHTMLParser(HTMLParser):

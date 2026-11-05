@@ -74,7 +74,7 @@
             <a href="../../index.html"><span>⌂</span> View citizen portal</a>
         </nav>
         <div class="sidebar-bottom">
-            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Authenticated workspace</small></div></div>
         </div>
     </aside>
 
@@ -83,7 +83,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Knowledge ingestion</div>
             <div class="topbar-right">
-                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <span class="environment-tag">UNAVAILABLE</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -100,7 +100,7 @@
 
             <div class="notice">
                 <span class="notice-icon">ⓘ</span>
-                <div><strong>Local preview mode</strong><p>Selected files are not uploaded to a server or processed by AI yet. This screen currently manages a browser-side upload queue only.</p></div>
+                <div><strong>Ingestion unavailable in the browser</strong><p>No upload endpoint is exposed for these files, and source ingestion requires a server-side X-Source-Admin-Key. Files will not be added to a local queue or uploaded.</p></div>
             </div>
 
             <div class="ingest-stats">
@@ -120,7 +120,7 @@
             </section>
 
             <div class="ingest-toolbar">
-                <div><h2>Document queue</h2><p>Review selected files before backend integration.</p></div>
+                <div><h2>Document queue</h2><p>Uploads are disabled because no compatible authenticated upload endpoint exists.</p></div>
                 <div class="ingest-controls">
                     <input id="documentSearch" type="search" placeholder="Search documents...">
                     <select id="documentFilter">
@@ -140,8 +140,8 @@
                 </div>
                 <div class="document-list" id="documentList"></div>
                 <div class="empty-ingest" id="emptyQueue">
-                    <strong>Your document queue is empty</strong>
-                    Select one or more government documents to begin.
+                    <strong>Document ingestion is unavailable</strong>
+                    No ingestion operation can be safely called from this frontend.
                 </div>
             </section>
 
@@ -162,6 +162,7 @@
     </main>
 </div>
 <div class="ingest-toast" id="ingestToast"></div>
+<script src="../../js/api/client.js"></script>
 <script src="../../js/admin.js"></script>
 <script src="../../js/ingestion.js"></script>
 </body>

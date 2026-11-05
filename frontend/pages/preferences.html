@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/preferences.css">
+  <link rel="stylesheet" href="../css/accessibility.css">
 </head>
 <body>
   <div class="app-shell">
@@ -51,36 +52,47 @@
             <section class="settings-card">
               <div class="card-heading"><div class="heading-icon purple">文</div><div><h2>Language & region</h2><p>Choose how information is presented to you.</p></div></div>
               <label class="field"><span>Preferred language</span>
-                <select id="language">
-                  <option value="en">English</option><option value="hi">हिन्दी — Hindi</option><option value="kn">ಕನ್ನಡ — Kannada</option><option value="mr">मराठी — Marathi</option><option value="ta">தமிழ் — Tamil</option><option value="te">తెలుగు — Telugu</option><option value="bn">বাংলা — Bengali</option><option value="gu">ગુજરાતી — Gujarati</option><option value="ml">മലയാളം — Malayalam</option><option value="pa">ਪੰਜਾਬੀ — Punjabi</option><option value="ur">اردو — Urdu</option><option value="or">ଓଡ଼ିଆ — Odia</option><option value="as">অসমীয়া — Assamese</option><option value="sa">संस्कृतम् — Sanskrit</option><option value="ks">कॉशुर — Kashmiri</option><option value="kok">कोंकणी — Konkani</option><option value="mai">मैथिली — Maithili</option><option value="ne">नेपाली — Nepali</option><option value="sd">سنڌي — Sindhi</option><option value="doi">डोगरी — Dogri</option><option value="mni">মৈতৈলোন্ — Manipuri</option><option value="sat">संताली — Santali</option><option value="brx">बर’ — Bodo</option>
+                <select id="language" aria-describedby="languageAvailability">
+                  <option value="">Loading available languages…</option>
                 </select>
               </label>
-              <div class="info-note"><span>✦</span><p>Your language preference is saved locally. Full translation support is being introduced in stages.</p></div>
+              <div class="info-note"><span>✦</span><p id="languageAvailability">Your preferred language is saved to your citizen profile. Scheme text is shown in this language only when a published translation is available; otherwise the English source is used and identified as a fallback.</p></div>
             </section>
 
             <section class="settings-card">
               <div class="card-heading"><div class="heading-icon blue">♧</div><div><h2>Notifications</h2><p>Choose which reminders you would like SchemeSathi to prepare.</p></div></div>
-              <div class="setting-row"><div><strong>Application reminders</strong><p>Reminders for follow-up dates you enter in your personal tracker.</p></div><label class="switch"><input id="applicationReminders" type="checkbox"><span></span></label></div>
-              <div class="setting-row"><div><strong>Saved service updates</strong><p>Preferences for updates about services you have saved.</p></div><label class="switch"><input id="savedUpdates" type="checkbox"><span></span></label></div>
-              <div class="setting-row"><div><strong>New service announcements</strong><p>Preferences for announcements about newly listed services.</p></div><label class="switch"><input id="newServices" type="checkbox"><span></span></label></div>
-              <div class="setting-row"><div><strong>Product tips and guidance</strong><p>Helpful guidance about using SchemeSathi features.</p></div><label class="switch"><input id="productTips" type="checkbox"><span></span></label></div>
-              <div class="info-note"><span>ⓘ</span><p>These are saved notification preferences only. Email, SMS and push notifications are not connected yet.</p></div>
+              <div class="setting-row"><div><strong>Email notifications</strong><p>Save whether you prefer account notifications by email.</p></div><label class="switch"><input id="emailNotifications" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>SMS notifications</strong><p>Save whether you prefer account notifications by SMS.</p></div><label class="switch"><input id="smsNotifications" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>In-app notifications</strong><p>Save whether you prefer notifications inside SchemeSathi.</p></div><label class="switch"><input id="inAppNotifications" type="checkbox"><span></span></label></div>
             </section>
 
             <section class="settings-card">
               <div class="card-heading"><div class="heading-icon green">◉</div><div><h2>Accessibility</h2><p>Make the interface more comfortable to use.</p></div></div>
-              <div class="setting-row"><div><strong>Larger text</strong><p>Increase text size across supported SchemeSathi pages.</p></div><label class="switch"><input id="largeText" type="checkbox"><span></span></label></div>
+              <label class="field"><span>Text size</span>
+                <select id="fontSize">
+                  <option value="small">Small</option>
+                  <option value="medium">Medium</option>
+                  <option value="large">Large</option>
+                  <option value="extra_large">Extra large</option>
+                </select>
+              </label>
+              <label class="field text-scale-field"><span>Text scaling: <output id="textScaleValue" for="textScale">100%</output></span>
+                <input id="textScale" type="range" min="80" max="200" step="5" value="100" aria-label="Adjust text scale from 80 to 200 percent">
+              </label>
+              <div class="setting-row"><div><strong>High contrast</strong><p>Use stronger text and control contrast.</p></div><label class="switch"><input id="highContrast" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>More text and paragraph spacing</strong><p>Increase line height and space between text blocks.</p></div><label class="switch"><input id="increasedSpacing" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>Larger buttons and controls</strong><p>Make interactive targets easier to see and select.</p></div><label class="switch"><input id="largeButtons" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>Simple mode</strong><p>Reduce decorative interface elements and distractions.</p></div><label class="switch"><input id="simpleMode" type="checkbox"><span></span></label></div>
+              <div class="setting-row"><div><strong>Read assistant answers aloud</strong><p>Use your browser’s built-in speech voices. This does not call Gnani.</p></div><label class="switch"><input id="readAloud" type="checkbox"><span></span></label></div>
               <div class="setting-row"><div><strong>Reduced motion</strong><p>Reduce animations and motion effects.</p></div><label class="switch"><input id="reducedMotion" type="checkbox"><span></span></label></div>
-              <div class="setting-row"><div><strong>High contrast</strong><p>Use stronger contrast for interface elements.</p></div><label class="switch"><input id="highContrast" type="checkbox"><span></span></label></div>
+              <button class="reset-btn read-preview" id="readAloudPreview" type="button">Read accessibility settings aloud</button>
             </section>
 
             <section class="settings-card">
-              <div class="card-heading"><div class="heading-icon orange">◇</div><div><h2>Privacy & data</h2><p>Understand what is stored by this frontend preview.</p></div></div>
-              <div class="privacy-item"><div><strong>Personal profile</strong><p>Name, location and preferences you chose to save.</p></div><span class="local-label">LOCAL STORAGE</span></div>
-              <div class="privacy-item"><div><strong>Application tracker</strong><p>Your application names, reference details and personal notes.</p></div><span class="local-label">LOCAL STORAGE</span></div>
-              <div class="privacy-item"><div><strong>Saved services</strong><p>Categories and services you chose to save.</p></div><span class="local-label">LOCAL STORAGE</span></div>
-              <div class="privacy-warning"><strong>Before you continue</strong><p>These records are stored in this browser on this device. They are not synchronised to an account or backed up to a server. Avoid saving passwords, OTPs, Aadhaar, PAN or bank information.</p></div>
-              <button class="text-action" id="clearSearchHistory">Clear recent service history</button>
+              <div class="card-heading"><div class="heading-icon orange">◇</div><div><h2>Privacy & data</h2><p>Understand what is stored in your account and on this device.</p></div></div>
+              <div class="privacy-item"><div><strong>Citizen profile, saved services and application records</strong><p>These account records are retrieved from the SchemeSathi API after sign-in.</p></div><span class="local-label">ACCOUNT DATA</span></div>
+              <div class="privacy-item"><div><strong>Accessibility settings</strong><p>Saved to your citizen profile and cached on this device for immediate page rendering.</p></div><span class="local-label">ACCOUNT DATA</span></div>
+              <div class="privacy-warning"><strong>Before you continue</strong><p>Do not enter passwords, OTPs, Aadhaar, PAN or bank information into personal notes. Application records remain citizen-recorded and are not submitted to government portals.</p></div>
             </section>
 
             <div class="settings-actions"><span id="saveMessage" aria-live="polite"></span><button class="reset-btn" id="resetSettings">Reset preferences</button><button class="save-btn" id="saveSettings">Save preferences <span>→</span></button></div>
@@ -88,7 +100,7 @@
 
           <aside class="settings-aside">
             <div class="preview-card"><div class="preview-visual"><div class="preview-orbit"></div><div class="preview-symbol">✦</div></div><span class="eyebrow">YOUR SCHEMESATHI</span><h3>A more accessible public service experience.</h3><p>Your preferences help shape how the platform presents information and guidance.</p></div>
-            <div class="aside-card"><span class="aside-icon">⌁</span><h3>Settings are saved locally</h3><p>Changes remain in this browser. They are not yet linked to a signed-in account.</p></div>
+            <div class="aside-card"><span class="aside-icon">⌁</span><h3>Settings follow your account</h3><p>Language and notification channels are saved to your signed-in citizen profile.</p></div>
             <div class="aside-card"><span class="aside-icon">?</span><h3>Need assistance?</h3><p>Ask the assistant if you need help understanding how SchemeSathi works.</p><a href="assistant.html">Open AI assistant →</a></div>
           </aside>
         </div>
@@ -97,6 +109,7 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status"></div>
+  <script src="../js/api/client.js"></script>
   <script src="../js/preferences.js"></script>
 </body>
 </html>

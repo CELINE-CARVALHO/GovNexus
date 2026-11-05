@@ -9,8 +9,11 @@
   const voiceLabel = document.getElementById("voiceLabel");
   const voiceStatus = document.getElementById("voiceStatus");
   const languageSelect = document.getElementById("chatLanguage");
-  const apiBase = window.SchemeSathiAPI?.baseUrl || "http://127.0.0.1:8000/api/v1";
+  const api = window.SchemeSathiAPI;
   const maxRecordingSeconds = 30;
+  const voiceSupportedLanguages = new Set([
+    "bn", "en", "gu", "hi", "kn", "ml", "mr", "pa", "ta", "te"
+  ]);
 
   let toastTimer;
   let microphoneStream = null;
@@ -54,6 +57,17 @@
 
   function setVoiceStatus(message) {
     voiceStatus.textContent = message;
+  }
+
+  function updateVoiceAvailability() {
+    const supported = voiceSupportedLanguages.has(
+      languageSelect.value.split("-")[0].toLowerCase()
+    );
+    voiceButton.disabled = !supported;
+    if (!supported) {
+      setVoiceStatus("Voice input is currently available in 10 languages.");
+    }
+    return supported;
   }
 
   function renderCitations(container, citations) {
@@ -106,20 +120,15 @@
     await stopPlayback();
     status.textContent = "Preparing audio…";
     try {
-      const response = await fetch(`${apiBase}/voice/synthesize`, {
+      const audioBlob = await api.request("/voice/synthesize", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        responseType: "blob",
         body: JSON.stringify({
           text,
           language_code: languageCode,
           speed: 1.0
         })
       });
-      if (!response.ok) {
-        const result = await response.json().catch(() => ({}));
-        throw new Error(result.detail || "Speech generation failed.");
-      }
-      const audioBlob = await response.blob();
       if (!audioBlob.size || audioBlob.type !== "audio/wav") {
         throw new Error("The speech service returned an unsupported audio file.");
       }
@@ -140,6 +149,7 @@
 
   function renderMessage(message, options = {}) {
     const isUser = message.role === "user";
+    const messageText = message.text ?? message.content ?? "";
     const wrapper = document.createElement("article");
     wrapper.className = `chat-message ${isUser ? "user" : "assistant"}`;
     const body = document.createElement("div");
@@ -149,7 +159,7 @@
     name.textContent = isUser ? "You" : "SchemeSathi AI";
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
-    bubble.textContent = message.text;
+    bubble.textContent = messageText;
     body.append(name, bubble);
 
     if (!isUser && options.citations?.length) {
@@ -159,56 +169,99 @@
     const actions = document.createElement("div");
     actions.className = "message-actions";
     const description = document.createElement("span");
-    description.textContent = isUser ? "Your question" : "Verified guidance";
+    description.textContent = isUser
+      ? "Your question"
+      : options.historical
+        ? options.grounded === false
+          ? "Evidence unavailable"
+          : options.grounded === true ? "Verified guidance" : "Conversation history"
+        : options.grounded ? "Verified guidance" : "Evidence unavailable";
     actions.appendChild(description);
 
     if (!isUser) {
       const copyButton = document.createElement("button");
       copyButton.type = "button";
       copyButton.textContent = "Copy response";
-      copyButton.addEventListener("click", () => {
-        navigator.clipboard?.writeText(message.text)
-          .then(() => notify("Response copied."))
-          .catch(() => notify("Clipboard access is unavailable."));
+      copyButton.addEventListener("click", async () => {
+        if (!navigator.clipboard?.writeText) {
+          notify("Clipboard access is unavailable.");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(messageText);
+          notify("Response copied.");
+        } catch (error) {
+          notify("Clipboard access is unavailable.");
+        }
       });
       actions.appendChild(copyButton);
 
       const audioStatus = document.createElement("span");
       audioStatus.className = "audio-status";
+      const code = String(message.languageCode || languageSelect.value)
+        .split("-")[0].toLowerCase();
       const listenButton = document.createElement("button");
       listenButton.type = "button";
-      listenButton.textContent = "Listen";
-      listenButton.addEventListener("click", () => speakAnswer(
-        message.text,
-        message.languageCode || languageSelect.value,
-        listenButton,
-        audioStatus
-      ));
-      const replayButton = document.createElement("button");
-      replayButton.type = "button";
-      replayButton.textContent = "Replay";
-      replayButton.addEventListener("click", () => speakAnswer(
-        message.text,
-        message.languageCode || languageSelect.value,
-        replayButton,
-        audioStatus
-      ));
-      const stopButton = document.createElement("button");
-      stopButton.type = "button";
-      stopButton.textContent = "Stop";
-      stopButton.addEventListener("click", () => {
-        stopPlayback();
-        audioStatus.textContent = "Playback stopped.";
-      });
-      actions.append(listenButton, replayButton, stopButton, audioStatus);
+      if (voiceSupportedLanguages.has(code)) {
+        listenButton.textContent = "Listen";
+        listenButton.addEventListener("click", () => speakAnswer(
+          messageText,
+          message.languageCode || languageSelect.value,
+          listenButton,
+          audioStatus
+        ));
+        const replayButton = document.createElement("button");
+        replayButton.type = "button";
+        replayButton.textContent = "Replay";
+        replayButton.addEventListener("click", () => speakAnswer(
+          messageText,
+          message.languageCode || languageSelect.value,
+          replayButton,
+          audioStatus
+        ));
+        const stopButton = document.createElement("button");
+        stopButton.type = "button";
+        stopButton.textContent = "Stop";
+        stopButton.addEventListener("click", () => {
+          stopPlayback();
+          audioStatus.textContent = "Playback stopped.";
+        });
+        actions.append(listenButton, replayButton, stopButton, audioStatus);
+      } else {
+        listenButton.textContent = "Read aloud";
+        listenButton.addEventListener("click", () =>
+          speakWithBrowser(messageText, message.languageCode || languageSelect.value, audioStatus)
+        );
+        actions.append(listenButton, audioStatus);
+      }
       if (options.autoSpeak) {
         speakAnswer(
-          message.text,
+          messageText,
           message.languageCode || languageSelect.value,
           listenButton,
           audioStatus
         );
+      } else if (options.readAloud) {
+        speakWithBrowser(
+          messageText,
+          message.languageCode || languageSelect.value,
+          audioStatus
+        );
       }
+    }
+
+    function speakWithBrowser(text, languageCode, status) {
+      if (!("speechSynthesis" in window)) {
+        status.textContent = "Built-in read-aloud is unavailable in this browser.";
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = languageCode;
+      utterance.onstart = () => { status.textContent = "Reading aloud."; };
+      utterance.onend = () => { status.textContent = "Read-aloud finished."; };
+      utterance.onerror = () => { status.textContent = "Read-aloud could not be completed."; };
+      window.speechSynthesis.speak(utterance);
     }
 
     body.appendChild(actions);
@@ -219,14 +272,108 @@
     conversation.appendChild(wrapper);
   }
 
-  function updateHistory(text) {
+  function renderHistoryEmpty(message) {
+    historyList.replaceChildren();
+    const empty = document.createElement("div");
+    empty.className = "history-empty";
+    empty.textContent = message;
+    historyList.appendChild(empty);
+  }
+
+  function addHistoryItem(id, title) {
     historyList.querySelector(".history-empty")?.remove();
+    const existing = [...historyList.querySelectorAll("[data-conversation-id]")]
+      .find(item => item.dataset.conversationId === id);
+    if (existing) {
+      existing.textContent = `◦  ${title}`;
+      historyList.prepend(existing);
+      return;
+    }
     const item = document.createElement("button");
     item.className = "history-item";
     item.type = "button";
-    item.textContent = "◦  " + (text.length > 32 ? text.slice(0, 32) + "…" : text);
-    item.title = text;
+    item.dataset.conversationId = id;
+    item.textContent = "◦  " + (title.length > 32 ? `${title.slice(0, 32)}…` : title);
+    item.title = title;
+    item.addEventListener("click", () => openConversation(id));
     historyList.prepend(item);
+  }
+
+  async function loadConversationHistory() {
+    if (!await api.isAuthenticated("citizen")) {
+      renderHistoryEmpty("Sign in to view saved conversation history.");
+      return;
+    }
+    try {
+      const conversations = [];
+      let page = 1;
+      let pages = 1;
+      do {
+        const result = await api.get(
+          `/users/me/conversations?status=all&page=${page}&limit=100`,
+          "citizen"
+        );
+        conversations.push(...(Array.isArray(result.items) ? result.items : []));
+        pages = Number(result.pagination?.pages) || 1;
+        page += 1;
+      } while (page <= pages);
+
+      historyList.replaceChildren();
+      if (!conversations.length) {
+        renderHistoryEmpty("No saved conversations yet.");
+        return;
+      }
+      conversations.forEach(item => {
+        const title = item.title || `Conversation ${item.id.slice(0, 8)}`;
+        const button = document.createElement("button");
+        button.className = "history-item";
+        button.type = "button";
+        button.dataset.conversationId = item.id;
+        button.textContent = "◦  " + (title.length > 32 ? `${title.slice(0, 32)}…` : title);
+        button.title = `${title}${item.status === "archived" ? " · archived" : ""}`;
+        button.disabled = item.status === "archived";
+        button.addEventListener("click", () => openConversation(item.id));
+        historyList.appendChild(button);
+      });
+    } catch (error) {
+      renderHistoryEmpty(`Conversation history is unavailable: ${error.message}`);
+    }
+  }
+
+  async function openConversation(id) {
+    if (!await api.isAuthenticated("citizen")) return;
+    try {
+      const pages = [];
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const result = await api.get(
+          `/users/me/conversations/${encodeURIComponent(id)}?page=${page}&limit=200`,
+          "citizen"
+        );
+        pages.push(...(Array.isArray(result.messages) ? result.messages : []));
+        totalPages = Number(result.pagination?.pages) || 1;
+        page += 1;
+      } while (page <= totalPages);
+
+      conversationId = id;
+      guestSessionToken = null;
+      conversation.replaceChildren();
+      showConversation();
+      pages.forEach(item => renderMessage({
+        role: item.role,
+        content: item.content,
+        languageCode: item.language_code
+      }, {
+        historical: true,
+        grounded: item.grounded,
+        citations: item.citations
+      }));
+      conversation.scrollTop = conversation.scrollHeight;
+      notify("Conversation history loaded.");
+    } catch (error) {
+      notify(`Could not load conversation: ${error.message}`);
+    }
   }
 
   function addTypingIndicator() {
@@ -251,7 +398,6 @@
     form.querySelector(".submit-message").disabled = true;
     showConversation();
     renderMessage({ role: "user", text: cleanText });
-    updateHistory(cleanText);
     input.value = "";
     input.style.height = "auto";
     const typing = addTypingIndicator();
@@ -262,19 +408,13 @@
         message: cleanText,
         language_code: languageSelect.value
       };
-      if (guestSessionToken) payload.guest_session_token = guestSessionToken;
+      const citizenSession = await api.isAuthenticated("citizen");
+      if (!citizenSession && guestSessionToken) payload.guest_session_token = guestSessionToken;
       if (conversationId) payload.conversation_id = conversationId;
-      const response = await fetch(`${apiBase}/chat/message`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(result.detail || "The assistant could not answer right now.");
-      }
+      const result = await api.post("/chat/message", payload, citizenSession ? "citizen" : null);
       guestSessionToken = result.guest_session_token || guestSessionToken;
       conversationId = result.conversation_id || conversationId;
+      if (citizenSession && conversationId) addHistoryItem(conversationId, cleanText);
       typing.remove();
       renderMessage(
         {
@@ -282,7 +422,12 @@
           text: result.answer,
           languageCode: payload.language_code
         },
-        { citations: result.citations, autoSpeak: fromVoice }
+        {
+          citations: result.citations,
+          grounded: result.grounded,
+          autoSpeak: fromVoice,
+          readAloud: api.getAccessibilityPreferences().read_aloud
+        }
       );
       setVoiceStatus(
         result.evidence_language_fallback
@@ -361,7 +506,9 @@
     microphoneStream?.getTracks().forEach(track => track.stop());
     microphoneStream = null;
     if (audioContext) {
-      audioContext.close().catch(() => {});
+      audioContext.close().catch(error =>
+        console.error("Could not close the audio context.", error)
+      );
       audioContext = null;
     }
     recording = false;
@@ -453,14 +600,10 @@
       formData.append("audio_file", blob, "schemesathi-recording.wav");
       formData.append("language_code", languageSelect.value);
       formData.append("format", "transcribe");
-      const response = await fetch(`${apiBase}/voice/transcribe`, {
+      const result = await api.request("/voice/transcribe", {
         method: "POST",
         body: formData
       });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(result.detail || "Speech recognition failed.");
-      }
       const transcript = String(result.transcript || "").trim();
       if (!transcript) throw new Error("No speech was recognized.");
       input.value = transcript;
@@ -498,21 +641,46 @@
     else startRecording();
   });
   languageSelect.addEventListener("change", () => {
-    setVoiceStatus("Ask in your preferred language");
+    if (updateVoiceAvailability()) {
+      setVoiceStatus("Ask in your preferred language");
+    }
+    try {
+      sessionStorage.setItem("schemesathi_selected_language", languageSelect.value);
+    } catch (error) {
+      notify("Language selection will apply only in this page.");
+    }
     notify(`Language set to ${languageSelect.options[languageSelect.selectedIndex].text}.`);
   });
-  document.getElementById("newChatButton").addEventListener("click", () => {
-    conversationId = null;
-    guestSessionToken = null;
-    stopPlayback();
-    if (recording) cleanupRecording();
-    conversation.innerHTML = "";
-    conversation.classList.remove("active");
-    welcome.style.display = "";
-    input.value = "";
-    input.focus();
-    setVoiceStatus("Ask in your preferred language");
-    notify("Started a new conversation.");
+  document.getElementById("newChatButton").addEventListener("click", async () => {
+    const newChatButton = document.getElementById("newChatButton");
+    newChatButton.disabled = true;
+    try {
+      if (await api.isAuthenticated("citizen")) {
+        const result = await api.post(
+          "/users/me/conversations",
+          { language_code: languageSelect.value.split("-")[0] },
+          "citizen"
+        );
+        conversationId = result.id;
+        if (conversationId) addHistoryItem(conversationId, result.title || "New conversation");
+      } else {
+        conversationId = null;
+        guestSessionToken = null;
+      }
+      await stopPlayback();
+      if (recording) cleanupRecording();
+      conversation.replaceChildren();
+      conversation.classList.remove("active");
+      welcome.style.display = "";
+      input.value = "";
+      input.focus();
+      setVoiceStatus("Ask in your preferred language");
+      notify("Started a new conversation.");
+    } catch (error) {
+      notify(`Could not start a new conversation: ${error.message}`);
+    } finally {
+      newChatButton.disabled = false;
+    }
   });
   document.getElementById("sidebarToggle")?.addEventListener("click", () => {
     document.getElementById("chatSidebar").classList.toggle("open");
@@ -523,9 +691,62 @@
     document.getElementById("sidebarOverlay").classList.remove("show");
   });
 
-  const initialPrompt = sessionStorage.getItem("schemesathi_initial_prompt");
-  if (initialPrompt) {
+  async function loadConversationLanguages() {
+    const result = await api.get("/languages?active_only=true");
+    const items = Array.isArray(result.items) ? result.items : [];
+    languageSelect.replaceChildren();
+    items.forEach(item => {
+      const code = `${String(item.code).split("-")[0].toLowerCase()}-IN`;
+      languageSelect.appendChild(new Option(
+        item.native_name ? `${item.native_name} — ${item.english_name}` : item.english_name,
+        code
+      ));
+    });
+    if (!items.length) throw new Error("No active conversation languages are configured.");
+    languageSelect.value = items.some(item => item.code === "en")
+      ? "en-IN"
+      : `${items[0].code}-IN`;
+    updateVoiceAvailability();
+  }
+
+  loadConversationLanguages().then(() => api.isAuthenticated("citizen")).then(authenticated => {
+    if (authenticated) {
+      return api.get("/users/me", "citizen").then(profile => {
+      const requested = `${profile.preferred_language_code || "en"}-IN`;
+      if ([...languageSelect.options].some(option => option.value === requested)) {
+        languageSelect.value = requested;
+      }
+      updateVoiceAvailability();
+      try {
+        const selected = sessionStorage.getItem("schemesathi_selected_language");
+        if ([...languageSelect.options].some(option => option.value === selected)) {
+          languageSelect.value = selected;
+        }
+      } catch (error) {
+        notify("Could not read the selected language from this browser session.");
+      }
+      loadConversationHistory();
+      });
+    }
+    renderHistoryEmpty("Sign in to view saved conversation history.");
+    try {
+      const selected = sessionStorage.getItem("schemesathi_selected_language");
+      if ([...languageSelect.options].some(option => option.value === selected)) {
+        languageSelect.value = selected;
+      }
+    } catch (error) {
+      notify("Could not read the selected language from this browser session.");
+    }
+  }).catch(error => notify(`Could not check your sign-in session: ${error.message}`));
+
+  let initialPrompt = "";
+  try {
+    initialPrompt = sessionStorage.getItem("schemesathi_initial_prompt") || "";
     sessionStorage.removeItem("schemesathi_initial_prompt");
+  } catch (error) {
+    notify("Could not read the initial assistant prompt from this browser session.");
+  }
+  if (initialPrompt) {
     input.value = initialPrompt;
     sendMessage(initialPrompt);
   }

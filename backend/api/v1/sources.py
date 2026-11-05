@@ -1,6 +1,5 @@
-﻿import hashlib
 import hmac
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
@@ -9,7 +8,11 @@ from sqlalchemy.orm import Session
 from backend.config import settings
 from backend.database.dependencies import get_db
 from backend.database.models.source import Source
-from backend.services.source_ingestion import ingest_source, validate_public_url
+from backend.services.source_ingestion import (
+    canonical_url_hash,
+    ingest_source,
+    validate_public_url,
+)
 
 
 router = APIRouter(prefix="/sources", tags=["Knowledge Sources"])
@@ -67,10 +70,21 @@ class SourceCreate(BaseModel):
 class SourceUpdate(BaseModel):
     publisher_name: str | None = Field(default=None, min_length=2, max_length=255)
     source_type: str | None = Field(default=None, min_length=2, max_length=100)
+    authority_status: str | None = Field(default=None, min_length=2, max_length=30)
     language_code: str | None = Field(default=None, max_length=10)
     jurisdiction_location_id: str | None = None
     retrieval_interval_hours: int | None = Field(default=None, ge=1, le=8760)
     is_active: bool | None = None
+
+    @field_validator("authority_status")
+    @classmethod
+    def validate_authority_status(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in {"unverified", "official", "authoritative", "verified", "rejected"}:
+            raise ValueError("Unsupported source authority status.")
+        return normalized
 
 
 def source_to_dict(source: Source) -> dict:
@@ -104,27 +118,6 @@ def source_to_dict(source: Source) -> dict:
         ),
         "is_active": source.is_active,
     }
-
-
-def canonical_url_hash(url: str) -> str:
-    parsed = urlsplit(url.strip())
-
-    hostname = (parsed.hostname or "").lower()
-    port = parsed.port
-
-    netloc = hostname
-    if port and port != 443:
-        netloc = f"{hostname}:{port}"
-
-    canonical_url = urlunsplit((
-        "https",
-        netloc,
-        parsed.path or "/",
-        parsed.query,
-        "",
-    ))
-
-    return hashlib.sha256(canonical_url.encode("utf-8")).hexdigest()
 
 
 @router.post(

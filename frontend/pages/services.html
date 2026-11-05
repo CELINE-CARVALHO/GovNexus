@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
     <link rel="stylesheet" href="../css/services.css">
 </head>
 
@@ -128,79 +129,21 @@
 
                 <div class="filter-group">
                     <h4>Government level</h4>
-
-                    <label class="filter-option">
-                        <input type="radio" name="level" value="all" checked>
-                        <span>All government services</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="radio" name="level" value="central">
-                        <span>Central government</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="radio" name="level" value="state">
-                        <span>State government</span>
-                    </label>
+                    <p class="filter-note">The service catalogue does not currently expose a government-level filter.</p>
                 </div>
 
                 <div class="filter-group">
                     <h4>Select state</h4>
                     <select id="stateFilter">
                         <option value="all">All states and UTs</option>
-                        <option value="andhra-pradesh">Andhra Pradesh</option>
-                        <option value="assam">Assam</option>
-                        <option value="bihar">Bihar</option>
-                        <option value="delhi">Delhi</option>
-                        <option value="goa">Goa</option>
-                        <option value="gujarat">Gujarat</option>
-                        <option value="haryana">Haryana</option>
-                        <option value="karnataka">Karnataka</option>
-                        <option value="kerala">Kerala</option>
-                        <option value="maharashtra">Maharashtra</option>
-                        <option value="punjab">Punjab</option>
-                        <option value="rajasthan">Rajasthan</option>
-                        <option value="tamil-nadu">Tamil Nadu</option>
-                        <option value="telangana">Telangana</option>
-                        <option value="uttar-pradesh">Uttar Pradesh</option>
-                        <option value="west-bengal">West Bengal</option>
                     </select>
-                    <p class="filter-note">State-specific listings will appear when verified service data is connected.</p>
+                    <p class="filter-note">State options come from the active government location catalogue.</p>
                 </div>
 
                 <div class="filter-group">
                     <h4>Categories</h4>
 
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="identity">
-                        <span>Identity & certificates</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="education">
-                        <span>Education & scholarships</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="finance">
-                        <span>Financial assistance</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="health">
-                        <span>Health & welfare</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="employment">
-                        <span>Employment & skills</span>
-                    </label>
-
-                    <label class="filter-option">
-                        <input type="checkbox" name="category" value="business">
-                        <span>Business & agriculture</span>
-                    </label>
+                    <div id="categoryFilters"></div>
                 </div>
 
                 <div class="sidebar-help">
@@ -227,7 +170,7 @@
 
                 <div class="active-filters" id="activeFilters"></div>
 
-                <div class="category-grid" id="categoryGrid">
+                <div class="category-grid" id="categoryGrid" hidden>
 
                     <a class="category-card category-purple" href="service-detail.html?category=identity" data-category="identity" data-title="Identity and certificates">
                         <div class="category-top">
@@ -339,7 +282,6 @@
 </footer>
 
 <script src="../js/api/client.js"></script>
-<script src="../js/services.js"></script>
 <script src="../js/catalogue-live.js"></script>
 
 </body>

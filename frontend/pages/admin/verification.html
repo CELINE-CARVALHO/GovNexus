@@ -84,7 +84,7 @@
             <a href="../../index.html"><span>⌂</span> View citizen portal</a>
         </nav>
         <div class="sidebar-bottom">
-            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Authenticated workspace</small></div></div>
         </div>
     </aside>
 
@@ -93,7 +93,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Fact verification</div>
             <div class="topbar-right">
-                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <span class="environment-tag">ADMIN API</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -114,37 +114,38 @@
             </div>
 
             <div class="verify-stats">
-                <div class="verify-stat"><small>Total review records</small><strong id="totalFacts">0</strong></div>
-                <div class="verify-stat"><small>Awaiting review</small><strong id="pendingFacts">0</strong></div>
-                <div class="verify-stat"><small>Approved</small><strong id="approvedFacts">0</strong></div>
-                <div class="verify-stat"><small>Rejected / changes</small><strong id="otherFacts">0</strong></div>
+                <div class="verify-stat"><small>Open tasks returned</small><strong id="totalFacts">0</strong></div>
+                <div class="verify-stat"><small>Facts in this queue</small><strong id="pendingFacts">0</strong></div>
+                <div class="verify-stat"><small>Approved this session</small><strong id="approvedFacts">0</strong></div>
+                <div class="verify-stat"><small>Other decisions this session</small><strong id="otherFacts">0</strong></div>
             </div>
 
             <div class="verify-toolbar">
                 <input id="factSearch" type="search" placeholder="Search facts, services or sources...">
                 <div class="verify-controls">
                     <select id="statusFilter">
-                        <option value="all">All statuses</option>
-                        <option value="pending">Pending review</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="changes_requested">Changes requested</option>
+                        <option value="all">All open tasks</option>
+                        <option value="pending">Open review tasks</option>
                     </select>
                     <select id="categoryFilter">
                         <option value="all">All categories</option>
+                        <option value="service_information">Service information</option>
+                        <option value="application_process">Application process</option>
                         <option value="eligibility">Eligibility</option>
-                        <option value="benefit">Benefits</option>
-                        <option value="document">Documents</option>
-                        <option value="procedure">Procedure</option>
-                        <option value="fee">Fees</option>
+                        <option value="required_document">Required document</option>
+                        <option value="fee">Fee</option>
                         <option value="deadline">Deadline</option>
+                        <option value="contact_information">Contact information</option>
+                        <option value="location">Location</option>
+                        <option value="technical_information">Technical information</option>
+                        <option value="other">Other</option>
                     </select>
                 </div>
             </div>
 
             <section class="panel">
                 <div class="panel-heading">
-                    <div><h2>Fact review queue</h2><p>Sample records demonstrate the review interface; they are not real government facts.</p></div>
+                    <div><h2>Fact review queue</h2><p>Open review tasks retrieved from the authenticated verification API.</p></div>
                     <span class="period-label" id="factResultCount">0 RECORDS</span>
                 </div>
                 <div class="fact-list" id="factList"></div>
@@ -154,7 +155,7 @@
                 </div>
             </section>
 
-            <p class="verify-note">Preview mode: review decisions are stored locally in this browser. Approval here does not publish a fact, establish legal authority or update the production knowledge base. Actual verification must retain reviewer identity, timestamp, source snapshot and evidence location.</p>
+            <p class="verify-note">Review decisions are submitted to the backend with the authenticated administrator identity and reviewer note. Approval marks a fact verified but does not publish a service version. Indexing is an explicit separate action.</p>
         </section>
     </main>
 </div>
@@ -173,6 +174,7 @@
 </div>
 <div class="review-toast" id="reviewToast"></div>
 
+<script src="../../js/api/client.js"></script>
 <script src="../../js/admin.js"></script>
 <script src="../../js/verification.js"></script>
 </body>

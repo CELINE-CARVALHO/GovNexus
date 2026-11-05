@@ -70,6 +70,10 @@ from backend.database.models.conversation import (
     ConversationMessage,
     SavedService,
 )
+from backend.database.models.applications import (
+    CitizenApplication,
+    ApplicationStatusHistory,
+)
 
 from backend.database.models.ai_logs import (
     RetrievalLog,
@@ -122,6 +126,8 @@ __all__ = [
     "ConversationSession",
     "ConversationMessage",
     "SavedService",
+    "CitizenApplication",
+    "ApplicationStatusHistory",
     "RetrievalLog",
     "AnswerLog",
     "AnswerCitation",

@@ -4,7 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, select, case
 from sqlalchemy.orm import Session, aliased
 
 from backend.database.connection import get_db
@@ -237,7 +237,17 @@ def list_locations(
         query = query.filter(Location.is_active.is_(True))
 
     if location_type:
-        query = query.filter(Location.location_type == location_type)
+        location_types = [value.strip() for value in location_type.split(",")]
+        if (
+            not location_types
+            or any(not value for value in location_types)
+            or any(not value.replace("_", "").isalnum() for value in location_types)
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="Location type must contain valid comma-separated names.",
+            )
+        query = query.filter(Location.location_type.in_(location_types))
 
     if parent_id is not None:
         query = query.filter(Location.parent_id == parent_id)
@@ -275,9 +285,21 @@ def list_locations(
     return paginate(items, total, page, limit)
 
 
+requested_service_translation = aliased(ServiceTranslation)
+english_service_translation = aliased(ServiceTranslation)
+
+
+def resolve_catalogue_language(db: Session, language: str) -> str:
+    normalized = language.strip().lower()
+    if db.scalar(select(Language.code).where(Language.code == normalized)):
+        return normalized
+    return normalized.split("-", 1)[0]
+
+
 def published_service_query(db: Session, language: str):
-    requested = aliased(ServiceTranslation)
-    english = aliased(ServiceTranslation)
+    requested = requested_service_translation
+    english = english_service_translation
+    translation_language = resolve_catalogue_language(db, language)
 
     latest_version = (
         db.query(func.max(ServiceVersion.version_number))
@@ -308,6 +330,10 @@ def published_service_query(db: Session, language: str):
             func.coalesce(
                 requested.application_url, english.application_url
             ).label("application_url"),
+            case(
+                (requested.service_version_id.is_not(None), True),
+                else_=False,
+            ).label("translation_available"),
         )
         .join(
             ServiceVersion,
@@ -318,7 +344,7 @@ def published_service_query(db: Session, language: str):
         .outerjoin(
             requested,
             (requested.service_version_id == ServiceVersion.id)
-            & (requested.language_code == language),
+            & (requested.language_code == translation_language),
         )
         .outerjoin(
             english,
@@ -334,18 +360,17 @@ def list_services(
     search: str | None = Query(None, max_length=150),
     department_id: UUID | None = None,
     category_id: UUID | None = None,
+    state_id: UUID | None = None,
     active_only: bool = True,
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
     query = published_service_query(db, language)
-
-    if active_only:
-        query = query.filter(
-            Service.is_active.is_(True),
-            Service.status == "active",
-        )
+    query = query.filter(
+        Service.is_active.is_(True),
+        Service.status == "active",
+    )
 
     if department_id:
         query = query.filter(Service.department_id == department_id)
@@ -353,12 +378,32 @@ def list_services(
     if category_id:
         query = query.filter(Service.category_id == category_id)
 
+    if state_id:
+        state = db.get(Location, state_id)
+        if state is None or state.location_type.lower() not in {
+            "state",
+            "union_territory",
+        }:
+            raise HTTPException(status_code=422, detail="Selected state is invalid.")
+        state_and_district_ids = select(Location.id).where(
+            or_(Location.id == state_id, Location.parent_id == state_id)
+        )
+        query = query.filter(
+            ServiceVersion.jurisdictions.any(
+                ServiceJurisdiction.location_id.in_(state_and_district_ids)
+            )
+        )
+
     if search:
         term = f"%{search.strip()}%"
         query = query.filter(
             or_(
                 Service.code.ilike(term),
                 Service.slug.ilike(term),
+                requested_service_translation.title.ilike(term),
+                english_service_translation.title.ilike(term),
+                requested_service_translation.description.ilike(term),
+                english_service_translation.description.ilike(term),
             )
         )
 
@@ -386,11 +431,53 @@ def list_services(
                 version.effective_from.isoformat()
                 if version.effective_from else None
             ),
+            "translation_available": translation_available,
+            "requested_language": language,
         }
-        for service, version, title, description, application_url in rows
+        for service, version, title, description, application_url, translation_available in rows
     ]
 
     return paginate(items, total, page, limit)
+
+
+@router.get("/services/suggestions")
+def suggest_services(
+    query_text: str = Query(min_length=2, max_length=100, alias="q"),
+    language: str = Query("en", min_length=2, max_length=10),
+    limit: int = Query(8, ge=1, le=20),
+    db: Session = Depends(get_db),
+):
+    term = f"%{query_text.strip()}%"
+    rows = (
+        published_service_query(db, language)
+        .filter(
+            Service.is_active.is_(True),
+            Service.status == "active",
+            or_(
+                Service.code.ilike(term),
+                Service.slug.ilike(term),
+                requested_service_translation.title.ilike(term),
+                english_service_translation.title.ilike(term),
+                requested_service_translation.description.ilike(term),
+                english_service_translation.description.ilike(term),
+            ),
+        )
+        .order_by(Service.code)
+        .limit(limit)
+        .all()
+    )
+    return {
+        "items": [
+            {
+                "id": str(service.id),
+                "code": service.code,
+                "slug": service.slug,
+                "title": title,
+                "translation_available": translation_available,
+            }
+            for service, _, title, _, _, translation_available in rows
+        ]
+    }
 
 
 @router.get("/services/{service_id}")
@@ -404,6 +491,7 @@ def get_service(
         .filter(
             Service.id == service_id,
             Service.is_active.is_(True),
+            Service.status == "active",
         )
         .first()
     )
@@ -414,7 +502,7 @@ def get_service(
             detail="Published service not found",
         )
 
-    service, version, title, description, application_url = row
+    service, version, title, description, application_url, translation_available = row
 
     return {
         "id": str(service.id),
@@ -424,6 +512,7 @@ def get_service(
         "title": title,
         "description": description,
         "application_url": application_url,
+        "translation_available": translation_available,
         "department_id": str(service.department_id),
         "category_id": str(service.category_id),
         "version": {
@@ -518,6 +607,8 @@ def get_service_details(
     # 1. Find the currently published service version
     # --------------------------------------------------------
 
+    requested_language = language
+    language = resolve_catalogue_language(db, language)
     row = (
         published_service_query(db, language)
         .filter(
@@ -534,7 +625,7 @@ def get_service_details(
             detail="Published service not found",
         )
 
-    service, version, title, description, application_url = row
+    service, version, title, description, application_url, translation_available = row
     version_id = version.id
 
     # --------------------------------------------------------
@@ -873,10 +964,13 @@ def get_service_details(
         )
 
         is_verified = (
-            str(verification_status).lower() == "verified"
+            str(verification_status).lower() in {"verified", "approved"}
             and str(verification_decision).lower()
             in {"approved", "approve", "accepted", "accept"}
+            and fact.extraction_status == "verified"
         )
+        if not is_verified:
+            continue
 
         evidence.append({
             "fact_id": str(fact.id),
@@ -906,10 +1000,61 @@ def get_service_details(
                     verification.verified_at.isoformat()
                     if verification else None
                 ),
-                "notes": verification.notes if verification else None,
                 "is_verified": is_verified,
             },
         })
+
+    verified_relationships = {
+        item["relationship_type"] for item in evidence
+    }
+    department = db.query(Department).filter(
+        Department.id == service.department_id
+    ).first()
+    department_translations = (
+        db.query(DepartmentTranslation)
+        .filter(
+            DepartmentTranslation.department_id == service.department_id,
+            DepartmentTranslation.language_code.in_([language, "en"]),
+        )
+        .all()
+    )
+    department_translation = next(
+        (
+            item for item in department_translations
+            if item.language_code == language
+        ),
+        None,
+    ) or next(
+        (
+            item for item in department_translations
+            if item.language_code == "en"
+        ),
+        None,
+    )
+    category = db.query(Category).filter(
+        Category.id == service.category_id
+    ).first()
+    category_translations = (
+        db.query(CategoryTranslation)
+        .filter(
+            CategoryTranslation.category_id == service.category_id,
+            CategoryTranslation.language_code.in_([language, "en"]),
+        )
+        .all()
+    )
+    category_translation = next(
+        (
+            item for item in category_translations
+            if item.language_code == language
+        ),
+        None,
+    ) or next(
+        (
+            item for item in category_translations
+            if item.language_code == "en"
+        ),
+        None,
+    )
 
     # --------------------------------------------------------
     # 7. Complete response
@@ -926,6 +1071,28 @@ def get_service_details(
             "application_url": application_url,
             "department_id": str(service.department_id),
             "category_id": str(service.category_id),
+            "department": {
+                "code": department.code if department else None,
+                "name": (
+                    department_translation.name
+                    if department_translation else None
+                ),
+                "website_url": department.website_url if department else None,
+                "translation_available": any(
+                    item.language_code == language
+                    for item in department_translations
+                ),
+            },
+            "category": {
+                "code": category.code if category else None,
+                "name": (
+                    category_translation.name if category_translation else None
+                ),
+                "translation_available": any(
+                    item.language_code == language
+                    for item in category_translations
+                ),
+            },
         },
 
         "version": {
@@ -948,14 +1115,47 @@ def get_service_details(
         },
 
         "language": {
-            "requested": language,
+            "requested": requested_language,
             "fallback": "en",
+            "translation_available": translation_available,
+            "available_languages": [
+                item.language_code
+                for item in db.query(ServiceTranslation.language_code)
+                .filter(ServiceTranslation.service_version_id == version.id)
+                .order_by(ServiceTranslation.language_code)
+                .all()
+            ],
         },
 
-        "eligibility": eligibility,
-        "required_documents": documents,
-        "application_steps": steps,
-        "jurisdictions": jurisdiction_data,
+        "eligibility": (
+            eligibility if "eligibility" in verified_relationships else None
+        ),
+        "required_documents": (
+            documents
+            if "required_document" in verified_relationships
+            else None
+        ),
+        "application_steps": (
+            steps
+            if "application_step" in verified_relationships
+            else None
+        ),
+        "fees": [
+            item for item in evidence if item["fact_type"] == "fee"
+        ] or None,
+        "deadlines": [
+            item for item in evidence if item["fact_type"] == "deadline"
+        ] or None,
+        "contact_information": [
+            item
+            for item in evidence
+            if item["fact_type"] == "contact_information"
+        ] or None,
+        "jurisdictions": (
+            jurisdiction_data
+            if {"location", "general_information"} & verified_relationships
+            else None
+        ),
 
         "evidence": {
             "items": evidence,
@@ -978,4 +1178,3 @@ def get_service_details(
             "must not be treated as verified."
         ),
     }
-

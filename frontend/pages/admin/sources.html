@@ -80,7 +80,7 @@
             <a href="../../index.html"><span>⌂</span> View citizen portal</a>
         </nav>
         <div class="sidebar-bottom">
-            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Workspace preview</small></div></div>
+            <div class="admin-user"><div class="avatar">A</div><div><strong>Administrator</strong><small>Authenticated workspace</small></div></div>
         </div>
     </aside>
 
@@ -89,7 +89,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Source registry</div>
             <div class="topbar-right">
-                <span class="environment-tag">FRONTEND PREVIEW</span>
+                <span class="environment-tag">UNAVAILABLE</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -106,7 +106,7 @@
 
             <div class="notice">
                 <span class="notice-icon">ⓘ</span>
-                <div><strong>Source authority matters</strong><p>Register the original publisher and source URL. New sources start as unverified and must be reviewed before their information is trusted.</p></div>
+                <div><strong>Source registry unavailable in the browser</strong><p>The source endpoints require a server-side X-Source-Admin-Key. It is intentionally not exposed to or stored in this frontend.</p></div>
             </div>
 
             <div class="registry-stats">
@@ -132,7 +132,7 @@
 
             <section class="panel">
                 <div class="panel-heading">
-                    <div><h2>Registered sources</h2><p>Source records stored in this browser during preview.</p></div>
+                    <div><h2>Registered sources</h2><p>Source records cannot be loaded without a server-side source credential.</p></div>
                     <span class="period-label" id="resultCount">0 RECORDS</span>
                 </div>
                 <div class="registry-table-wrap">
@@ -143,12 +143,12 @@
                         <tbody id="sourceTableBody"></tbody>
                     </table>
                     <div class="empty-state" id="emptyState">
-                        <strong>No sources registered yet</strong>
-                        Register a government source to begin building your knowledge registry.
+                        <strong>Source records unavailable</strong>
+                        Source registry operations are disabled until a safe server-side authentication path is provided.
                     </div>
                 </div>
             </section>
-            <p class="registry-info">Preview mode: records are stored in this browser only. URL registration does not fetch, crawl, validate or verify the website. Authority verification requires evidence and a review workflow.</p>
+            <p class="registry-info">No source API key is embedded in frontend code. The backend source endpoints are not callable using the administrator JWT alone.</p>
         </section>
     </main>
 </div>
@@ -229,6 +229,7 @@
     </form>
 </div>
 <div class="toast" id="toast"></div>
+<script src="../../js/api/client.js"></script>
 <script src="../../js/admin.js"></script>
 <script src="../../js/source-registry.js"></script>
 </body>

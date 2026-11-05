@@ -13,6 +13,7 @@
   // Mobile navigation
   const menuButton = document.getElementById("mobileMenu");
   const nav = document.getElementById("mainNav");
+  const heroPrompt = document.getElementById("heroPrompt");
 
   menuButton?.addEventListener("click", () => {
     nav.classList.toggle("open");
@@ -25,27 +26,165 @@
   // Prompt suggestions
   document.querySelectorAll(".suggestion-chip").forEach(button => {
     button.addEventListener("click", () => {
-      const input = document.getElementById("heroPrompt");
-      input.value = button.dataset.prompt || "";
-      input.focus();
+      heroPrompt.value = button.dataset.prompt || "";
+      heroPrompt.focus();
     });
   });
+
+  const api = window.SchemeSathiAPI;
+  let citizenProfilePromise = null;
+
+  function getCitizenProfile() {
+    if (!citizenProfilePromise) {
+      citizenProfilePromise = api.get("/users/me", "citizen");
+    }
+    return citizenProfilePromise;
+  }
+
+  async function getAllPages(path) {
+    const items = [];
+    let page = 1;
+    let pages = 1;
+    do {
+      const separator = path.includes("?") ? "&" : "?";
+      const result = await api.get(`${path}${separator}page=${page}&limit=100`);
+      items.push(...(Array.isArray(result.items) ? result.items : []));
+      pages = Number(result.pagination?.pages) || 1;
+      page += 1;
+    } while (page <= pages);
+    return items;
+  }
+
+  async function loadHomeCategories() {
+    const grid = document.getElementById("homeCategoryGrid");
+    if (!grid) return;
+    try {
+      const categories = await getAllPages("/categories?language=en&active_only=true");
+      grid.replaceChildren();
+      if (!categories.length) {
+        grid.appendChild(Object.assign(document.createElement("p"), {
+          textContent: "No active service categories are available."
+        }));
+        return;
+      }
+      const colors = ["blue", "peach", "green", "lilac", "yellow", "mint"];
+      const icons = ["▣", "✧", "♡", "₹", "⌂", "＋"];
+      categories.forEach((category, index) => {
+        const card = document.createElement("a");
+        card.className = `category-card category-${colors[index % colors.length]}`;
+        card.href = `pages/services.html?category=${encodeURIComponent(category.id)}`;
+        const icon = document.createElement("span");
+        icon.className = "category-icon";
+        icon.textContent = icons[index % icons.length];
+        const label = document.createElement("span");
+        label.className = "category-count";
+        label.textContent = "PUBLISHED CATALOGUE";
+        const title = document.createElement("strong");
+        title.textContent = category.name || category.code;
+        const arrow = document.createElement("span");
+        arrow.className = "category-arrow";
+        arrow.textContent = "↗";
+        card.append(icon, label, title, arrow);
+        grid.appendChild(card);
+      });
+    } catch (error) {
+      grid.replaceChildren();
+      const message = document.createElement("p");
+      message.setAttribute("role", "status");
+      message.textContent = `Published categories are unavailable: ${error.message}`;
+      grid.appendChild(message);
+    }
+  }
+
+  async function loadHomeSavedServices() {
+    const container = document.getElementById("homeSavedServices");
+    if (!container) return;
+    try {
+      if (!await api.isAuthenticated("citizen")) {
+        container.replaceChildren();
+        const message = document.createElement("p");
+        message.textContent = "Sign in to view your saved services.";
+        const link = document.createElement("a");
+        link.href = "pages/login.html";
+        link.textContent = "Sign in";
+        container.append(message, link);
+        return;
+      }
+    } catch (error) {
+      container.replaceChildren();
+      const message = document.createElement("p");
+      message.textContent = `Saved services are unavailable: ${error.message}`;
+      container.appendChild(message);
+      return;
+    }
+    try {
+      const profile = await getCitizenProfile();
+      const result = await api.get(
+        `/users/me/saved-services?language=${encodeURIComponent(profile.preferred_language_code || "en")}`,
+        "citizen"
+      );
+      const services = Array.isArray(result.items) ? result.items : [];
+      container.replaceChildren();
+      if (!services.length) {
+        const message = document.createElement("p");
+        message.textContent = "You have not saved any published services yet.";
+        const link = document.createElement("a");
+        link.href = "pages/services.html";
+        link.textContent = "Explore services";
+        container.append(message, link);
+        return;
+      }
+      services.slice(0, 3).forEach(service => {
+        const link = document.createElement("a");
+        link.className = "recommendation-item";
+        link.href = `pages/service-detail.html?id=${encodeURIComponent(service.service_id)}`;
+        const icon = document.createElement("span");
+        icon.className = "recommendation-icon rec-violet";
+        icon.textContent = "♡";
+        const details = document.createElement("span");
+        const title = document.createElement("strong");
+        title.textContent = service.title || service.code;
+        const description = document.createElement("span");
+        description.textContent = service.description || "Published service";
+        details.append(title, description);
+        const arrow = document.createElement("span");
+        arrow.className = "recommendation-chevron";
+        arrow.textContent = "↗";
+        link.append(icon, details, arrow);
+        container.appendChild(link);
+      });
+      if (services.length > 3) {
+        const all = document.createElement("a");
+        all.href = "pages/dashboard.html#saved";
+        all.textContent = "View all saved services →";
+        container.appendChild(all);
+      }
+    } catch (error) {
+      container.replaceChildren();
+      const message = document.createElement("p");
+      message.setAttribute("role", "status");
+      message.textContent = `Saved services are unavailable: ${error.message}`;
+      container.appendChild(message);
+    }
+  }
 
   // Assistant entry point
   document.getElementById("heroChatForm")?.addEventListener("submit", event => {
     event.preventDefault();
-    const input = document.getElementById("heroPrompt");
-    const prompt = input.value.trim();
+    const prompt = heroPrompt.value.trim();
 
     if (!prompt) {
       showToast("Type a question or choose one of the suggestions.");
-      input.focus();
+      heroPrompt.focus();
       return;
     }
 
-    // The chat page will be connected to the backend chat API in the next frontend stage.
-    sessionStorage.setItem("schemesathi_initial_prompt", prompt);
-    window.location.href = "pages/assistant.html";
+    try {
+      sessionStorage.setItem("schemesathi_initial_prompt", prompt);
+      window.location.href = "pages/assistant.html";
+    } catch (error) {
+      showToast("Could not open the assistant prompt in this browser session.");
+    }
   });
 
   // Service search
@@ -61,19 +200,78 @@
     window.location.href = `pages/services.html?q=${encodeURIComponent(query)}`;
   });
 
-    // Gnani Prisma voice input
-  const API_BASE = "http://127.0.0.1:8000/api/v1";
+  // Gnani Prisma voice input
+  const MAX_RECORDING_SECONDS = 30;
+  const voiceButton = document.getElementById("voiceButton");
+  const voiceStatus = document.getElementById("voiceStatus");
+  const languageSelect = document.getElementById("voiceLanguage");
+  const languageButton = document.getElementById("languageButton");
+
+  function updateLanguageButton() {
+    if (!languageButton || !languageSelect.value) return;
+    const option = languageSelect.options[languageSelect.selectedIndex];
+    languageButton.childNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+        node.textContent = ` ${option.textContent.split("—").pop().trim()} `;
+      }
+    });
+  }
 
   let microphoneStream = null;
   let audioContext = null;
   let processor = null;
+  let mutedOutput = null;
   let audioChunks = [];
   let recording = false;
   let recordingTimeout = null;
 
   function setVoiceState(active, label) {
-    voiceButton.classList.toggle("listening", active);
-    voiceLabel.textContent = label;
+    voiceButton?.classList.toggle("listening", active);
+    if (voiceButton) {
+      voiceButton.setAttribute("aria-pressed", String(active));
+      voiceButton.title = label;
+    }
+    if (voiceStatus) voiceStatus.textContent = active ? "Listening · up to 30 seconds" : label;
+  }
+
+  async function loadVoiceLanguages() {
+    const supportedCodes = new Set(["bn", "en", "gu", "hi", "kn", "ml", "mr", "pa", "ta", "te"]);
+    try {
+      const result = await api.get("/languages?active_only=true");
+      const items = (result.items || []).filter(item =>
+        supportedCodes.has(String(item.code).split("-")[0].toLowerCase())
+      );
+      languageSelect.replaceChildren();
+      items.forEach(item => {
+        const code = `${String(item.code).split("-")[0].toLowerCase()}-IN`;
+        const option = new Option(
+          item.native_name ? `${item.native_name} — ${item.english_name}` : item.english_name,
+          code
+        );
+        languageSelect.appendChild(option);
+      });
+
+      const requestedLanguage = items[0]
+        ? `${String(items[0].code).split("-")[0].toLowerCase()}-IN`
+        : "";
+      if (await api.isAuthenticated("citizen")) {
+        const profile = await getCitizenProfile();
+        const preferred = `${String(profile.preferred_language_code || "").split("-")[0].toLowerCase()}-IN`;
+        languageSelect.value = [...languageSelect.options].some(option => option.value === preferred)
+          ? preferred
+          : requestedLanguage;
+      } else {
+        languageSelect.value = requestedLanguage;
+      }
+      if (!languageSelect.value) {
+        voiceButton.disabled = true;
+        voiceStatus.textContent = "Voice input is unavailable in this language.";
+      }
+      updateLanguageButton();
+    } catch (error) {
+      voiceButton.disabled = true;
+      voiceStatus.textContent = `Voice languages unavailable: ${error.message}`;
+    }
   }
 
   function encodeWav(samples, sampleRate) {
@@ -135,6 +333,16 @@
   }
 
   async function startGnaniRecording() {
+    if (!navigator.mediaDevices?.getUserMedia ||
+        !(window.AudioContext || window.webkitAudioContext)) {
+      showToast("This browser does not support microphone recording.");
+      return;
+    }
+    if (!window.isSecureContext && location.hostname !== "localhost" &&
+        location.hostname !== "127.0.0.1") {
+      showToast("Microphone access requires HTTPS or localhost.");
+      return;
+    }
     try {
       microphoneStream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -146,9 +354,12 @@
       });
 
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") await audioContext.resume();
       const source = audioContext.createMediaStreamSource(microphoneStream);
 
       processor = audioContext.createScriptProcessor(4096, 1, 1);
+      mutedOutput = audioContext.createGain();
+      mutedOutput.gain.value = 0;
       audioChunks = [];
       recording = true;
 
@@ -158,20 +369,21 @@
       };
 
       source.connect(processor);
-      processor.connect(audioContext.destination);
+      processor.connect(mutedOutput);
+      mutedOutput.connect(audioContext.destination);
 
       setVoiceState(true, "Stop recording");
-      notify("Listening. Speak your question clearly.");
+      showToast("Listening. Speak your question clearly.");
 
       recordingTimeout = setTimeout(() => {
         if (recording) stopGnaniRecording();
-      }, 55000);
+      }, MAX_RECORDING_SECONDS * 1000);
 
     } catch (error) {
       console.error("Microphone error:", error);
       cleanupGnaniRecording();
       setVoiceState(false, "Speak");
-      notify("Microphone access failed. Check browser permissions.");
+      showToast("Microphone access failed. Check browser permissions.");
     }
   }
 
@@ -185,13 +397,18 @@
       processor = null;
     }
 
+    if (mutedOutput) {
+      mutedOutput.disconnect();
+      mutedOutput = null;
+    }
+
     if (microphoneStream) {
       microphoneStream.getTracks().forEach(track => track.stop());
       microphoneStream = null;
     }
 
     if (audioContext) {
-      audioContext.close().catch(() => {});
+      audioContext.close().catch(error => console.error("Could not close the audio context.", error));
       audioContext = null;
     }
 
@@ -221,39 +438,37 @@
     cleanupGnaniRecording();
 
     if (!wavSamples.length) {
-      notify("No audio was recorded. Please try again.");
+      showToast("No audio was recorded. Please try again.");
+      return;
+    }
+    if (wavBlob.size > 10 * 1024 * 1024) {
+      showToast("Recording exceeds the supported 10 MB limit.");
       return;
     }
 
     const formData = new FormData();
     formData.append("audio_file", wavBlob, "schemesathi-recording.wav");
     formData.append("language_code", languageSelect.value);
-    formData.append("audio_format", "transcribe");
+    formData.append("format", "transcribe");
 
     setVoiceState(false, "Transcribing...");
     voiceButton.disabled = true;
 
     try {
-      const response = await fetch(`${API_BASE}/voice/transcribe`, {
+      const result = await api.request("/voice/transcribe", {
         method: "POST",
         body: formData
       });
 
-      const result = await response.json();
+      heroPrompt.value = result.transcript;
+      heroPrompt.dispatchEvent(new Event("input"));
+      heroPrompt.focus();
 
-      if (!response.ok) {
-        throw new Error(result.detail || "Prisma transcription failed.");
-      }
-
-      input.value = result.transcript;
-      input.dispatchEvent(new Event("input"));
-      input.focus();
-
-      notify("Speech transcribed. Review your question and press Send.");
+      showToast("Speech transcribed. Review your question and press Send.");
 
     } catch (error) {
       console.error("Gnani Prisma error:", error);
-      notify(error.message || "Could not transcribe your audio.");
+      showToast(error.message || "Could not transcribe your audio.");
     } finally {
       voiceButton.disabled = false;
       setVoiceState(false, "Speak");
@@ -268,29 +483,36 @@
     }
   });
 
-  // Optional helper for speaking a real assistant response with Gnani Timbre.
-  // Call this only after the live assistant API returns its answer.
+  languageSelect.addEventListener("change", () => {
+    try {
+      sessionStorage.setItem("schemesathi_selected_language", languageSelect.value);
+    } catch (error) {
+      showToast("Language selection will apply only on this page.");
+    }
+    updateLanguageButton();
+  });
+  languageButton?.addEventListener("click", () => {
+    document.getElementById("assistant").scrollIntoView({ behavior: "smooth", block: "center" });
+    languageSelect.focus();
+  });
+
+  loadVoiceLanguages();
+  loadHomeCategories();
+  loadHomeSavedServices();
+
   window.schemesathiSpeak = async function (text, languageCode) {
-    const response = await fetch(`${API_BASE}/voice/synthesize`, {
+    const audioBlob = await api.request("/voice/synthesize", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      responseType: "blob",
       body: JSON.stringify({
         text,
         language_code: languageCode || languageSelect.value,
         speed: 1.0
       })
     });
-
-    if (!response.ok) {
-      let detail = "Gnani Timbre could not generate speech.";
-      try {
-        const error = await response.json();
-        detail = error.detail || detail;
-      } catch (_) {}
-      throw new Error(detail);
+    if (!audioBlob.size || audioBlob.type !== "audio/wav") {
+      throw new Error("Gnani Timbre returned an unsupported audio file.");
     }
-
-    const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
 
@@ -300,3 +522,4 @@
 
     await audio.play();
   };
+})();
