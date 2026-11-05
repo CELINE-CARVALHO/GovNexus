@@ -1,4 +1,5 @@
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,10 +18,17 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379/0"
 
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = ""
+    GEMINI_MODEL: str = "gemini-3.6-flash"
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
+    GEMINI_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0, le=120)
 
     PINECONE_API_KEY: str = ""
     PINECONE_INDEX_NAME: str = ""
+    PINECONE_INDEX_HOST: str = ""
+    RAG_KEYWORD_LIMIT: int = Field(default=12, ge=1, le=50)
+    RAG_SEMANTIC_LIMIT: int = Field(default=12, ge=1, le=100)
+    RAG_MIN_KEYWORD_SCORE: float = Field(default=0.1, ge=0, le=1)
+    RAG_MIN_SEMANTIC_SCORE: float = Field(default=0.35, ge=0, le=1)
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
@@ -29,9 +37,10 @@ class Settings(BaseSettings):
 
     GNANI_API_KEY_ID: str = ""
     GNANI_STT_URL: str = "https://api.vachana.ai/stt/v3"
+    GNANI_STT_MODEL: str = "prisma-v3.0"
     GNANI_TTS_URL: str = "https://api.vachana.ai/api/v1/tts/inference"
     GNANI_TTS_MODEL: str = "timbre-v2.5"
-    GNANI_REQUEST_TIMEOUT: int = 60
+    GNANI_REQUEST_TIMEOUT: int = Field(default=60, ge=1, le=120)
 
     model_config = SettingsConfigDict(
         env_file=".env",

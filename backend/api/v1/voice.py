@@ -1,9 +1,13 @@
-﻿from typing import Literal
+from __future__ import annotations
+
+from io import BytesIO
+from typing import Literal
+import wave
 
 import httpx
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from backend.config import settings
 
@@ -11,8 +15,16 @@ from backend.config import settings
 router = APIRouter(prefix="/voice", tags=["Gnani Voice"])
 
 SUPPORTED_LANGUAGES = {
-    "bn-IN", "en-IN", "gu-IN", "hi-IN", "kn-IN",
-    "ml-IN", "mr-IN", "pa-IN", "ta-IN", "te-IN",
+    "bn-IN",
+    "en-IN",
+    "gu-IN",
+    "hi-IN",
+    "kn-IN",
+    "ml-IN",
+    "mr-IN",
+    "pa-IN",
+    "ta-IN",
+    "te-IN",
 }
 
 VOICE_BY_LANGUAGE = {
@@ -28,18 +40,22 @@ VOICE_BY_LANGUAGE = {
     "te-IN": "Suhana",
 }
 
-ALLOWED_AUDIO_TYPES = {
-    "audio/wav",
-    "audio/x-wav",
-    "audio/mpeg",
-    "audio/mp3",
-    "audio/ogg",
-    "application/ogg",
-    "audio/flac",
-    "audio/aac",
-    "audio/mp4",
-    "audio/x-m4a",
+AUDIO_TYPE_EXTENSIONS = {
+    "audio/wav": {".wav"},
+    "audio/x-wav": {".wav"},
+    "audio/mpeg": {".mp3"},
+    "audio/mp3": {".mp3"},
+    "audio/ogg": {".ogg"},
+    "application/ogg": {".ogg"},
+    "audio/flac": {".flac"},
+    "audio/x-flac": {".flac"},
+    "audio/aac": {".aac"},
+    "audio/mp4": {".m4a", ".mp4"},
+    "audio/x-m4a": {".m4a"},
 }
+MAX_AUDIO_BYTES = 10 * 1024 * 1024
+MAX_AUDIO_DURATION_SECONDS = 30
+MAX_TTS_TEXT_LENGTH = 5000
 
 
 def require_gnani_key() -> str:
@@ -52,32 +68,60 @@ def require_gnani_key() -> str:
     return key
 
 
-def raise_gnani_error(response: httpx.Response, service: str):
+def _validate_wav_duration(content: bytes) -> None:
+    try:
+        with wave.open(BytesIO(content), "rb") as wav:
+            duration = wav.getnframes() / wav.getframerate()
+    except (wave.Error, EOFError, ZeroDivisionError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="The uploaded WAV file is malformed.",
+        ) from exc
+    if duration > MAX_AUDIO_DURATION_SECONDS:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio must be no longer than 30 seconds.",
+        )
+
+
+def _provider_error_detail(response: httpx.Response, service: str) -> str:
     try:
         payload = response.json()
-        message = payload.get("error", {}).get("message")
-        if not message:
-            message = payload.get("detail") or payload.get("message")
-    except Exception:
-        message = None
+    except ValueError:
+        payload = {}
 
-    if response.status_code == 401 or response.status_code == 403:
-        detail = "Gnani authentication failed. Check the API key ID."
-    elif response.status_code == 429:
-        detail = f"Gnani {service} rate limit reached. Please try again shortly."
-    elif response.status_code >= 500:
-        detail = f"Gnani {service} is temporarily unavailable."
-    else:
-        detail = message or f"Gnani {service} rejected the request."
+    error = payload.get("error", {}) if isinstance(payload, dict) else {}
+    if not isinstance(error, dict):
+        error = {}
+    message = error.get("message")
+    if not isinstance(message, str) and isinstance(payload, dict):
+        message = payload.get("detail") or payload.get("message")
+    if isinstance(message, str):
+        message = message.strip()
 
-    raise HTTPException(status_code=502, detail=detail)
+    if response.status_code in {401, 403}:
+        return "Gnani authentication failed. Check the API key ID."
+    if response.status_code == 429:
+        return f"Gnani {service} rate limit reached. Please try again shortly."
+    if response.status_code >= 500:
+        return f"Gnani {service} is temporarily unavailable."
+    if response.status_code in {413, 422}:
+        return message or f"Gnani {service} rejected the supplied media."
+    return message or f"Gnani {service} rejected the request."
+
+
+def _raise_gnani_error(response: httpx.Response, service: str) -> None:
+    raise HTTPException(
+        status_code=502,
+        detail=_provider_error_detail(response, service),
+    )
 
 
 @router.post("/transcribe")
 async def transcribe_audio(
     audio_file: UploadFile = File(...),
     language_code: str = Form(...),
-    audio_format: Literal["verbatim", "transcribe"] = Form("transcribe"),
+    format: Literal["verbatim", "transcribe"] = Form("transcribe"),
 ):
     if language_code not in SUPPORTED_LANGUAGES:
         raise HTTPException(
@@ -85,32 +129,47 @@ async def transcribe_audio(
             detail="Unsupported language. Choose one of the ten Gnani Prisma languages.",
         )
 
-    content_type = (audio_file.content_type or "").lower().split(";")[0]
-    if content_type not in ALLOWED_AUDIO_TYPES:
+    content_type = (audio_file.content_type or "").lower().split(";")[0].strip()
+    allowed_extensions = AUDIO_TYPE_EXTENSIONS.get(content_type)
+    if not allowed_extensions:
         raise HTTPException(
             status_code=415,
             detail="Unsupported audio format. Upload WAV, MP3, OGG, FLAC, AAC or M4A.",
         )
 
-    audio_bytes = await audio_file.read()
+    filename = (audio_file.filename or "").lower()
+    extension = "." + filename.rsplit(".", 1)[-1] if "." in filename else ""
+    if extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=415,
+            detail="Audio filename extension does not match its supported format.",
+        )
+
+    audio_bytes = await audio_file.read(MAX_AUDIO_BYTES + 1)
     if not audio_bytes:
         raise HTTPException(status_code=400, detail="The uploaded audio is empty.")
-
-    if len(audio_bytes) > 15 * 1024 * 1024:
-        raise HTTPException(status_code=413, detail="Audio upload exceeds 15 MB.")
+    if len(audio_bytes) > MAX_AUDIO_BYTES:
+        raise HTTPException(status_code=413, detail="Audio upload exceeds 10 MB.")
+    if content_type in {"audio/wav", "audio/x-wav"}:
+        _validate_wav_duration(audio_bytes)
 
     api_key = require_gnani_key()
-
     files = {
         "audio_file": (
-            audio_file.filename or "recording.wav",
+            audio_file.filename or f"recording{extension}",
             audio_bytes,
             content_type,
         )
     }
+    if settings.GNANI_STT_MODEL not in {"prisma-v2.5", "prisma-v3.0"}:
+        raise HTTPException(
+            status_code=503,
+            detail="Gnani Prisma model configuration is invalid.",
+        )
     data = {
+        "model": settings.GNANI_STT_MODEL,
         "language_code": language_code,
-        "format": audio_format,
+        "format": format,
         "itn_native_numerals": "false",
     }
     headers = {"X-API-Key-ID": api_key}
@@ -125,21 +184,39 @@ async def transcribe_audio(
                 data=data,
                 files=files,
             )
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Gnani transcription timed out.")
-    except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Could not reach Gnani Prisma.")
+    except httpx.TimeoutException as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="Gnani transcription timed out.",
+        ) from exc
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not reach Gnani Prisma.",
+        ) from exc
 
     if response.status_code != 200:
-        raise_gnani_error(response, "Prisma transcription")
-
+        _raise_gnani_error(response, "Prisma transcription")
     try:
         result = response.json()
-    except ValueError:
-        raise HTTPException(status_code=502, detail="Gnani returned an invalid response.")
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Gnani returned an invalid response.",
+        ) from exc
+    if not isinstance(result, dict):
+        raise HTTPException(
+            status_code=502,
+            detail="Gnani returned an invalid response.",
+        )
+    if result.get("truncated"):
+        raise HTTPException(
+            status_code=422,
+            detail="The transcription was truncated. Please record a shorter question.",
+        )
 
-    transcript = (result.get("transcript") or "").strip()
-    if not result.get("success") or not transcript:
+    transcript = result.get("transcript")
+    if not result.get("success") or not isinstance(transcript, str) or not transcript.strip():
         raise HTTPException(
             status_code=422,
             detail="No speech could be transcribed. Please try recording again.",
@@ -150,29 +227,40 @@ async def transcribe_audio(
         "provider": "Gnani Prisma",
         "request_id": result.get("request_id"),
         "language_code": language_code,
-        "transcript": transcript,
+        "detected_language_code": result.get("detected_language_code"),
+        "transcript": transcript.strip(),
     }
 
 
 class SynthesizeRequest(BaseModel):
-    text: str = Field(min_length=1, max_length=5000)
+    text: str = Field(min_length=1, max_length=MAX_TTS_TEXT_LENGTH)
     language_code: str = "en-IN"
     speed: float = Field(default=1.0, ge=0.85, le=1.15)
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("Text to synthesize cannot be blank.")
+        return normalized
+
+    @field_validator("language_code")
+    @classmethod
+    def validate_language_code(cls, value: str) -> str:
+        if value not in SUPPORTED_LANGUAGES:
+            raise ValueError(
+                "Unsupported language. Choose one of the ten Gnani Timbre languages."
+            )
+        return value
 
 
 @router.post("/synthesize")
 async def synthesize_speech(payload: SynthesizeRequest):
-    if payload.language_code not in SUPPORTED_LANGUAGES:
-        raise HTTPException(
-            status_code=422,
-            detail="Unsupported language. Choose one of the ten Gnani Timbre languages.",
-        )
-
     api_key = require_gnani_key()
     voice = VOICE_BY_LANGUAGE[payload.language_code]
-
     request_body = {
-        "text": payload.text.strip(),
+        "text": payload.text,
         "model": settings.GNANI_TTS_MODEL,
         "voice": voice,
         "language": payload.language_code,
@@ -186,33 +274,42 @@ async def synthesize_speech(payload: SynthesizeRequest):
         },
     }
 
-    headers = {
-        "X-API-Key-ID": api_key,
-        "Content-Type": "application/json",
-    }
-
     try:
         async with httpx.AsyncClient(
             timeout=settings.GNANI_REQUEST_TIMEOUT
         ) as client:
             response = await client.post(
                 settings.GNANI_TTS_URL,
-                headers=headers,
+                headers={"X-API-Key-ID": api_key},
                 json=request_body,
             )
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Gnani speech generation timed out.")
-    except httpx.RequestError:
-        raise HTTPException(status_code=502, detail="Could not reach Gnani Timbre.")
+    except httpx.TimeoutException as exc:
+        raise HTTPException(
+            status_code=504,
+            detail="Gnani speech generation timed out.",
+        ) from exc
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="Could not reach Gnani Timbre.",
+        ) from exc
 
     if response.status_code != 200:
-        raise_gnani_error(response, "Timbre speech generation")
-
+        _raise_gnani_error(response, "Timbre speech generation")
     if not response.content:
         raise HTTPException(status_code=502, detail="Gnani returned empty audio.")
 
+    content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
+    if content_type != "audio/wav":
+        raise HTTPException(
+            status_code=502,
+            detail="Gnani returned an unsupported audio format.",
+        )
     return Response(
         content=response.content,
-        media_type=response.headers.get("content-type", "audio/wav"),
-        headers={"Cache-Control": "no-store"},
+        media_type="audio/wav",
+        headers={
+            "Cache-Control": "no-store",
+            "Content-Disposition": 'inline; filename="schemesathi-response.wav"',
+        },
     )

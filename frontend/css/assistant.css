@@ -108,6 +108,13 @@
 .demo-response strong { display:block; margin-bottom:3px; color:#a17b37; }
 .message-actions { display:flex; align-items:center; gap:12px; margin-top:7px; color:#9ba5b7; font-size:8px; }
 .message-actions button { border:0; padding:0; color:#8d99b0; background:transparent; font-size:8px; }
+.message-actions button:disabled { opacity:.55; cursor:wait; }
+.message-actions .audio-status { color:#71809a; }
+.citation-list { display:grid; gap:5px; margin:9px 0 0; padding:9px 12px; border-left:2px solid #7188e4; border-radius:0 7px 7px 0; color:#8490a6; background:#fff; font-size:8px; list-style:none; }
+.citation-list a { color:#536bc5; text-decoration:none; }
+.citation-list a:hover { text-decoration:underline; }
+.citation-list li > span { color:#8d98ac; }
+.composer-hint { max-width:min(360px,55vw); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .typing-dots { display:flex; gap:4px; padding:14px; }
 .typing-dots i { width:5px; height:5px; border-radius:50%; background:#8295df; animation:bounce .8s infinite alternate; }
 .typing-dots i:nth-child(2) { animation-delay:.2s; }
