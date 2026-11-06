@@ -10,49 +10,57 @@
     <style>
         .ingest-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:23px}
         .ingest-stat{background:#fff;border:1px solid #ececf3;border-radius:13px;padding:16px}
-        .ingest-stat small{font-size:10px;color:#85849a}
+        .ingest-stat small{font-size: 12.5px;color:#85849a}
         .ingest-stat strong{display:block;font:800 24px Manrope;margin-top:7px}
         .upload-zone{border:1.5px dashed #c9c3eb;border-radius:16px;background:linear-gradient(135deg,#faf9ff,#f5f3ff);padding:34px 20px;text-align:center;transition:.2s}
         .upload-zone.dragover{border-color:#6955d9;background:#efecff;transform:scale(1.005)}
         .upload-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#ebe7ff;color:#6955d9;font-size:26px;margin:0 auto 13px}
         .upload-zone h2{font:800 17px Manrope;margin:0 0 7px}
-        .upload-zone p{font-size:11px;color:#89879c;margin:0 0 16px}
-        .upload-button{display:inline-flex;background:#6955d9;color:white;border:0;border-radius:9px;padding:11px 17px;font:700 11px "DM Sans";cursor:pointer}
-        .upload-hint{display:block;margin-top:13px;color:#a09eb0;font-size:9px}
+        .upload-zone p{font-size: 12.5px;color:#89879c;margin:0 0 16px}
+        .upload-button{display:inline-flex;background:#6955d9;color:white;border:0;border-radius:9px;padding:11px 17px;font: 700 12.5px "DM Sans";cursor:pointer}
+        .upload-hint{display:block;margin-top:13px;color:#a09eb0;font-size: 12.5px}
         .ingest-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:23px 0 14px}
         .ingest-toolbar h2{font:800 16px Manrope;margin:0}
-        .ingest-toolbar p{font-size:10px;color:#9391a5;margin:5px 0 0}
+        .ingest-toolbar p{font-size: 12.5px;color:#9391a5;margin:5px 0 0}
         .ingest-controls{display:flex;gap:9px}
-        .ingest-controls input,.ingest-controls select{height:38px;border:1px solid #e8e7ef;border-radius:9px;background:#fff;padding:0 11px;font:11px "DM Sans";outline:none}
+        .ingest-controls input,.ingest-controls select{height:38px;border:1px solid #e8e7ef;border-radius:9px;background:#fff;padding:0 11px;font: 14px "DM Sans";outline:none}
         .ingest-controls input{width:190px}
-        .ingest-controls button{border:1px solid #ecebf3;background:#fff;color:#6c58ce;border-radius:9px;padding:0 12px;font:700 10px "DM Sans";cursor:pointer}
+        .ingest-controls button{border:1px solid #ecebf3;background:#fff;color:#6c58ce;border-radius:9px;padding:0 12px;font: 700 12.5px "DM Sans";cursor:pointer}
         .document-list{display:grid;gap:10px}
         .document-row{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #efeff4;border-radius:12px;background:white}
-        .file-icon{width:40px;height:42px;border-radius:10px;background:#fff0ee;color:#ce655e;display:grid;place-items:center;font-size:10px;font-weight:800;flex-shrink:0}
+        .file-icon{width:40px;height:42px;border-radius:10px;background:#fff0ee;color:#ce655e;display:grid;place-items:center;font-size: 12.5px;font-weight:800;flex-shrink:0}
         .file-icon.doc{background:#edf3ff;color:#5482c1}
         .file-icon.text{background:#eaf8f1;color:#359171}
         .file-main{flex:1;min-width:0}
-        .file-main strong{display:block;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .file-main small{display:block;color:#9997aa;font-size:9px;margin-top:5px}
-        .file-status{display:inline-flex;padding:6px 9px;border-radius:20px;background:#f0edff;color:#6955d9;font-size:9px;font-weight:700;white-space:nowrap}
+        .file-main strong{display:block;font-size: 12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .file-main small{display:block;color:#9997aa;font-size: 12.5px;margin-top:5px}
+        .file-status{display:inline-flex;padding:6px 9px;border-radius:20px;background:#f0edff;color:#6955d9;font-size: 12.5px;font-weight:700;white-space:nowrap}
         .file-status.error{background:#fff0ef;color:#c15c56}
         .file-status.uploaded{background:#e8f7ef;color:#27835e}
-        .file-actions button{border:1px solid #ecebf3;background:white;color:#a05c5c;border-radius:7px;padding:7px 9px;font-size:10px;cursor:pointer}
-        .empty-ingest{text-align:center;padding:34px 15px;color:#9694a7;font-size:11px}
+        .job-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;border:1px solid #efeff4;border-radius:12px;background:white}
+        .job-row>div{display:grid;gap:5px;min-width:0}
+        .job-row strong{font-size:12.5px;text-transform:capitalize}
+        .job-row small{color:#85849a;font-size:12.5px;overflow-wrap:anywhere}
+        .job-status{display:inline-flex;padding:6px 9px;border-radius:20px;background:#edf3ff;color:#5079ba;font-size:12.5px;font-weight:700;text-transform:capitalize;white-space:nowrap}
+        .job-status.failed{background:#fff0ef;color:#c15c56}
+        .job-status.completed{background:#e8f7ef;color:#27835e}
+        .file-actions button{border:1px solid #ecebf3;background:white;color:#a05c5c;border-radius:7px;padding:7px 9px;font-size: 12.5px;cursor:pointer}
+        .empty-ingest{text-align:center;padding:34px 15px;color:#9694a7;font-size: 12.5px}
         .empty-ingest strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
         .pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px}
         .pipeline-step{border:1px solid #eeeef4;border-radius:12px;padding:15px;position:relative}
-        .pipeline-number{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#f0edff;color:#6955d9;font-size:10px;font-weight:800;margin-bottom:11px}
-        .pipeline-step strong{display:block;font-size:11px}
-        .pipeline-step small{display:block;color:#9997aa;font-size:9px;line-height:1.5;margin-top:5px}
-        .pipeline-note{font-size:10px;color:#9896a9;line-height:1.6;margin-top:14px}
-        .ingest-toast{position:fixed;bottom:22px;right:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size:11px;z-index:90;display:none}
+        .pipeline-number{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#f0edff;color:#6955d9;font-size: 12.5px;font-weight:800;margin-bottom:11px}
+        .pipeline-step strong{display:block;font-size: 12.5px}
+        .pipeline-step small{display:block;color:#9997aa;font-size: 12.5px;line-height:1.5;margin-top:5px}
+        .pipeline-note{font-size: 12.5px;color:#9896a9;line-height:1.6;margin-top:14px}
+        .ingest-toast{position:fixed;bottom:22px;right:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size: 12.5px;z-index:90;display:none}
         .ingest-toast.show{display:block}
         .hidden-input{display:none}
         @media(max-width:950px){.pipeline-grid{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:800px){.ingest-stats{grid-template-columns:repeat(2,1fr)}}
-        @media(max-width:620px){.ingest-toolbar{align-items:stretch;flex-direction:column}.ingest-controls{flex-wrap:wrap}.ingest-controls input{flex:1;width:100%}.document-row{flex-wrap:wrap}.file-main{min-width:calc(100% - 60px)}.file-status{margin-left:53px}.pipeline-grid{grid-template-columns:1fr 1fr}}
+        @media(max-width:620px){.ingest-toolbar{align-items:stretch;flex-direction:column}.ingest-controls{flex-wrap:wrap}.ingest-controls input{flex:1;width:100%}.document-row{flex-wrap:wrap}.file-main{min-width:calc(100% - 60px)}.file-status{margin-left:53px}.pipeline-grid{grid-template-columns:1fr 1fr}.job-row{align-items:flex-start;flex-direction:column}}
     </style>
+
 </head>
 <body>
 <div class="admin-layout">
@@ -83,7 +91,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Knowledge ingestion</div>
             <div class="topbar-right">
-                <span class="environment-tag">UNAVAILABLE</span>
+                <span class="environment-tag" id="ingestEnv">LOADING</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -104,45 +112,57 @@
             </div>
 
             <div class="ingest-stats">
-                <div class="ingest-stat"><small>Files selected</small><strong id="selectedCount">0</strong></div>
-                <div class="ingest-stat"><small>PDF documents</small><strong id="pdfCount">0</strong></div>
-                <div class="ingest-stat"><small>Other documents</small><strong id="otherCount">0</strong></div>
-                <div class="ingest-stat"><small>Ready for integration</small><strong id="readyCount">0</strong></div>
+                <div class="ingest-stat"><small>Total ingestion jobs</small><strong id="jobTotal">—</strong><span id="selectedCount" hidden>0</span></div>
+                <div class="ingest-stat"><small>Pending jobs</small><strong id="jobPending">—</strong><span id="pdfCount" hidden>0</span></div>
+                <div class="ingest-stat"><small>Running jobs</small><strong id="jobRunning">—</strong><span id="otherCount" hidden>0</span></div>
+                <div class="ingest-stat"><small>Failed jobs</small><strong id="jobFailed">—</strong><span id="readyCount" hidden>0</span></div>
             </div>
 
-            <section class="upload-zone" id="uploadZone">
+            <section class="upload-zone" id="uploadZone" aria-disabled="true">
                 <div class="upload-icon">↥</div>
                 <h2>Upload government documents</h2>
-                <p>Drag and drop files here, or browse your computer.</p>
-                <label class="upload-button" for="documentInput">Choose documents</label>
-                <input class="hidden-input" id="documentInput" type="file" multiple accept=".pdf,.docx,.txt,.md,.csv">
-                <span class="upload-hint">Supported formats: PDF, DOCX, TXT, MD, CSV · Maximum 20 MB per file</span>
+                <p>Document uploads are unavailable in this browser.</p>
+                <label class="upload-button" for="documentInput" aria-disabled="true"
+                    title="No compatible authenticated upload endpoint is available">Choose documents (unavailable)</label>
+                <input class="hidden-input" id="documentInput" type="file" multiple
+                    accept=".pdf,.docx,.txt,.md,.csv" disabled>
+                <span class="upload-hint">Use the approved server-side ingestion workflow. No files are read or uploaded from this page.</span>
+                <div hidden>
+                    <input id="documentSearch" type="search" disabled>
+                    <select id="documentFilter" disabled></select>
+                    <button id="clearQueue" type="button" disabled>Clear queue</button>
+                </div>
             </section>
 
             <div class="ingest-toolbar">
-                <div><h2>Document queue</h2><p>Uploads are disabled because no compatible authenticated upload endpoint exists.</p></div>
+                <div><h2>Recent ingestion jobs</h2><p id="jobsSubtitle">Loading recent ingestion jobs…</p></div>
                 <div class="ingest-controls">
-                    <input id="documentSearch" type="search" placeholder="Search documents...">
-                    <select id="documentFilter">
-                        <option value="all">All files</option>
-                        <option value="pdf">PDF</option>
-                        <option value="docx">DOCX</option>
-                        <option value="other">Other formats</option>
+                    <select id="jobFilter" aria-label="Filter ingestion jobs by status">
+                        <option value="all">All jobs</option>
+                        <option value="pending">Pending</option>
+                        <option value="running">Running</option>
+                        <option value="failed">Failed</option>
+                        <option value="completed">Completed</option>
                     </select>
-                    <button id="clearQueue">Clear queue</button>
+                    <button id="retryJobs" type="button" hidden>Retry loading</button>
                 </div>
             </div>
 
             <section class="panel">
                 <div class="panel-heading">
-                    <div><h2>Selected documents</h2><p>Files remain in the current browser session.</p></div>
-                    <span class="period-label" id="queueCount">0 FILES</span>
+                    <div><h2>Job status</h2><p>Read-only status from the authenticated administration API.</p></div>
+                    <span class="period-label" id="queueCount">LOADING</span>
                 </div>
-                <div class="document-list" id="documentList"></div>
-                <div class="empty-ingest" id="emptyQueue">
-                    <strong>Document ingestion is unavailable</strong>
-                    No ingestion operation can be safely called from this frontend.
+                <div class="document-list" id="documentList">
+                    <div id="jobList" aria-live="polite">
+                        <div class="empty-ingest">Loading ingestion jobs…</div>
+                    </div>
                 </div>
+                <div class="empty-ingest" id="emptyJobs" hidden>
+                    <strong id="emptyJobsTitle">No ingestion jobs found</strong>
+                    <span id="emptyJobsDetail">No ingestion jobs match this status filter.</span>
+                </div>
+                <div id="emptyQueue" hidden></div>
             </section>
 
             <section class="panel" style="margin-top:20px">

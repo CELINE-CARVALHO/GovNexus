@@ -19,6 +19,7 @@ from backend.api.v1.auth import router as citizen_auth_router
 from backend.api.v1.users import router as users_router
 from backend.api.v1.admin import router as admin_router
 from backend.api.v1.voice import router as voice_router
+from backend.api.v1.demo import router as demo_router
 
 
 
@@ -99,3 +100,4 @@ app.include_router(chat_router, prefix=settings.API_V1_PREFIX)
 app.include_router(citizen_auth_router, prefix=settings.API_V1_PREFIX)
 app.include_router(users_router, prefix=settings.API_V1_PREFIX)
 app.include_router(admin_router, prefix=settings.API_V1_PREFIX)
+app.include_router(demo_router, prefix=settings.API_V1_PREFIX)

@@ -9,6 +9,7 @@
     admin: "schemesathi_admin_authenticated"
   };
   const ACCESSIBILITY_KEY = "schemesathi_accessibility_v1";
+  const LANGUAGE_KEY = "schemesathi_language_v1";
   const ACCESSIBILITY_DEFAULTS = {
     font_size: "medium",
     text_scale_percent: 100,
@@ -84,6 +85,20 @@
       console.error("Could not load cached accessibility preferences.", error);
       applyAccessibilityPreferences(ACCESSIBILITY_DEFAULTS, false);
     }
+  }
+
+  function cachePreferredLanguage(languageCode) {
+    const normalized = String(languageCode || "en").trim().toLowerCase().split("-", 1)[0] || "en";
+    try { window.localStorage.setItem(LANGUAGE_KEY, normalized); } catch (error) {
+      console.warn("Could not cache the preferred language.", error);
+    }
+    document.documentElement.lang = normalized;
+    document.documentElement.dataset.language = normalized;
+    return normalized;
+  }
+
+  function getCachedPreferredLanguage() {
+    try { return window.localStorage.getItem(LANGUAGE_KEY) || "en"; } catch { return "en"; }
   }
 
   function hasSession(scope) {
@@ -205,12 +220,16 @@
       const data = await response.json();
       if (path === "/users/me" && data.accessibility_preferences) {
         applyAccessibilityPreferences(data.accessibility_preferences);
+        if (data.preferred_language_code) cachePreferredLanguage(data.preferred_language_code);
       } else if (
         (path === "/auth/citizen/login" ||
           path === "/auth/citizen/register") &&
         data.citizen?.accessibility_preferences
       ) {
         applyAccessibilityPreferences(data.citizen.accessibility_preferences);
+        if (data.citizen.preferred_language_code) {
+          cachePreferredLanguage(data.citizen.preferred_language_code);
+        }
       }
       return data;
     }
@@ -266,6 +285,8 @@
     markAuthenticated,
     clearSession,
     applyAccessibilityPreferences,
+    cachePreferredLanguage,
+    getCachedPreferredLanguage,
     getAccessibilityPreferences: () => {
       try {
         return normalizeAccessibilityPreferences(

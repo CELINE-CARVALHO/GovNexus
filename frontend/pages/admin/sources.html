@@ -10,34 +10,34 @@
     <style>
         .registry-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:22px 0}
         .registry-search{flex:1;max-width:380px;position:relative}
-        .registry-search input,.registry-toolbar select{height:42px;border:1px solid #e8e7ef;border-radius:10px;background:#fff;padding:0 13px;font:12px "DM Sans";color:#29283f;outline:none}
+        .registry-search input,.registry-toolbar select{height:42px;border:1px solid #e8e7ef;border-radius:10px;background:#fff;padding:0 13px;font: 14px "DM Sans";color:#29283f;outline:none}
         .registry-search input{width:100%;padding-left:37px}
         .registry-search span{position:absolute;left:13px;top:12px;color:#9694a8}
         .registry-actions{display:flex;gap:10px;align-items:center}
-        .registry-button{border:0;border-radius:10px;padding:12px 16px;background:#6955d9;color:white;font:700 11px "DM Sans";cursor:pointer}
+        .registry-button{border:0;border-radius:10px;padding:12px 16px;background:#6955d9;color:white;font: 700 12.5px "DM Sans";cursor:pointer}
         .registry-button:hover{background:#5642c5}
         .registry-button.secondary{background:#f0edff;color:#6551cc}
         .registry-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
         .registry-stat{background:#fff;border:1px solid #ececf3;border-radius:14px;padding:16px}
-        .registry-stat small{color:#85849a;font-size:10px}
+        .registry-stat small{color:#85849a;font-size: 12.5px}
         .registry-stat strong{display:block;font:800 24px Manrope;margin-top:8px}
         .registry-table-wrap{overflow-x:auto}
         .registry-table{width:100%;border-collapse:collapse;min-width:760px}
-        .registry-table th{text-align:left;color:#9392a5;font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:13px 12px;border-bottom:1px solid #eeeef4}
-        .registry-table td{padding:15px 12px;border-bottom:1px solid #f0f0f5;font-size:11px;vertical-align:middle}
+        .registry-table th{text-align:left;color:#9392a5;font-size: 12.5px;letter-spacing:.8px;text-transform:uppercase;padding:13px 12px;border-bottom:1px solid #eeeef4}
+        .registry-table td{padding:15px 12px;border-bottom:1px solid #f0f0f5;font-size: 12.5px;vertical-align:middle}
         .registry-table tr:last-child td{border-bottom:0}
         .source-name{font-weight:700;color:#29283f;display:block}
         .source-url{color:#8d8ba0;display:block;margin-top:4px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .status-pill{display:inline-flex;padding:6px 9px;border-radius:20px;font-size:9px;font-weight:700}
+        .status-pill{display:inline-flex;padding:6px 9px;border-radius:20px;font-size: 12.5px;font-weight:700}
         .status-unverified{background:#fff4df;color:#a87620}
         .status-verified{background:#e8f7ef;color:#27835e}
         .status-rejected{background:#fff0ef;color:#c15c56}
         .status-review{background:#edf3ff;color:#5079ba}
         .row-actions{display:flex;gap:7px}
-        .row-action{border:1px solid #ecebf3;background:#fff;border-radius:7px;padding:6px 8px;color:#6b58cb;font-size:10px;cursor:pointer}
+        .row-action{border:1px solid #ecebf3;background:#fff;border-radius:7px;padding:6px 8px;color:#6b58cb;font-size: 12.5px;cursor:pointer}
         .row-action.delete{color:#c35d5d}
-        .empty-state{text-align:center;padding:45px 15px;color:#9290a3;font-size:12px}
-        .empty-state strong{display:block;color:#35334b;font-size:14px;margin-bottom:7px}
+        .empty-state{text-align:center;padding:45px 15px;color:#9290a3;font-size: 12.5px}
+        .empty-state strong{display:block;color:#35334b;font-size: 14px;margin-bottom:7px}
         .modal-backdrop{position:fixed;inset:0;background:#17152d80;z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
         .modal-backdrop.open{display:flex}
         .source-modal{width:100%;max-width:620px;max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:25px;box-shadow:0 20px 70px #11112835}
@@ -47,18 +47,19 @@
         .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
         .form-field{display:grid;gap:7px}
         .form-field.full{grid-column:1/-1}
-        .form-field label{font-size:10px;font-weight:700;color:#55536c}
-        .form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid #e7e6ef;border-radius:9px;padding:11px;font:12px "DM Sans";outline:none;background:white;color:#29283f}
+        .form-field label{font-size: 12.5px;font-weight:700;color:#55536c}
+        .form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid #e7e6ef;border-radius:9px;padding:11px;font: 14px "DM Sans";outline:none;background:white;color:#29283f}
         .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#8876e3;box-shadow:0 0 0 3px #8876e31a}
         .form-field textarea{min-height:75px;resize:vertical}
-        .form-note{font-size:10px;color:#9694a7;line-height:1.5}
+        .form-note{font-size: 12.5px;color:#9694a7;line-height:1.5}
         .modal-footer{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
-        .toast{position:fixed;bottom:22px;right:22px;background:#25223e;color:#fff;padding:13px 17px;border-radius:10px;font-size:11px;z-index:80;box-shadow:0 8px 30px #17152d30;display:none}
+        .toast{position:fixed;bottom:22px;right:22px;background:#25223e;color:#fff;padding:13px 17px;border-radius:10px;font-size: 12.5px;z-index:80;box-shadow:0 8px 30px #17152d30;display:none}
         .toast.show{display:block}
-        .registry-info{margin-top:15px;color:#9997aa;font-size:10px;line-height:1.6}
+        .registry-info{margin-top:15px;color:#9997aa;font-size: 12.5px;line-height:1.6}
         @media(max-width:800px){.registry-stats{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:600px){.registry-toolbar{align-items:stretch;flex-direction:column}.registry-actions{justify-content:space-between}.registry-search{max-width:none}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.source-modal{padding:18px}}
     </style>
+
 </head>
 <body>
 <div class="admin-layout">
@@ -89,7 +90,7 @@
             <button class="mobile-menu" id="mobileMenu" aria-label="Toggle menu">☰</button>
             <div class="breadcrumb">Workspace <span>/</span> Source registry</div>
             <div class="topbar-right">
-                <span class="environment-tag">UNAVAILABLE</span>
+                <span class="environment-tag" id="registryEnv">LOADING</span>
                 <a href="../../index.html" class="portal-link">Open citizen portal ↗</a>
             </div>
         </header>
@@ -99,14 +100,15 @@
                 <div>
                     <div class="eyebrow">KNOWLEDGE GOVERNANCE</div>
                     <h1>Source registry</h1>
-                    <p>Manage the official sources used to build SchemeSathi's knowledge base.</p>
+                    <p id="registrySubtitle">Loading source records from the authenticated administration API.</p>
                 </div>
-                <button class="registry-button" id="addSourceBtn">＋ Register source</button>
+                <button class="registry-button" id="addSourceBtn" type="button" disabled
+                    title="Source registration requires the approved server-side workflow">＋ Register source</button>
             </div>
 
             <div class="notice">
                 <span class="notice-icon">ⓘ</span>
-                <div><strong>Source registry unavailable in the browser</strong><p>The source endpoints require a server-side X-Source-Admin-Key. It is intentionally not exposed to or stored in this frontend.</p></div>
+                <div><strong>Source registry is read-only here</strong><p>Records load through the authenticated administration API. Registration, authority changes, activation and ingestion remain on the approved server-side workflow; its API key is never sent to or stored in this browser.</p></div>
             </div>
 
             <div class="registry-stats">
@@ -122,7 +124,8 @@
                     <select id="statusFilter" aria-label="Filter by authority status">
                         <option value="all">All statuses</option>
                         <option value="unverified">Unverified</option>
-                        <option value="under_review">Under review</option>
+                        <option value="official">Official</option>
+                        <option value="authoritative">Authoritative</option>
                         <option value="verified">Verified</option>
                         <option value="rejected">Rejected</option>
                     </select>
@@ -132,23 +135,23 @@
 
             <section class="panel">
                 <div class="panel-heading">
-                    <div><h2>Registered sources</h2><p>Source records cannot be loaded without a server-side source credential.</p></div>
+                    <div><h2>Registered sources</h2><p>Read-only source metadata from the authenticated administration API.</p></div>
                     <span class="period-label" id="resultCount">0 RECORDS</span>
                 </div>
                 <div class="registry-table-wrap">
                     <table class="registry-table">
                         <thead><tr>
-                            <th>Publisher / source</th><th>Source type</th><th>Jurisdiction</th><th>Language</th><th>Authority status</th><th>Actions</th>
+                            <th>Publisher / source</th><th>Source type</th><th>Language</th><th>Authority status</th><th>Last checked</th><th>Activation</th>
                         </tr></thead>
                         <tbody id="sourceTableBody"></tbody>
                     </table>
                     <div class="empty-state" id="emptyState">
-                        <strong>Source records unavailable</strong>
-                        Source registry operations are disabled until a safe server-side authentication path is provided.
+                        <strong id="emptyTitle">Loading source records</strong>
+                        <span id="emptyDetail">Please wait while the authenticated administration API is queried.</span>
                     </div>
                 </div>
             </section>
-            <p class="registry-info">No source API key is embedded in frontend code. The backend source endpoints are not callable using the administrator JWT alone.</p>
+            <p class="registry-info">Source changes are not available in this browser. Use the approved server-side source workflow; never enter a source API key in page code, browser storage, or developer tools.</p>
         </section>
     </main>
 </div>

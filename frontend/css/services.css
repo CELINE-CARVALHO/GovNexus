@@ -96,7 +96,7 @@ button, input, select {
     color: #5948cc;
     border-radius: 10px;
     padding: 12px 17px;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -129,7 +129,7 @@ button, input, select {
 
 .eyebrow {
     color: #7464d8;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 1.6px;
     display: flex;
@@ -177,7 +177,7 @@ button, input, select {
     align-items: center;
     padding: 14px 19px;
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 800;
     transition: .2s;
 }
@@ -205,7 +205,7 @@ button, input, select {
     gap: 14px;
     margin-top: 27px;
     color: #8189a0;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 600;
 }
 
@@ -274,7 +274,7 @@ button, input, select {
 
 .art-card-label {
     margin-top: 18px;
-    font-size: 8px;
+    font-size: 12.5px;
     letter-spacing: 1.2px;
     color: #8b85ac;
     font-weight: 800;
@@ -303,7 +303,7 @@ button, input, select {
     display: flex;
     justify-content: space-between;
     color: #7465d7;
-    font-size: 9px;
+    font-size: 12.5px;
     font-weight: 800;
     margin-top: 20px;
 }
@@ -317,7 +317,7 @@ button, input, select {
     background: white;
     border-radius: 12px;
     box-shadow: 0 12px 35px #40338d1a;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -387,7 +387,7 @@ button, input, select {
     border-radius: 30px;
     background: white;
     color: #7d859b;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 700;
 }
 
@@ -429,7 +429,7 @@ button, input, select {
     border: 0;
     outline: none;
     color: var(--ink);
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .search-input-wrap input::placeholder {
@@ -451,7 +451,7 @@ button, input, select {
     padding: 14px 24px;
     color: white;
     background: #6855df;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -467,7 +467,7 @@ button, input, select {
     align-items: center;
     margin: 13px 0 36px;
     color: #9399a9;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 .popular-searches button {
@@ -477,7 +477,7 @@ button, input, select {
     color: #6f7690;
     background: white;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 .popular-searches button:hover {
@@ -516,7 +516,7 @@ button, input, select {
     border: 0;
     background: transparent;
     color: #7461dc;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -538,7 +538,7 @@ button, input, select {
     align-items: center;
     margin: 12px 0;
     color: #707991;
-    font-size: 11px;
+    font-size: 12.5px;
     cursor: pointer;
 }
 
@@ -556,13 +556,13 @@ button, input, select {
     border-radius: 8px;
     background: white;
     color: #6c748d;
-    font-size: 10px;
+    font-size: 14px;
     outline-color: #a99df0;
 }
 
 .filter-note {
     color: #a0a5b3;
-    font-size: 9px;
+    font-size: 12.5px;
     line-height: 1.6;
     margin: 9px 0 0;
 }
@@ -591,7 +591,7 @@ button, input, select {
 
 .sidebar-help p {
     color: #8288a0;
-    font-size: 10px;
+    font-size: 12.5px;
     line-height: 1.7;
 }
 
@@ -599,7 +599,7 @@ button, input, select {
     display: inline-block;
     margin-top: 5px;
     color: #6552d7;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -633,7 +633,7 @@ button, input, select {
     background: #f3f0ff;
     border-radius: 20px;
     padding: 6px 10px;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 .category-grid {
@@ -680,7 +680,7 @@ button, input, select {
 
 .category-tag {
     margin-top: 19px;
-    font-size: 8px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 1.1px;
     opacity: .7;
@@ -695,14 +695,14 @@ button, input, select {
 
 .category-card p {
     color: #778098;
-    font-size: 10px;
+    font-size: 12.5px;
     line-height: 1.7;
     margin: 0 0 17px;
 }
 
 .category-link {
     margin-top: auto;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -768,7 +768,7 @@ button, input, select {
 
 .empty-state p {
     color: #858ca0;
-    font-size: 12px;
+    font-size: 12.5px;
 }
 
 .empty-state button {
@@ -789,7 +789,7 @@ button, input, select {
     border-radius: 10px;
     background: #f0eff8;
     color: #7d8298;
-    font-size: 10px;
+    font-size: 12.5px;
     line-height: 1.7;
 }
 
@@ -840,7 +840,7 @@ button, input, select {
 
 .assistant-banner p {
     color: #d0cbe7;
-    font-size: 11px;
+    font-size: 12.5px;
     margin: 0;
 }
 
@@ -851,7 +851,7 @@ button, input, select {
     color: #5747bd;
     border-radius: 10px;
     padding: 14px 18px;
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -882,7 +882,7 @@ button, input, select {
 .site-footer p,
 .footer-copy {
     color: #969caf;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 @media (max-width: 900px) {
@@ -933,7 +933,7 @@ button, input, select {
 
     .header-cta {
         padding: 10px;
-        font-size: 10px;
+        font-size: 12.5px;
     }
 
     .mobile-menu {
@@ -994,7 +994,7 @@ button, input, select {
     }
 
     .search-input-wrap input {
-        font-size: 11px;
+        font-size: 14px;
     }
 
     .explorer-layout {
@@ -1053,7 +1053,7 @@ button, input, select {
     }
 
     .header-cta {
-        font-size: 9px;
+        font-size: 12.5px;
     }
 
     .hero-actions {

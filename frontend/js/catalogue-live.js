@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stateId: "",
         page: 1,
         pages: 1,
+        demo: false,
         requestId: 0,
         timer: null,
         language: "en"
@@ -142,11 +143,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const heading = document.createElement("div");
         heading.className = "live-catalogue-heading";
         const title = document.createElement("h2");
-        title.textContent = "Published services";
+        title.textContent = state.demo ? "Demonstration services" : "Published services";
         const count = document.createElement("p");
         count.textContent = state.services.length
             ? `${state.services.length} result${state.services.length === 1 ? "" : "s"} · page ${state.page} of ${state.pages}`
-            : "Only currently published services are shown.";
+            : state.demo
+                ? "Official-source links for local demonstration; not production-published knowledge."
+                : "Only currently published services are shown.";
         heading.append(title, count);
         section.appendChild(heading);
 
@@ -161,7 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const detail = document.createElement("p");
             detail.textContent = state.search || state.categoryId || state.stateId
                 ? "Try a different search or remove a filter."
-                : "Services will appear after their information and sources have been reviewed and published.";
+                : state.demo
+                    ? "No matching demonstration records are available."
+                    : "Services will appear after their information and sources have been reviewed and published.";
             empty.append(emptyTitle, detail);
             section.appendChild(empty);
         } else {
@@ -172,6 +177,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.className = "live-service-card";
                 const cardContent = document.createElement("div");
                 cardContent.className = "live-service-card-content";
+                if (service.demo) {
+                    const badge = document.createElement("span");
+                    badge.className = "status-pill";
+                    badge.textContent = "DEMO";
+                    cardContent.appendChild(badge);
+                }
                 const name = document.createElement("h3");
                 name.textContent = service.title || service.code;
                 const description = document.createElement("p");
@@ -231,10 +242,20 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const result = await api.get(`/services?${params}`);
             if (requestId !== state.requestId) return;
+            state.demo = false;
             state.services = Array.isArray(result.items) ? result.items : [];
+            if (!state.services.length) {
+                const demoResult = await api.get(`/demo/services?${params}`);
+                if (requestId !== state.requestId) return;
+                state.demo = true;
+                state.services = Array.isArray(demoResult.items) ? demoResult.items : [];
+                result.pagination = demoResult.pagination;
+            }
             state.page = Number(result.pagination?.page) || 1;
             state.pages = Number(result.pagination?.pages) || 1;
-            resultsCount.textContent = `${result.pagination?.total || 0} published service${result.pagination?.total === 1 ? "" : "s"}`;
+            resultsCount.textContent = state.demo
+                ? `${result.pagination?.total || 0} demonstration service${result.pagination?.total === 1 ? "" : "s"}`
+                : `${result.pagination?.total || 0} published service${result.pagination?.total === 1 ? "" : "s"}`;
             emptyState.hidden = true;
             renderActiveFilters();
             renderServices();

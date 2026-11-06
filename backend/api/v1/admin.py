@@ -233,6 +233,104 @@ def list_admin_services(
     }
 
 
+@router.get("/sources")
+def list_admin_sources(
+    active_only: bool = False,
+    limit: int = Query(default=100, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    """Read-only source registry listing for the authenticated admin UI.
+
+    Registration, activation and ingestion still require the server-side
+    source administration key and are intentionally not exposed here.
+    """
+    query = select(Source)
+    if active_only:
+        query = query.where(Source.is_active.is_(True))
+    total = db.scalar(select(func.count()).select_from(query.subquery())) or 0
+    rows = db.scalars(
+        query.order_by(Source.publisher_name.asc(), Source.id.asc())
+        .offset(offset)
+        .limit(limit)
+    ).all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": [
+            {
+                "id": str(item.id),
+                "url": item.url,
+                "publisher_name": item.publisher_name,
+                "source_type": item.source_type,
+                "authority_status": item.authority_status,
+                "language_code": item.language_code,
+                "is_active": item.is_active,
+                "last_checked_at": (
+                    item.last_checked_at.isoformat()
+                    if item.last_checked_at
+                    else None
+                ),
+                "next_check_at": (
+                    item.next_check_at.isoformat()
+                    if item.next_check_at
+                    else None
+                ),
+                "content_changed_at": (
+                    item.content_changed_at.isoformat()
+                    if item.content_changed_at
+                    else None
+                ),
+            }
+            for item in rows
+        ],
+    }
+
+
+@router.get("/ingestion-jobs")
+def list_admin_ingestion_jobs(
+    limit: int = Query(default=25, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin),
+):
+    """Read-only list of the most recent ingestion jobs."""
+    total = _count(db, IngestionJob)
+    rows = db.scalars(
+        select(IngestionJob)
+        .order_by(IngestionJob.scheduled_at.desc(), IngestionJob.id.desc())
+        .offset(offset)
+        .limit(limit)
+    ).all()
+    return {
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "items": [
+            {
+                "id": str(item.id),
+                "source_id": str(item.source_id) if item.source_id else None,
+                "job_type": item.job_type,
+                "status": item.status,
+                "attempt_count": item.attempt_count,
+                "max_attempts": item.max_attempts,
+                "scheduled_at": (
+                    item.scheduled_at.isoformat() if item.scheduled_at else None
+                ),
+                "started_at": (
+                    item.started_at.isoformat() if item.started_at else None
+                ),
+                "completed_at": (
+                    item.completed_at.isoformat() if item.completed_at else None
+                ),
+            }
+            for item in rows
+        ],
+    }
+
+
 def _validate_parent(
     db: Session,
     model,

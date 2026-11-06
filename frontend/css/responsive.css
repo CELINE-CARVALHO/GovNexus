@@ -21,26 +21,26 @@
   .sparkle-b { left:auto; right:45%; }
 }
 @media (max-width: 600px) {
-  .announcement { font-size:9px; }
+  .announcement { font-size: 12.5px; }
   .site-header { height:70px; }
   .brand-mark { width:35px; height:35px; }
   .brand-name { font-size:18px; }
-  .brand-name small { font-size:6px; }
+  .brand-name small { font-size: 12.5px; }
   .language-button { font-size:0; padding:7px; }
   .globe-icon { font-size:19px; }
-  .login-button { padding:9px 11px; font-size:10px; }
+  .login-button { padding:9px 11px; font-size: 12.5px; }
   .main-nav { top:69px; }
   .hero-section { padding-top:42px; }
   .hero-copy h1 { font-size:43px; letter-spacing:-2.5px; }
-  .hero-description { font-size:12px; }
+  .hero-description { font-size: 12.5px; }
   .assistant-preview { padding:17px; border-radius:17px; }
   .assistant-welcome h2 { font-size:19px; }
-  .hero-bottom { font-size:7px; gap:9px; }
+  .hero-bottom { font-size: 12.5px; gap:9px; }
   .quick-search-inner { margin-left:5%; margin-right:5%; padding:30px 0; }
   .quick-search-inner h2 { font-size:20px; }
   .large-search { gap:7px; }
-  .large-search input { font-size:9px; }
-  .large-search button { padding:11px 10px; font-size:9px; }
+  .large-search input { font-size: 14px; }
+  .large-search button { padding:11px 10px; font-size: 12.5px; }
   .section-wrap { margin-left:5%; margin-right:5%; }
   .services-section, .how-section { padding-top:65px; padding-bottom:65px; }
   .section-heading { align-items:flex-start; flex-direction:column; }
@@ -48,7 +48,7 @@
   .category-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
   .category-card { min-height:160px; padding:15px; }
   .category-card strong { font-size:15px; }
-  .category-count { font-size:6px; }
+  .category-count { font-size: 12.5px; }
   .personalised-inner { margin-left:5%; margin-right:5%; }
   .personalised-copy h2 { font-size:32px; }
   .steps-grid { grid-template-columns:1fr; gap:12px; }

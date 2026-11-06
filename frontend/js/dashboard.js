@@ -205,7 +205,91 @@ document.addEventListener("DOMContentLoaded", async () => {
         ));
     }
 
+    function buildReminders() {
+        const reminders = [];
+        applications
+            .filter(item => item.status === "additional_information_requested")
+            .forEach(item => reminders.push({
+                title: "Additional information recorded as requested",
+                detail: `${item.service?.code || "A tracked service"}${item.reference_number ? ` · ${item.reference_number}` : ""}`,
+                href: "applications.html"
+            }));
+        if (!profile?.state_id) {
+            reminders.push({
+                title: "Add your state to your profile",
+                detail: "This helps SchemeSathi show services relevant to your area.",
+                href: "profile.html"
+            });
+        }
+        if (savedServices.length && !applications.length) {
+            reminders.push({
+                title: `You have ${savedServices.length} saved ${savedServices.length === 1 ? "service" : "services"}`,
+                detail: "When you apply, record it in your application tracker.",
+                href: "applications.html"
+            });
+        }
+        return reminders;
+    }
+
+    function renderNotifications() {
+        const list = $("notificationList");
+        const reminders = buildReminders();
+        list.replaceChildren();
+        $("notificationDot").hidden = reminders.length === 0;
+        $("notificationButton").setAttribute(
+            "aria-label",
+            reminders.length ? `Reminders, ${reminders.length}` : "Reminders"
+        );
+        if (!reminders.length) {
+            const empty = document.createElement("p");
+            empty.className = "notification-empty";
+            empty.textContent = "You are all caught up. No reminders right now.";
+            list.appendChild(empty);
+            return;
+        }
+        reminders.forEach(reminder => {
+            const link = document.createElement("a");
+            link.className = "notification-item";
+            link.href = reminder.href;
+            const title = document.createElement("strong");
+            title.textContent = reminder.title;
+            const detail = document.createElement("span");
+            detail.textContent = reminder.detail;
+            link.append(title, detail);
+            list.appendChild(link);
+        });
+    }
+
+    function setNotificationPanel(open) {
+        $("notificationPanel").hidden = !open;
+        $("notificationButton").setAttribute("aria-expanded", String(open));
+        if (open) $("closeNotifications").focus();
+    }
+
+    $("notificationButton")?.addEventListener("click", () => {
+        setNotificationPanel($("notificationPanel").hidden);
+    });
+    $("closeNotifications")?.addEventListener("click", () => {
+        setNotificationPanel(false);
+        $("notificationButton").focus();
+    });
+    document.addEventListener("click", event => {
+        if (!$("notificationPanel").hidden &&
+            !event.target.closest(".notification-wrap")) {
+            setNotificationPanel(false);
+        }
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !$("notificationPanel").hidden) {
+            setNotificationPanel(false);
+            $("notificationButton").focus();
+        }
+    });
+
     $("addApplicationButton")?.addEventListener("click", () => {
+        window.location.href = "applications.html";
+    });
+    $("firstApplicationButton")?.addEventListener("click", () => {
         window.location.href = "applications.html";
     });
     $("logoutButton")?.addEventListener("click", async () => {
@@ -246,7 +330,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderApplications();
         renderCategories();
         renderRecentUnavailable();
+        renderNotifications();
     } catch (error) {
+        renderNotifications();
         showToast(`Dashboard data could not be loaded: ${error.message}`);
         $("savedGrid").replaceChildren(createEmpty("Saved services unavailable", error.message));
         $("applicationsList").replaceChildren(createEmpty("Application records unavailable", error.message));

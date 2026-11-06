@@ -49,7 +49,9 @@
                 window.location.replace("login.html");
             } catch (error) {
                 logout.disabled = false;
-                window.alert(`Could not sign out: ${error.message}`);
+                logout.textContent = "Sign-out failed — retry";
+                logout.title = error.message;
+                window.setTimeout(() => { logout.textContent = "Sign out"; }, 4000);
             }
         });
         adminUser.appendChild(logout);

@@ -35,6 +35,7 @@ from backend.modules.ai.retrieval.hybrid_retriever import (
     retrieve_hybrid_facts,
     sync_fact_vectors,
 )
+from backend.services.demo_knowledge import demo_answer, demo_evidence, demo_items
 
 
 router = APIRouter(prefix="/chat", tags=["SchemeSathi Assistant"])
@@ -491,10 +492,22 @@ async def send_chat_message(
         question=retrieval_question,
         language_code=payload.language_code,
     )
+    demo_mode = False
     if not evidence:
-        answer = INSUFFICIENT_EVIDENCE
-        citations: list[Citation] = []
-        grounded = False
+        demo_records = demo_items(retrieval_question)
+        if demo_records:
+            evidence = [demo_evidence(item) for item in demo_records[:5]]
+            evidence_context, all_citations = _build_evidence_context(evidence)
+            answer = demo_answer(payload.message, demo_records[:5], history)
+            used_markers = {f"S{value}" for value in MARKER_PATTERN.findall(answer)}
+            citations = [citation for citation in all_citations if citation.marker in used_markers]
+            demo_mode = True
+            grounded = False
+            semantic_status = "demo_local"
+        else:
+            answer = INSUFFICIENT_EVIDENCE
+            citations = []
+            grounded = False
     else:
         evidence_context, all_citations = _build_evidence_context(evidence)
         answer = await generate_grounded_answer(
@@ -532,7 +545,7 @@ async def send_chat_message(
             or str(item.get("language", "en")).lower() == requested_base
             for item in evidence
         )
-    )
+    ) and not demo_mode
     return ChatResponse(
         answer=answer,
         citations=citations,

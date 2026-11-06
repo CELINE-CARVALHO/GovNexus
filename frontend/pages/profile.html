@@ -23,8 +23,8 @@
         <a href="dashboard.html"><span>▦</span> Dashboard</a>
         <a href="services.html"><span>⌕</span> Explore services</a>
         <a href="assistant.html"><span>✳</span> AI assistant</a>
-        <a href="dashboard.html#saved"><span>♡</span> Saved services</a>
-        <a href="dashboard.html#applications"><span>▤</span> My applications</a>
+        <a href="dashboard.html#savedSection"><span>♡</span> Saved services</a>
+        <a href="applications.html"><span>▤</span> My applications</a>
         <a class="active" href="profile.html"><span>◉</span> My profile</a>
       
         <a href="preferences.html"><span>⚙</span> Preferences</a>
@@ -81,7 +81,7 @@
                       <option value="">Select your state</option>
                     </select>
                   </label>
-                  <label class="field"><span>District / City</span><select id="district" name="district" disabled><option value="">Select your district</option></select></label>
+                  <label class="field"><span data-i18n="District / City">District / City</span><select id="district" name="district" disabled><option value="">Select your district</option></select></label>
                 </div>
                 <div class="location-note">Choose a state and district from the active government location catalogue.</div>
               </section>
@@ -89,7 +89,7 @@
               <section class="profile-card form-card">
                 <div class="section-heading"><div><span class="section-icon">03</span><h2>Language preferences</h2><p>Choose the language you prefer while using SchemeSathi.</p></div></div>
                 <div class="form-grid">
-                  <label class="field full"><span>Preferred language</span>
+                  <label class="field full"><span data-i18n="Preferred language">Preferred language</span>
                     <select id="preferredLanguage" name="preferredLanguage">
                       <option value="en">English</option><option value="hi">हिन्दी (Hindi)</option><option value="kn">ಕನ್ನಡ (Kannada)</option><option value="mr">मराठी (Marathi)</option><option value="ta">தமிழ் (Tamil)</option><option value="te">తెలుగు (Telugu)</option><option value="bn">বাংলা (Bengali)</option><option value="gu">ગુજરાતી (Gujarati)</option><option value="ml">മലയാളം (Malayalam)</option><option value="pa">ਪੰਜਾਬੀ (Punjabi)</option><option value="ur">اردو (Urdu)</option><option value="or">ଓଡ଼ିଆ (Odia)</option><option value="as">অসমীয়া (Assamese)</option><option value="sa">संस्कृतम् (Sanskrit)</option><option value="ks">कॉशुर (Kashmiri)</option><option value="kok">कोंकणी (Konkani)</option><option value="mai">मैथिली (Maithili)</option><option value="ne">नेपाली (Nepali)</option><option value="sd">سنڌي (Sindhi)</option><option value="doi">डोगरी (Dogri)</option><option value="mni">মৈতৈলোন্ (Manipuri)</option><option value="sat">संताली (Santali)</option><option value="brx">बर’ (Bodo)</option>
                     </select>
@@ -114,16 +114,29 @@
               <h3>A more helpful experience starts here.</h3>
               <p>Your preferences help SchemeSathi organise relevant government services and guidance.</p>
             </div>
-            <div class="aside-card privacy-aside"><div class="privacy-icon">♧</div><h3>Your privacy, your choice.</h3><p>Only provide details you are comfortable sharing. You do not need to enter Aadhaar, PAN, bank details or other sensitive identity information here.</p><a href="#" id="privacyInfo">About profile data ↗</a></div>
-            <div class="aside-card account-card"><span class="account-label">ACCOUNT</span><h3>Account settings</h3><p>Email and phone are read-only here. Change your password from account recovery when that API is available.</p><button type="button" class="disabled-action" disabled>Password change · Not available here</button></div>
+            <div class="aside-card privacy-aside"><div class="privacy-icon">♧</div><h3>Your privacy, your choice.</h3><p>Only provide details you are comfortable sharing. You do not need to enter Aadhaar, PAN, bank details or other sensitive identity information here.</p><a href="#" id="privacyInfo" role="button">About profile data ↗</a></div>
+            <div class="aside-card account-card">
+              <span class="account-label">ACCOUNT</span>
+              <h3>Account security</h3>
+              <p>Email and phone are read-only here. You can change your password at any time; other signed-in devices will be signed out.</p>
+              <button type="button" class="secondary-action" id="passwordToggle" data-i18n="Change password" aria-expanded="false" aria-controls="passwordForm">Change password</button>
+              <form id="passwordForm" class="password-form" hidden novalidate>
+                <label class="field"><span>Current password</span><input id="currentPassword" type="password" autocomplete="current-password" required></label>
+                <label class="field"><span>New password <small>(at least 12 characters)</small></span><input id="newPassword" type="password" autocomplete="new-password" minlength="12" required></label>
+                <label class="field"><span>Confirm new password</span><input id="confirmNewPassword" type="password" autocomplete="new-password" required></label>
+                <button class="save-btn" type="submit">Update password</button>
+              </form>
+              <p class="password-message" id="passwordMessage" role="status" aria-live="polite" hidden></p>
+            </div>
           </aside>
         </div>
         <footer class="page-footer">SchemeSathi <span>·</span> Making public services easier to understand.</footer>
       </section>
     </main>
   </div>
-  <div class="toast" id="toast" role="status"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="../js/api/client.js"></script>
+  <script src="../js/localization.js"></script>
   <script src="../js/profile.js"></script>
 </body>
 </html>

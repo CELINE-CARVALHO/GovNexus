@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const serviceId = params.get("id");
     const languageFallback = "en";
     let service = null;
+    let isDemoRecord = false;
     let toastTimer;
 
     function notify(message) {
@@ -50,6 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function renderService(data) {
         service = data.service;
+        isDemoRecord = Boolean(data.demo);
         document.title = `${service.title || service.code} | SchemeSathi`;
         $("categoryTag").textContent = service.category?.name || service.category?.code || "PUBLISHED SERVICE";
         $("serviceTitle").textContent = service.title || service.code;
@@ -57,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             service.description || "No published service description is available.";
 
         const previewTag = document.querySelector(".preview-tag");
-        if (previewTag) previewTag.textContent = "PUBLISHED VERSION";
+        if (previewTag) previewTag.textContent = data.demo ? "LOCAL DEMONSTRATION" : "PUBLISHED VERSION";
         const meta = document.querySelector(".hero-meta");
         meta.replaceChildren();
         const jurisdictions = Array.isArray(data.jurisdictions)
@@ -189,18 +191,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         document.querySelector(".verification-legend")?.setAttribute("hidden", "");
 
-        const track = element("a", "Track this service");
-        track.className = "secondary-btn";
-        track.href = `applications.html?service_id=${encodeURIComponent(service.id)}`;
-        document.querySelector(".hero-actions").appendChild(track);
-        updateSavedState(data);
+        if (!data.demo) {
+            const track = element("a", "Track this service");
+            track.className = "secondary-btn";
+            track.href = `applications.html?service_id=${encodeURIComponent(service.id)}`;
+            document.querySelector(".hero-actions").appendChild(track);
+            updateSavedState(data);
+        }
     }
 
     function renderListSection(id, items, renderItem, emptyMessage) {
         const section = $(id);
         const intro = section.querySelector(".section-intro");
         intro.textContent = items?.length
-            ? "Information shown below comes from the current published service record."
+            ? (isDemoRecord ? "Information shown below is from a local demonstration record." : "Information shown below comes from the current published service record.")
             : emptyMessage;
         const old = section.querySelector(".locked-panel, .document-empty, .process-empty");
         if (old) old.remove();
@@ -350,9 +354,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 notify(`Could not load your preferred language: ${error.message}`);
             }
         }
-        const result = await api.get(
-            `/services/${encodeURIComponent(serviceId)}/details?language=${encodeURIComponent(language)}`
-        );
+        const detailPath = serviceId.startsWith("demo-")
+            ? `/demo/services/${encodeURIComponent(serviceId)}`
+            : `/services/${encodeURIComponent(serviceId)}/details?language=${encodeURIComponent(language)}`;
+        const result = await api.get(detailPath);
         renderService(result);
         document.querySelector(".hero-actions").querySelectorAll("button").forEach(button => {
             button.disabled = false;

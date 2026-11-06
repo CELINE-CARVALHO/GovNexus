@@ -1,5 +1,6 @@
 import hmac
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
@@ -197,7 +198,7 @@ def list_sources(
     "/{source_id}",
     dependencies=[Depends(require_source_admin)],
 )
-def get_source(source_id: str, db: Session = Depends(get_db)):
+def get_source(source_id: UUID, db: Session = Depends(get_db)):
     source = db.query(Source).filter(Source.id == source_id).first()
 
     if not source:
@@ -214,7 +215,7 @@ def get_source(source_id: str, db: Session = Depends(get_db)):
     dependencies=[Depends(require_source_admin)],
 )
 def update_source(
-    source_id: str,
+    source_id: UUID,
     payload: SourceUpdate,
     db: Session = Depends(get_db),
 ):
@@ -249,7 +250,7 @@ def update_source(
     dependencies=[Depends(require_source_admin)],
 )
 def set_source_activation(
-    source_id: str,
+    source_id: UUID,
     is_active: bool = Query(default=True),
     db: Session = Depends(get_db),
 ):
@@ -278,7 +279,7 @@ def set_source_activation(
     dependencies=[Depends(require_source_admin)],
 )
 def trigger_source_ingest(
-    source_id: str,
+    source_id: UUID,
     db: Session = Depends(get_db),
 ):
     source = db.query(Source).filter(Source.id == source_id).first()

@@ -309,6 +309,242 @@ def classify_sentence(sentence: str) -> str | None:
     return None
 
 
+def _build_extraction_candidate(
+    source_text: str,
+    fact_type: str,
+    start: int,
+    end: int,
+) -> dict[str, Any] | None:
+    """Build a fact candidate while preserving its exact source span."""
+    raw_text = source_text[start:end]
+    quoted_text = raw_text.strip()
+    if not quoted_text:
+        return None
+
+    leading = len(raw_text) - len(raw_text.lstrip())
+    trailing = len(raw_text.rstrip())
+    character_start = start + leading
+    character_end = start + trailing
+    quoted_text = source_text[character_start:character_end]
+    fact_text = re.sub(r"\s+", " ", quoted_text).strip()
+
+    if len(fact_text) < 35:
+        return None
+
+    return {
+        "fact_type": fact_type,
+        "fact_text": fact_text,
+        "character_start": character_start,
+        "character_end": character_end,
+        "quoted_text": quoted_text,
+    }
+
+
+def _non_empty_lines(source_text: str) -> list[tuple[int, int, str]]:
+    """Return non-empty lines with offsets into the extracted snapshot text."""
+    lines: list[tuple[int, int, str]] = []
+    for match in re.finditer(r".*(?:\n|$)", source_text):
+        raw_line = match.group(0)
+        if not raw_line:
+            continue
+        line = raw_line[:-1] if raw_line.endswith("\n") else raw_line
+        stripped = line.strip()
+        if not stripped:
+            continue
+        line_start = match.start() + len(line) - len(line.lstrip())
+        line_end = match.start() + len(line.rstrip())
+        lines.append((line_start, line_end, stripped))
+    return lines
+
+
+def _uidai_structured_candidates(source_text: str) -> list[dict[str, Any]]:
+    """Extract only explicit UIDAI field, age, and process blocks.
+
+    These rules require a heading or a distinctive process boundary plus
+    supporting content. They intentionally do not infer fees, deadlines,
+    appointments, eligibility, or document lists.
+    """
+    lines = _non_empty_lines(source_text)
+    candidates: list[dict[str, Any]] = []
+
+    def add_block(fact_type: str, first: int, last: int) -> None:
+        if first < 0 or last < first or last >= len(lines):
+            return
+        candidate = _build_extraction_candidate(
+            source_text,
+            fact_type,
+            lines[first][0],
+            lines[last][1],
+        )
+        if candidate:
+            candidates.append(candidate)
+
+    def first_line(predicate, start: int = 0) -> int | None:
+        for index in range(start, len(lines)):
+            if predicate(lines[index][2]):
+                return index
+        return None
+
+    # A heading is accepted only when followed by its field list.
+    for heading, fact_type in (
+        ("demographic information", "service_information"),
+        ("biometric information", "service_information"),
+    ):
+        heading_index = first_line(
+            lambda value, heading=heading: value.lower() == heading
+        )
+        if heading_index is None or heading_index + 1 >= len(lines):
+            continue
+        next_index = heading_index + 1
+        if lines[next_index][2].lower() in {
+            "demographic information",
+            "biometric information",
+        }:
+            continue
+        add_block("service_information", heading_index, next_index)
+
+    # Capture each explicit age boundary together with its supporting rule.
+    age_pattern = re.compile(
+        r"^age\s*(?:<\s*5|between\s+5\s+and\s+15|>\s*15)\s+years\b",
+        re.IGNORECASE,
+    )
+    age_indexes = [
+        index
+        for index, (_, _, value) in enumerate(lines)
+        if age_pattern.search(value)
+    ]
+    age_stop_pattern = re.compile(
+        r"^(?:events like accidents|as the aadhaar authentication|"
+        r"uidai may verify|aadhaar details that can be updated)",
+        re.IGNORECASE,
+    )
+    for position, age_index in enumerate(age_indexes):
+        next_age = (
+            age_indexes[position + 1]
+            if position + 1 < len(age_indexes)
+            else len(lines)
+        )
+        end_index = next_age - 1
+        for index in range(age_index + 1, next_age):
+            if age_stop_pattern.search(lines[index][2]):
+                end_index = index - 1
+                break
+        add_block("eligibility", age_index, end_index)
+
+    biometric_event_index = first_line(
+        lambda value: value.lower().startswith(
+            "events like accidents or diseases"
+        )
+    )
+    details_heading_index = first_line(
+        lambda value: value.lower().startswith(
+            "aadhaar details that can be updated"
+        ),
+        (biometric_event_index + 1) if biometric_event_index is not None else 0,
+    )
+    if biometric_event_index is not None and details_heading_index is not None:
+        add_block(
+            "service_information",
+            biometric_event_index,
+            details_heading_index - 1,
+        )
+
+    registered_index = first_line(
+        lambda value: value.lower() == "registered mobile number"
+    )
+    if registered_index is not None:
+        end_index = first_line(
+            lambda value: value.lower().startswith("enabling aadhaar"),
+            registered_index + 1,
+        )
+        if end_index is None:
+            end_index = registered_index + 1
+        add_block("application_process", registered_index + 1, end_index - 1)
+
+    online_index = first_line(
+        lambda value: value.lower() == "1. via online"
+    )
+    centre_index = first_line(
+        lambda value: value.lower() == "by visiting aadhaar enrolment centre"
+    )
+    if online_index is not None and centre_index is not None and online_index < centre_index:
+        add_block("application_process", online_index, centre_index - 1)
+
+        online_start = lines[online_index][0]
+        centre_start = lines[centre_index][0]
+        supporting_match = re.search(
+            r"to complete the update process.*?quality and processing team\.",
+            source_text[online_start:centre_start],
+            re.IGNORECASE | re.DOTALL,
+        )
+        if supporting_match:
+            support_start = online_start + supporting_match.start()
+            support_end = online_start + supporting_match.end()
+            candidate = _build_extraction_candidate(
+                source_text,
+                "required_document",
+                support_start,
+                support_end,
+            )
+            if candidate:
+                candidates.append(candidate)
+
+        assisted_updates_index = first_line(
+            lambda value: value.lower().startswith(
+                "a. update client standard"
+            ),
+            centre_index + 1,
+        )
+        centre_end = (
+            assisted_updates_index - 1
+            if assisted_updates_index is not None
+            else centre_index
+        )
+        add_block("application_process", centre_index, centre_end)
+
+    return candidates
+
+
+def extract_fact_candidates(source_text: str) -> list[dict[str, Any]]:
+    """Return sentence and explicitly structured fact candidates.
+
+    Existing sentence rules run first for compatibility. Structured rules are
+    additive and are deduplicated by the existing fact-key algorithm.
+    """
+    candidates: list[dict[str, Any]] = []
+    seen_keys: set[str] = set()
+
+    for sentence, start, end in split_into_sentences(source_text):
+        fact_type = classify_sentence(sentence)
+        if fact_type is None:
+            continue
+        candidate = _build_extraction_candidate(
+            source_text,
+            fact_type,
+            start,
+            end,
+        )
+        if candidate is None:
+            continue
+        fact_key = build_fact_key(fact_type, candidate["fact_text"])
+        if fact_key in seen_keys:
+            continue
+        seen_keys.add(fact_key)
+        candidates.append(candidate)
+
+    for candidate in _uidai_structured_candidates(source_text):
+        fact_key = build_fact_key(
+            candidate["fact_type"],
+            candidate["fact_text"],
+        )
+        if fact_key in seen_keys:
+            continue
+        seen_keys.add(fact_key)
+        candidates.append(candidate)
+
+    return candidates
+
+
 def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, Any]:
     source = snapshot.source
     if (
@@ -356,12 +592,10 @@ def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, A
     created = 0
     existing = 0
 
-    for sentence, start, end in split_into_sentences(source_text):
-        fact_type = classify_sentence(sentence)
-        if fact_type is None:
-            continue
-
-        fact_key = build_fact_key(fact_type, sentence)
+    for candidate in extract_fact_candidates(source_text):
+        fact_type = candidate["fact_type"]
+        fact_text = candidate["fact_text"]
+        fact_key = build_fact_key(fact_type, fact_text)
         duplicate = find_existing_fact(db, fact_key)
         if duplicate:
             existing += 1
@@ -372,7 +606,7 @@ def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, A
             "fact_key": fact_key,
             "fact_type": fact_type,
             "value": {
-                "text": sentence,
+                "text": fact_text,
                 "language": "en",
                 "review_required": True,
             },
@@ -381,9 +615,9 @@ def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, A
                 "source_url": snapshot.source.url,
                 "snapshot_id": str(snapshot.id),
                 "file": str(text_path.relative_to(PROJECT_ROOT)),
-                "character_start": start,
-                "character_end": end,
-                "quoted_text": sentence,
+                "character_start": candidate["character_start"],
+                "character_end": candidate["character_end"],
+                "quoted_text": candidate["quoted_text"],
             },
             "extraction_confidence": 0.5,
             "extraction_status": "pending_review",

@@ -82,7 +82,7 @@ a {
     align-items: center;
     gap: 9px;
     color: #c9c0ff;
-    font-size: 9px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 1.6px;
 }
@@ -145,14 +145,14 @@ a {
 }
 
 .visual-feature strong {
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
 .visual-feature small {
     margin-top: 4px;
     color: #c2bbdf;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 .visual-bottom {
@@ -168,7 +168,7 @@ a {
     position: absolute;
     bottom: -20px;
     color: #c8c0e7;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .visual-orb {
@@ -244,7 +244,7 @@ a {
     bottom: 24px;
     left: 8%;
     color: #c6bfdf;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .auth-panel {
@@ -275,13 +275,13 @@ a {
 
 .back-home {
     color: #858da2;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 700;
 }
 
 .secure-label {
     color: #939bad;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .secure-label span {
@@ -291,7 +291,7 @@ a {
 
 .auth-kicker {
     color: #7b69df;
-    font-size: 9px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 1.5px;
 }
@@ -306,7 +306,7 @@ a {
 .auth-heading p {
     margin: 0;
     color: #8b92a5;
-    font-size: 12px;
+    font-size: 12.5px;
 }
 
 .auth-tabs {
@@ -325,7 +325,7 @@ a {
     border-radius: 8px;
     color: #8a91a4;
     background: transparent;
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 700;
     cursor: pointer;
 }
@@ -340,7 +340,7 @@ a {
     padding: 12px;
     margin-bottom: 15px;
     border-radius: 9px;
-    font-size: 10px;
+    font-size: 12.5px;
     line-height: 1.6;
 }
 
@@ -365,7 +365,7 @@ a {
     display: block;
     margin-bottom: 8px;
     color: #444d66;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
 }
 
@@ -400,7 +400,7 @@ a {
     outline: 0;
     color: #303951;
     background: transparent;
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .input-wrap input::placeholder {
@@ -416,7 +416,7 @@ a {
     border: 0;
     color: #7060d4;
     background: transparent;
-    font-size: 9px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -432,7 +432,7 @@ a {
     border: 0;
     color: #7562d7;
     background: transparent;
-    font-size: 9px;
+    font-size: 12.5px;
     font-weight: 700;
     cursor: pointer;
 }
@@ -442,7 +442,7 @@ a {
     min-height: 0;
     margin-top: 5px;
     color: #c54c60;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .field-error:empty {
@@ -460,7 +460,7 @@ a {
     align-items: flex-start;
     gap: 8px;
     color: #858da0;
-    font-size: 10px;
+    font-size: 12.5px;
     line-height: 1.6;
 }
 
@@ -491,7 +491,7 @@ a {
     color: white;
     background: linear-gradient(105deg, #7060e5, #5544c4);
     box-shadow: 0 8px 20px #6554d52b;
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
     transition: .2s;
@@ -532,7 +532,7 @@ a {
     display: block;
     margin-top: 5px;
     color: #9299aa;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .auth-divider {
@@ -541,7 +541,7 @@ a {
     gap: 12px;
     margin: 26px 0 20px;
     color: #a3a9b8;
-    font-size: 8px;
+    font-size: 12.5px;
     font-weight: 800;
     letter-spacing: 1px;
 }
@@ -559,7 +559,7 @@ a {
     justify-content: center;
     gap: 5px;
     color: #858da0;
-    font-size: 10px;
+    font-size: 12.5px;
 }
 
 .auth-footer button {
@@ -567,7 +567,7 @@ a {
     border: 0;
     color: #6855d8;
     background: transparent;
-    font-size: 10px;
+    font-size: 12.5px;
     font-weight: 800;
     cursor: pointer;
 }
@@ -575,7 +575,7 @@ a {
 .auth-disclaimer {
     margin-top: 28px;
     color: #a0a6b5;
-    font-size: 9px;
+    font-size: 12.5px;
     line-height: 1.8;
     text-align: center;
 }
@@ -588,7 +588,7 @@ a {
     margin-top: auto;
     padding-top: 35px;
     color: #a0a6b5;
-    font-size: 9px;
+    font-size: 12.5px;
 }
 
 .panel-footer a {

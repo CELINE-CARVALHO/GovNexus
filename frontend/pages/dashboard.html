@@ -52,7 +52,7 @@
             <a href="profile.html" class="nav-link">
                 <span class="nav-icon">♙</span> My profile
             </a>
-            <a href="profile.html#preferences" class="nav-link">
+            <a href="preferences.html" class="nav-link">
                 <span class="nav-icon">⚙</span> Preferences
             </a>
         </nav>
@@ -89,10 +89,21 @@
             <div class="topbar-right">
                 <a href="services.html" class="topbar-explore">Explore services <span>↗</span></a>
 
-                <button class="notification-button" id="notificationButton" aria-label="Notifications">
-                    ♧
-                    <span class="notification-dot"></span>
-                </button>
+                <div class="notification-wrap">
+                    <button class="notification-button" id="notificationButton"
+                        aria-label="Reminders" aria-controls="notificationPanel" aria-expanded="false">
+                        ♧
+                        <span class="notification-dot" id="notificationDot" aria-hidden="true" hidden></span>
+                    </button>
+                    <section class="notification-panel" id="notificationPanel"
+                        aria-label="Reminders" hidden>
+                        <div class="notification-panel-heading">
+                            <h2>Reminders</h2>
+                            <button type="button" id="closeNotifications" aria-label="Close reminders">×</button>
+                        </div>
+                        <div class="notification-list" id="notificationList" aria-live="polite"></div>
+                    </section>
+                </div>
 
                 <a href="profile.html" class="topbar-avatar" id="topbarAvatar">U</a>
             </div>
@@ -381,6 +392,7 @@
 <div class="toast" id="dashboardToast" role="status" aria-live="polite"></div>
 
 <script src="../js/api/client.js"></script>
+<script src="../js/localization.js"></script>
 <script src="../js/dashboard.js"></script>
 
 </body>

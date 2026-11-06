@@ -78,7 +78,7 @@
         icon.textContent = icons[index % icons.length];
         const label = document.createElement("span");
         label.className = "category-count";
-        label.textContent = "PUBLISHED CATALOGUE";
+        label.textContent = "SERVICE CATEGORIES";
         const title = document.createElement("strong");
         title.textContent = category.name || category.code;
         const arrow = document.createElement("span");
@@ -155,7 +155,7 @@
       });
       if (services.length > 3) {
         const all = document.createElement("a");
-        all.href = "pages/dashboard.html#saved";
+        all.href = "pages/dashboard.html#savedSection";
         all.textContent = "View all saved services →";
         container.appendChild(all);
       }

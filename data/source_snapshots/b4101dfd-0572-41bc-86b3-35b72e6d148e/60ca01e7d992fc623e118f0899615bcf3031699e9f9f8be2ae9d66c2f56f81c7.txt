@@ -1,0 +1,185 @@
+Updating Data on Aadhaar - Unique Identification Authority of India | Government of India - Unique Identification Authority of India | Government of India
+Skip to Main Content
+Screen Reader
+Hindi (हिन्दी)
+Skip to Main Content
+Screen Reader
+Hindi (हिन्दी)
+More
+Home
+My Aadhaar
+About UIDAI
+Build with Us
+Media
+Documents
+Help
+Home
+/
+My Aadhaar
+/
+Understand your Aadhaar
+/
+Updating Data on Aadhaar
+Updating Data on Aadhaar
+Biometric devices are instruments, designed to capture biometric data inputs including fingerprint and iris information from Aadhaar number holders for the purpose of authentication and identity verification.
+Registered Mobile Number
+Registered mobile number is essential to access Aadhaar Online Services
+You can verify your mobile number that has been declared at the time of enrolment or during latest Aadhaar detail update.
+Verify your mobile number
+If you have not registered your Mobile number while enrolling for Aadhaar, you are
+required to visit a
+Permanent Enrolment Centre
+to get it registered.
+Enabling Aadhaar for various services like Government & Non-Government Services, Subsidy Benefits, Pensions, Scholarships, Social Benefits, Banking services, Insurance services, Taxation services, Education, Employment, Healthcare etc., makes it essential to ensure that Aadhaar data of the Aadhaar number holder stored in the CIDR is accurate and up-to-date.
+Demographic data update, the need could arise from:
+Changes in life events such as marriage may lead to Aadhaar number holders changing their basic demographic details such as name and address. Address and mobile number could also change due to migration to newer locations. Aadhaar number holders may also want changes in their relative’s details due to changes in life events such marriage, death of a relative etc. In addition, Aadhaar number holders could have other personal reasons to change their mobile number, email address etc.
+Changes in various service delivery platforms may lead Aadhaar number holders to declaration request changes and to add mobile number to CIDR etc.
+Errors made during the enrolment process wherein the demographic data of individuals seeking to enrol may have been captured incorrectly.Changes to “DoB/Age” and “Gender” fields are expected primarily due to enrolment errors.
+Since an individual can enrol anywhere in India, it may happen that a native speaker of language "A" is enrolled by an operator of language "B" and consequently the individual’s local language of enrolment is "B". Later, the Aadhaar number holder may want to change the local language of enrolment to another that he/she prefers. If so, then all the demographic information that is printed on the Aadhaar letter will need to be updated in the new local language.
+UIDAI may also ascertain availability of POI, POA and other documents collected at the time of enrolment/update and its quality and decide to notify Aadhaar number holder to update their demographic information and submit the required document.
+Biometric update, the need could arise from:
+Age <5 years at the time of initial enrolment
+-The child should be re-enroled when the child attains an age of 5 years and all biometric data should be provided. A de-duplication would be done for the child at this stage. This request will be treated similar to a new enrolment request while retaining the original Aadhaar number
+Age between 5 and 15 years at the time of enrolment
+- The Aadhaar number holder should furnish all biometrics for updates when he/she attains age of 15 years.
+Age >15 years at the time of enrolment
+– Aadhaar number holders are recommended to update their biometric data every 10 years.
+Events like accidents or diseases leading to biometric exception
+As the Aadhaar authentication service is becoming ubiquitous, Aadhaar number holders may also approach for biometric updates because of authentication failures (called false rejects – where a correct Aadhaar number holder with valid Aadhaar number may be incorrectly rejected) which may result from incorrect biometric capture or poor biometric quality captured at the time of enrolment. With improvements in technology, it may be possible to capture better quality biometrics in the CIDR.
+UIDAI may verify the
+quality
+of biometrics captured during enrolment/ update and decide a threshold quality. All Aadhaar number holders with biometrics below the threshold level would/
+will
+be notified by UIDAI to update their biometrics
+Aadhaar details that can be updated are:
+Demographic Information
+Name, Address, Date of Birth/Age, Gender, Mobile Number, Email Address, Relationship Status and Information Sharing Consent
+Biometric Information
+Iris, Finger Prints and Facial Photograph
+UIDAI update process accepts wide range of PoI (Proof of Identity) and PoA (Proof of Address) documents. View the
+List of supporting documents
+Doc Type: PDF SIze: 1.6MB.
+Modes of Update
+1. Via Online
+The online mode offers address update to the Aadhaar number holders where the Aadhaar number holder can directly place the address update request on the myAadhaar portal. The Aadhaar number holder needs to have mobile number registered with Aadhaar for using this service. The Aadhaar number is required to login to the
+portal
+by the Aadhaar number holder. The Aadhaar number holder is authenticated using sent OTP on his/her registered mobile number. To complete the update process, Aadhaar number holder needs to upload the
+supporting POA documents
+Doc Type: PDF Size: 1.6MB
+, which will be verified against requested data at a later stage by a quality and processing team.
+By Visiting Aadhaar Enrolment Centre
+Aadhaar number holders place the demographic/biometric update request with the help of an operator at an
+Aadhaar Enrolment Centre
+. In such a case, the documentary evidence is collected by the operator at the time of accepting the request. The document verification by the verifier also happens at the time of placing the update request. UIDAI currently has envisaged three modes for Assisted Updates:
+a. Update Client Standard
+Fields
+: All biometric and demographic fields as well as local language can be updated
+Identity Authentication
+: Biometric check at the back-end.
+Document Verification
+Verification done for those fields which require documentary evidence.
+Verification done by verifier appointed by UIDAI/Registrars present at Enrolment / Update Centre.
+Form Filling and Acknowledgement
+Done by the operator on update client as requested by the Aadhaar number holder. Handles spelling, language issues, transliteration, etc. Operator will provide biometric sign off against every update request.
+Aadhaar number holder gets an acknowledgement receipt with Update Request Number (URN) which can be tracked.
+b. Update Client Lite (UCL)
+Fields
+: All demographic fields and Photo as well as local language can be updated.
+Identity Authentication
+: Biometric Authentication of Aadhaar number holder.
+Document Verification
+Verification done for those fields which require documentary evidence
+Verification done by verifier appointed by UIDAI/Registrars present at Aadhaar Enrolment / Update Centre.
+The verification procedure followed should be in line with DDSVP Committee Recommendations followed during enrolment process
+Form Filling in software and Acknowledgement
+Done by the operator on update client as requested by the Aadhaar number holder. Aadhaar number holder gets an acknowledgement receipt with Enrolment ID (EID) which can be used for checking status. Operator will provide biometric sign off against every update request.
+Content Information
+Published on
+:
+04 May 2026
+Last Updated
+:
+17 Sep 2026
+Owner
+:
+E&U
+In this section
+Registered Mobile Number
+Demographic data update, the need could arise from:
+Biometric update, the need could arise from:
+Aadhaar details that can be updated are:
+Modes of Update
+By Visiting Aadhaar Enrolment Centre
+Frequently Asked Questions
+How to download the Aadhaar app?
+You can download the Aadhaar app on your Android/iOS device from the Play Store/App Store. For Android: https://play.google.com/store/apps/details?id=in.gov.uidai.pehchaan For iOS: https://apps.apple.com/in/app/aadhaar/id6744029871
+How to register on the Aadhaar app?
+After downloading the app, the Aadhaar Number Holder (ANH): →Select Language→ Enters their Aadhaar number → Agrees to the Terms and Conditions and Privacy Policy → Chooses the SIM card → Performs Face Authentication → Gets registered on the app → Sets a 6-digit PIN to secure access to the app.
+Which services are available on this app?
+Presently, the Aadhaar app offers various services like - Mobile Number Update, Address Update, Biometric lock/unlock, Selective Sharing of Aadhaar Verifiable Credential, check Authentication History, download e-Aadhaar, share Contact Card, Track my request, etc.
+View more F.A.Qs
+Content Information
+Published on
+:
+04 May 2026
+Last Updated
+:
+17 Sep 2026
+Owner
+:
+E&U
+About UIDAI
+Vision & Mission
+Aadhaar Dashboard
+Citizens Charter
+Annual Reports
+Aadhaar Services
+Download Aadhaar
+Update Aadhaar
+Check Aadhaar Status
+Order PVC Card
+Generate VID
+Retrieve Lost UID
+Documents
+Enrolment & Update Forms
+Handbooks
+Annual Reports
+Circulars
+Policies
+Quick Links
+My Aadhaar Portal
+Aadhaar App
+Seva Kendra Locator
+Developer Sandbox
+Career Portal
+Become an OVSE
+Other Links
+Site Map
+Website Policies
+Website Help
+UIDAI Head Office
+Unique Identification Authority of India
+Bangla Sahib Road, Behind Kali Mandir, Gole Market, New Delhi - 110001
+2
+3
+6
+4
+5
+9
+5
+8
+Total Visitors
+Regional and State Offices
+Assam
+​
+UIDAI Regional Office, Guwahati
+Block-V, First Floor, HOUSEFED Complex, Beltola-Basistha Road, Dispur, Guwahati - 781 006
+Contact details
+Toll-free Number
+1947
+Email
+help[at]uidai[dot]gov[dot]in
+Copyright © 2026 Unique Identification Authority of India All Rights Reserved.
+JavaScript must be enabled to access this site. Supports: Firefox 37+ Google Chrome 6.0+| Internet Explorer 9.0+| Safari 4.0+
+UIDAl website translation is done by Bhashini Machine Translation. This is done on experimental basis and will be improved over a period of time. Kindly ignore the errors if any.
+Last reviewed and updated on: November 3, 2026

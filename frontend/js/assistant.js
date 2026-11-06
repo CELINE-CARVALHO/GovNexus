@@ -644,11 +644,12 @@
     if (updateVoiceAvailability()) {
       setVoiceStatus("Ask in your preferred language");
     }
-    try {
-      sessionStorage.setItem("schemesathi_selected_language", languageSelect.value);
-    } catch (error) {
-      notify("Language selection will apply only in this page.");
-    }
+    const selectedCode = languageSelect.value.split("-")[0].toLowerCase();
+    api.isAuthenticated("citizen").then(authenticated => {
+      if (!authenticated) return;
+      return api.patch("/users/me", { preferred_language_code: selectedCode }, "citizen")
+        .then(profile => api.cachePreferredLanguage(profile.preferred_language_code));
+    }).catch(error => notify(`Language preference could not be saved: ${error.message}`));
     notify(`Language set to ${languageSelect.options[languageSelect.selectedIndex].text}.`);
   });
   document.getElementById("newChatButton").addEventListener("click", async () => {
@@ -717,14 +718,6 @@
         languageSelect.value = requested;
       }
       updateVoiceAvailability();
-      try {
-        const selected = sessionStorage.getItem("schemesathi_selected_language");
-        if ([...languageSelect.options].some(option => option.value === selected)) {
-          languageSelect.value = selected;
-        }
-      } catch (error) {
-        notify("Could not read the selected language from this browser session.");
-      }
       loadConversationHistory();
       });
     }

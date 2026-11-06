@@ -10,44 +10,39 @@
     <style>
         .catalog-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:22px}
         .catalog-stat{background:#fff;border:1px solid #ececf3;border-radius:13px;padding:16px}
-        .catalog-stat small{font-size:10px;color:#85849a}
+        .catalog-stat small{font-size: 12.5px;color:#85849a}
         .catalog-stat strong{display:block;font:800 24px Manrope;margin-top:7px}
         .catalog-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 14px}
         .catalog-search{flex:1;max-width:350px}
-        .catalog-search input,.catalog-toolbar select{height:40px;border:1px solid #e8e7ef;border-radius:9px;padding:0 12px;background:white;font:11px "DM Sans";outline:none;width:100%}
+        .catalog-search input,.catalog-toolbar select{height:40px;border:1px solid #e8e7ef;border-radius:9px;padding:0 12px;background:white;font: 14px "DM Sans";outline:none;width:100%}
         .catalog-filters{display:flex;gap:9px}
-        .catalog-button{border:0;border-radius:9px;padding:11px 15px;background:#6955d9;color:white;font:700 10px "DM Sans";cursor:pointer;white-space:nowrap}
+        .catalog-button{border:0;border-radius:9px;padding:11px 15px;background:#6955d9;color:white;font: 700 12.5px "DM Sans";cursor:pointer;white-space:nowrap}
         .catalog-button.secondary{background:#f0edff;color:#6551cc}
         .catalog-table-wrap{overflow-x:auto}
         .catalog-table{width:100%;border-collapse:collapse;min-width:900px}
-        .catalog-table th{text-align:left;color:#9392a5;font-size:9px;letter-spacing:.8px;text-transform:uppercase;padding:13px 11px;border-bottom:1px solid #eeeef4}
-        .catalog-table td{padding:14px 11px;border-bottom:1px solid #f0f0f5;font-size:10px;vertical-align:middle}
+        .catalog-table th{text-align:left;color:#9392a5;font-size: 12.5px;letter-spacing:.8px;text-transform:uppercase;padding:13px 11px;border-bottom:1px solid #eeeef4}
+        .catalog-table td{padding:14px 11px;border-bottom:1px solid #f0f0f5;font-size: 12.5px;vertical-align:middle}
         .catalog-table tr:last-child td{border-bottom:0}
-        .service-name{font-weight:700;font-size:11px;color:#29283f;display:block}
-        .service-code{font-size:9px;color:#9997aa;display:block;margin-top:4px}
+        .service-name{font-weight:700;font-size: 12.5px;color:#29283f;display:block}
+        .service-code{font-size: 12.5px;color:#9997aa;display:block;margin-top:4px}
         .service-department{display:block;font-weight:600}
-        .service-jurisdiction{display:block;color:#9694a7;margin-top:4px;font-size:9px}
-        .category-pill{display:inline-block;background:#f0edff;color:#6955d9;border-radius:20px;padding:6px 8px;font-size:9px;font-weight:700}
-        .publication-status{display:inline-block;border-radius:20px;padding:6px 9px;font-size:9px;font-weight:700;white-space:nowrap}
+        .service-jurisdiction{display:block;color:#9694a7;margin-top:4px;font-size: 12.5px}
+        .category-pill{display:inline-block;background:#f0edff;color:#6955d9;border-radius:20px;padding:6px 8px;font-size: 12.5px;font-weight:700}
+        .publication-status{display:inline-block;border-radius:20px;padding:6px 9px;font-size: 12.5px;font-weight:700;white-space:nowrap}
         .publication-status.draft{background:#f0eff5;color:#77758a}
         .publication-status.in_review{background:#fff4df;color:#a87620}
         .publication-status.published{background:#e8f7ef;color:#27835e}
         .publication-status.archived{background:#edf0f5;color:#747f91}
         .catalog-row-actions{display:flex;gap:6px}
-        .catalog-row-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:6px 8px;font-size:9px;color:#6b58cb;cursor:pointer}
+        .catalog-row-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:6px 8px;font-size: 12.5px;color:#6b58cb;cursor:pointer}
         .catalog-row-actions button.delete{color:#c35d5d}
-        .catalog-empty{text-align:center;padding:40px 15px;color:#9694a7;font-size:11px}
+        .catalog-empty{text-align:center;padding:40px 15px;color:#9694a7;font-size: 12.5px}
         .catalog-empty strong{display:block;color:#36344d;font-size:13px;margin-bottom:6px}
         .catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding-top:16px}
         .version-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eeeef4}
         .version-actions{display:flex;flex-wrap:wrap;gap:6px}
-        .version-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:7px 9px;color:#6b58cb;font-size:10px;cursor:pointer}
-        .version-form-note{font-size:10px;color:#88869b;margin:10px 0}
-        .catalog-pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding-top:16px}
-        .version-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eeeef4}
-        .version-actions{display:flex;flex-wrap:wrap;gap:6px}
-        .version-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:7px 9px;color:#6b58cb;font-size:10px;cursor:pointer}
-        .version-form-note{font-size:10px;color:#88869b;margin:10px 0}
+        .version-actions button{border:1px solid #ecebf3;background:white;border-radius:7px;padding:7px 9px;color:#6b58cb;font-size: 12.5px;cursor:pointer}
+        .version-form-note{font-size: 12.5px;color:#88869b;margin:10px 0}
         .catalog-modal-backdrop{position:fixed;inset:0;background:#17152d80;z-index:60;display:none;align-items:center;justify-content:center;padding:20px}
         .catalog-modal-backdrop.open{display:flex}
         .catalog-modal{width:100%;max-width:680px;max-height:90vh;overflow:auto;background:white;border-radius:17px;padding:24px}
@@ -57,20 +52,21 @@
         .catalog-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
         .catalog-field{display:grid;gap:7px}
         .catalog-field.full{grid-column:1/-1}
-        .catalog-field label{font-size:10px;font-weight:700;color:#56546c}
-        .catalog-field input,.catalog-field select,.catalog-field textarea{width:100%;border:1px solid #e7e6ef;border-radius:9px;padding:11px;font:11px "DM Sans";outline:none;background:white;color:#29283f}
+        .catalog-field label{font-size: 12.5px;font-weight:700;color:#56546c}
+        .catalog-field input,.catalog-field select,.catalog-field textarea{width:100%;border:1px solid #e7e6ef;border-radius:9px;padding:11px;font: 14px "DM Sans";outline:none;background:white;color:#29283f}
         .catalog-field input:focus,.catalog-field select:focus,.catalog-field textarea:focus{border-color:#8876e3;box-shadow:0 0 0 3px #8876e31a}
         .catalog-field textarea{min-height:85px;resize:vertical}
-        .catalog-form-note{font-size:10px;color:#9997aa;line-height:1.6;margin-top:13px}
+        .catalog-form-note{font-size: 12.5px;color:#9997aa;line-height:1.6;margin-top:13px}
         .catalog-modal-footer{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
-        .catalog-modal-footer button{border:0;border-radius:8px;padding:10px 14px;font:700 10px "DM Sans";cursor:pointer}
+        .catalog-modal-footer button{border:0;border-radius:8px;padding:10px 14px;font: 700 12.5px "DM Sans";cursor:pointer}
         .catalog-cancel{background:#f0eff6;color:#66647b}
         .catalog-save{background:#6955d9;color:white}
-        .catalog-toast{position:fixed;right:22px;bottom:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size:11px;z-index:90;display:none}
+        .catalog-toast{position:fixed;right:22px;bottom:22px;background:#25223e;color:white;padding:13px 17px;border-radius:10px;font-size: 12.5px;z-index:90;display:none}
         .catalog-toast.show{display:block}
         @media(max-width:800px){.catalog-stats{grid-template-columns:repeat(2,1fr)}}
         @media(max-width:620px){.catalog-toolbar{align-items:stretch;flex-direction:column}.catalog-search{max-width:none}.catalog-filters{flex-wrap:wrap}.catalog-filters select{flex:1;min-width:120px}.catalog-form-grid{grid-template-columns:1fr}.catalog-field.full{grid-column:auto}.catalog-modal{padding:17px}}
     </style>
+
 </head>
 <body>
 <div class="admin-layout">

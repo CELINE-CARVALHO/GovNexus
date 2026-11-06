@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 notification_preferences: getNotificationPreferences(),
                 accessibility_preferences: getAccessibilityPreferences()
             }, "citizen");
+            api.cachePreferredLanguage(profile.preferred_language_code);
             applyAccessibility(profile.accessibility_preferences);
             $("saveMessage").textContent = "Account and accessibility preferences saved.";
             notify("Your preferences have been saved.");
