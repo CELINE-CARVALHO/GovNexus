@@ -29,6 +29,11 @@
   let guestSessionToken = null;
   let conversationId = null;
   let requestPending = false;
+  let lastRequest = null;
+
+  function t(text) {
+    return window.GovNexusI18n?.t?.(text) || text;
+  }
 
   function notify(message) {
     toast.textContent = message;
@@ -118,7 +123,7 @@
 
   async function speakAnswer(text, languageCode, audio, status) {
     await stopPlayback();
-    status.textContent = "Preparing audio…";
+    status.textContent = t("Preparing audio…");
     try {
       const audioBlob = await api.request("/voice/synthesize", {
         method: "POST",
@@ -135,11 +140,11 @@
       activeAudioUrl = URL.createObjectURL(audioBlob);
       activeAudio = new Audio(activeAudioUrl);
       activeAudio.addEventListener("ended", () => {
-        status.textContent = "Audio finished.";
+        status.textContent = t("Audio finished.");
         stopPlayback();
       }, { once: true });
       await activeAudio.play();
-      status.textContent = "Playing answer.";
+      status.textContent = t("Playing answer.");
       audio.disabled = false;
     } catch (error) {
       status.textContent = "Audio is ready to retry.";
@@ -156,7 +161,7 @@
     body.className = "message-body";
     const name = document.createElement("div");
     name.className = "message-name";
-    name.textContent = isUser ? "You" : "GovNexus AI";
+    name.textContent = isUser ? t("You") : "GovNexus AI";
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
     bubble.textContent = messageText;
@@ -169,19 +174,19 @@
     const actions = document.createElement("div");
     actions.className = "message-actions";
     const description = document.createElement("span");
-    description.textContent = isUser
+    description.textContent = t(isUser
       ? "Your question"
       : options.historical
         ? options.grounded === false
           ? "Evidence unavailable"
           : options.grounded === true ? "Verified guidance" : "Conversation history"
-        : options.grounded ? "Verified guidance" : "Evidence unavailable";
+        : options.grounded ? "Verified guidance" : "Evidence unavailable");
     actions.appendChild(description);
 
     if (!isUser) {
       const copyButton = document.createElement("button");
       copyButton.type = "button";
-      copyButton.textContent = "Copy response";
+      copyButton.textContent = t("Copy response");
       copyButton.addEventListener("click", async () => {
         if (!navigator.clipboard?.writeText) {
           notify("Clipboard access is unavailable.");
@@ -202,7 +207,7 @@
         .split("-")[0].toLowerCase();
       const listenButton = document.createElement("button");
       listenButton.type = "button";
-      listenButton.textContent = "Listen with Prism";
+      listenButton.textContent = t("Listen with Prism");
       const speak = () => speakAnswer(
         messageText,
         message.languageCode || languageSelect.value,
@@ -212,14 +217,14 @@
       listenButton.addEventListener("click", speak);
       const replayButton = document.createElement("button");
       replayButton.type = "button";
-      replayButton.textContent = "Replay";
+      replayButton.textContent = t("Replay");
       replayButton.addEventListener("click", speak);
       const stopButton = document.createElement("button");
       stopButton.type = "button";
-      stopButton.textContent = "Stop";
+      stopButton.textContent = t("Stop");
       stopButton.addEventListener("click", () => {
         stopPlayback();
-        audioStatus.textContent = "Playback stopped.";
+        audioStatus.textContent = t("Playback stopped.");
       });
       actions.append(listenButton, replayButton, stopButton, audioStatus);
       if (!voiceSupportedLanguages.has(code)) {
@@ -366,7 +371,8 @@
     input.value = "";
     input.style.height = "auto";
     const typing = addTypingIndicator();
-    setVoiceStatus("Finding verified information…");
+    lastRequest = { text: cleanText, fromVoice };
+    setVoiceStatus(t("Finding verified information…"));
 
     try {
       const payload = {
@@ -394,16 +400,29 @@
           readAloud: api.getAccessibilityPreferences().read_aloud
         }
       );
-      setVoiceStatus(
+      setVoiceStatus(t(
         result.evidence_language_fallback
           ? "Verified source text is available in another language."
           : "Ask in your preferred language"
-      );
+      ));
       conversation.scrollIntoView({ behavior: "smooth", block: "end" });
     } catch (error) {
       typing.remove();
-      notify(error.message || "The assistant could not answer right now.");
-      setVoiceStatus("Ask in your preferred language");
+      const failed = lastRequest;
+      renderMessage({
+        role: "assistant",
+        text: error.message || "The assistant could not answer right now."
+      }, { grounded: false });
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.className = "retry-button";
+      retry.textContent = t("Retry");
+      retry.addEventListener("click", () => {
+        retry.remove();
+        if (failed) sendMessage(failed.text, { fromVoice: failed.fromVoice });
+      });
+      conversation.lastElementChild?.querySelector(".message-actions")?.appendChild(retry);
+      setVoiceStatus(t("Ask in your preferred language"));
     } finally {
       requestPending = false;
       form.querySelector(".submit-message").disabled = false;
@@ -477,7 +496,7 @@
       audioContext = null;
     }
     recording = false;
-    setVoiceState(false, "Speak");
+    setVoiceState(false, t("Speak"));
   }
 
   async function startRecording() {
@@ -518,8 +537,8 @@
       source.connect(processor);
       processor.connect(mutedOutput);
       mutedOutput.connect(audioContext.destination);
-      setVoiceState(true, "Stop");
-      setVoiceStatus("Recording · up to 30 seconds");
+      setVoiceState(true, t("Stop"));
+      setVoiceStatus(t("Recording · up to 30 seconds"));
       recordingTimeout = setTimeout(stopRecording, maxRecordingSeconds * 1000);
     } catch (error) {
       cleanupRecording();
@@ -559,7 +578,7 @@
     }
 
     voiceButton.disabled = true;
-    setVoiceStatus("Transcribing your question…");
+    setVoiceStatus(t("Transcribing your question…"));
     try {
       const formData = new FormData();
       formData.append("audio_file", blob, "schemesathi-recording.wav");
@@ -606,10 +625,11 @@
     else startRecording();
   });
   languageSelect.addEventListener("change", () => {
-    if (updateVoiceAvailability()) {
-      setVoiceStatus("Ask in your preferred language");
-    }
     const selectedCode = languageSelect.value.split("-")[0].toLowerCase();
+    window.GovNexusI18n?.persist?.(selectedCode);
+    if (updateVoiceAvailability()) {
+      setVoiceStatus(t("Ask in your preferred language"));
+    }
     api.isAuthenticated("citizen").then(authenticated => {
       if (!authenticated) return;
       return api.patch("/users/me", { preferred_language_code: selectedCode }, "citizen")
@@ -640,12 +660,29 @@
       welcome.style.display = "";
       input.value = "";
       input.focus();
-      setVoiceStatus("Ask in your preferred language");
-      notify("Started a new conversation.");
+      setVoiceStatus(t("Ask in your preferred language"));
+      notify(t("Started a new conversation."));
     } catch (error) {
       notify(`Could not start a new conversation: ${error.message}`);
     } finally {
       newChatButton.disabled = false;
+    }
+  });
+  document.getElementById("clearChatButton")?.addEventListener("click", async () => {
+    await stopPlayback();
+    if (recording) cleanupRecording();
+    conversation.replaceChildren();
+    conversation.classList.remove("active");
+    welcome.style.display = "";
+    input.value = "";
+    input.focus();
+    setVoiceStatus(t("Ask in your preferred language"));
+  });
+  document.addEventListener("govnexus:language", event => {
+    const requested = `${event.detail?.language || "en"}-IN`;
+    if ([...languageSelect.options].some(option => option.value === requested) && languageSelect.value !== requested) {
+      languageSelect.value = requested;
+      updateVoiceAvailability();
     }
   });
   document.getElementById("sidebarToggle")?.addEventListener("click", () => {
@@ -676,14 +713,21 @@
   }
 
   loadConversationLanguages().then(() => api.isAuthenticated("citizen")).then(authenticated => {
+    const stored = window.GovNexusI18n?.language?.() || "en";
+    const storedCode = `${stored}-IN`;
+    if ([...languageSelect.options].some(option => option.value === storedCode)) {
+      languageSelect.value = storedCode;
+    }
+    updateVoiceAvailability();
     if (authenticated) {
       return api.get("/users/me", "citizen").then(profile => {
-      const requested = `${profile.preferred_language_code || "en"}-IN`;
+      const requested = `${profile.preferred_language_code || stored}-IN`;
       if ([...languageSelect.options].some(option => option.value === requested)) {
         languageSelect.value = requested;
+        window.GovNexusI18n?.persist?.(profile.preferred_language_code || stored);
       }
       updateVoiceAvailability();
-      loadConversationHistory();
+      return loadConversationHistory();
       });
     }
     renderHistoryEmpty("Sign in to view saved conversation history.");

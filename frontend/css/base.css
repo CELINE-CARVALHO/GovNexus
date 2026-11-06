@@ -1,18 +1,26 @@
 ﻿:root {
-  --ink: #18213b;
-  --muted: #75809a;
+  --ink: #142033;
+  --muted: #5c6b80;
   --blue: #0E4D6C;
   --blue-dark: #083044;
-  --line: #e9edf5;
+  --gold: #b8892d;
+  --gold-soft: #f8f1df;
+  --line: #e4ebf2;
   --surface: #ffffff;
-  --page: #f8f9fc;
+  --page: #f6f8fb;
   --green: #9be6c3;
   --font: "DM Sans", sans-serif;
   --display: "Manrope", sans-serif;
+  --radius: 12px;
+  --shadow: 0 12px 32px rgba(14, 77, 108, 0.08);
+  --space: 8px;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 100px; }
-body { margin: 0; color: var(--ink); background: var(--page); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+body { margin: 0; color: var(--ink); background: var(--page); font-family: var(--font); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+img, svg, video { max-width: 100%; }
+:where(button, .primary-button, .secondary-button, .login-button, .cta-button) { min-height: 40px; }
+.language-button { color: var(--ink); }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }

@@ -145,12 +145,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const heading = document.createElement("div");
         heading.className = "live-catalogue-heading";
         const title = document.createElement("h2");
-        title.textContent = state.demo ? "Demonstration services" : "Published services";
+        title.textContent = state.demo ? "Available scheme information" : "Published services";
         const count = document.createElement("p");
         count.textContent = state.services.length
             ? `${state.services.length} result${state.services.length === 1 ? "" : "s"} · page ${state.page} of ${state.pages}`
             : state.demo
-                ? "Official-source links for local demonstration; not production-published knowledge."
+                ? "AI-researched information — pending human verification. Confirm details on the official page."
                 : "Only currently published services are shown.";
         heading.append(title, count);
         section.appendChild(heading);
@@ -180,12 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 card.className = "live-service-card";
                 const cardContent = document.createElement("div");
                 cardContent.className = "live-service-card-content";
-                if (service.demo) {
-                    const badge = document.createElement("span");
-                    badge.className = "status-pill";
-                    badge.textContent = "DEMO";
-                    cardContent.appendChild(badge);
-                }
+                const badge = document.createElement("span");
+                badge.className = "status-pill";
+                const level = String(service.level || service.jurisdiction_code || "").toLowerCase();
+                if (level === "central" || level === "in") badge.textContent = "Central scheme";
+                else if (level === "state" || service.jurisdiction) badge.textContent = service.jurisdiction || "State scheme";
+                else badge.textContent = service.demo ? "Pending verification" : "Published";
+                cardContent.appendChild(badge);
                 const name = document.createElement("h3");
                 name.textContent = service.title || service.code;
                 const description = document.createElement("p");
@@ -223,6 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
             pagination.append(previous, next);
             section.appendChild(pagination);
         }
+        window.GovNexusI18n?.apply();
     }
 
     async function loadServices() {
@@ -262,9 +264,11 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             state.page = Number(result.pagination?.page) || 1;
             state.pages = Number(result.pagination?.pages) || 1;
+            const total = result.pagination?.total || 0;
+            const noun = total === 1 ? "service" : "services";
             resultsCount.textContent = state.demo
-                ? `${result.pagination?.total || 0} demonstration service${result.pagination?.total === 1 ? "" : "s"}`
-                : `${result.pagination?.total || 0} published service${result.pagination?.total === 1 ? "" : "s"}`;
+                ? `${total} ${noun} with available scheme information`
+                : `${total} published ${noun}`;
             emptyState.hidden = true;
             renderActiveFilters();
             renderServices();

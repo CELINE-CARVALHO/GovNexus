@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             service.description || "No published service description is available.";
 
         const previewTag = document.querySelector(".preview-tag");
-        if (previewTag) previewTag.textContent = data.demo ? "LOCAL DEMONSTRATION" : "PUBLISHED VERSION";
+        if (previewTag) previewTag.textContent = data.demo ? "PENDING VERIFICATION" : "PUBLISHED VERSION";
         const meta = document.querySelector(".hero-meta");
         meta.replaceChildren();
         const jurisdictions = Array.isArray(data.jurisdictions)
@@ -259,7 +259,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         department.append(element("p", service.department?.website_url || "No department website was provided."));
         const category = element("article", undefined, "info-tile");
         category.append(element("strong", service.category?.name || service.category?.code || "Category unavailable"));
-        category.append(element("p", service.code));
+        category.append(element("p", String(service.code || "").replace(/^DEMO-/i, "")));
         const publication = element("article", undefined, "info-tile");
         publication.append(element("strong", `Published version ${data.version?.number ?? "—"}`));
         publication.append(element("p", data.version?.change_summary || "No change summary was provided."));
@@ -375,7 +375,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const section = $(id);
         const intro = section.querySelector(".section-intro");
         intro.textContent = items?.length
-            ? (isDemoRecord ? "Information shown below is from a local demonstration record." : "Information shown below comes from the current published service record.")
+            ? (isDemoRecord ? "AI-researched information — pending human verification." : "Information shown below comes from the current published service record.")
             : emptyMessage;
         const old = section.querySelector(".locked-panel, .document-empty, .process-empty");
         if (old) old.remove();

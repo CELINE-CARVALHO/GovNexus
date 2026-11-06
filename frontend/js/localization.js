@@ -54,6 +54,17 @@
     "Yes": { kn: "ಹೌದು", hi: "हाँ", ta: "ஆம்", te: "అవును", ml: "അതെ", mr: "होय", bn: "হ্যাঁ", gu: "હા", pa: "ਹਾਂ" },
     "No": { kn: "ಇಲ್ಲ", hi: "नहीं", ta: "இல்லை", te: "కాదు", ml: "അല്ല", mr: "नाही", bn: "না", gu: "ના", pa: "ਨਹੀਂ" },
     "I don't know": { kn: "ನನಗೆ ಗೊತ್ತಿಲ್ಲ", hi: "मुझे नहीं पता", ta: "எனக்கு தெரியவில்லை", te: "నాకు తెలియదు", ml: "എനിക്കറിയില്ല", mr: "मला माहीत नाही", bn: "আমি জানি না", gu: "મને ખબર નથી", pa: "ਮੈਨੂੰ ਨਹੀਂ ਪਤਾ" },
+    "Some interface text is still shown in English.": {
+      kn: "ಕೆಲವು ಇಂಟರ್ಫೇಸ್ ಪಠ್ಯ ಇನ್ನೂ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿದೆ.",
+      hi: "कुछ इंटरफ़ेस पाठ अभी भी अंग्रेज़ी में है।",
+      ta: "சில இடைமுக உரை இன்னும் ஆங்கிலத்தில் உள்ளது.",
+      te: "కొంత ఇంటర్‌ఫేస్ పాఠ్యం ఇంకా ఆంగ్లంలోనే ఉంది.",
+      ml: "ചില ഇന്റർഫേസ് വാചകം ഇപ്പോഴും ഇംഗ്ലീഷിലാണ്.",
+      mr: "काही इंटरफेस मजकूर अजून इंग्रजीत आहे.",
+      bn: "কিছু ইন্টারফেস লেখা এখনও ইংরেজিতে আছে।",
+      gu: "કેટલુંક ઇન્ટરફેસ લખાણ હજુ અંગ્રેજીમાં છે.",
+      pa: "ਕੁਝ ਇੰਟਰਫੇਸ ਲਿਖਤ ਅਜੇ ਵੀ ਅੰਗਰੇਜ਼ੀ ਵਿੱਚ ਹੈ।"
+    },
     "Government schemes and services, connected to you.": {
       kn: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಮತ್ತು ಸೇವೆಗಳು, ನಿಮಗೆ ಜೋಡಿಸಲಾಗಿದೆ.",
       hi: "सरकारी योजनाएँ और सेवाएँ, आपसे जुड़ी हुईं।",
@@ -87,12 +98,27 @@
     return LANGUAGES.some(([value]) => value === code) ? code : "en";
   }
 
-  function translate(text, language) {
-    if (!text || language === "en") return text;
-    return PHRASES[text]?.[language] || null;
+  function phraseTable() {
+    return Object.assign({}, PHRASES, window.GOVNEXUS_PHRASES || {});
   }
 
+  function translate(text, language) {
+    if (!text || language === "en") return text;
+    const table = phraseTable();
+    return table[text]?.[language] || null;
+  }
+
+  function t(text, language = currentLanguage()) {
+    if (!text) return text;
+    return translate(String(text), language) || text;
+  }
+
+  let applying = false;
+
   function apply(language = currentLanguage()) {
+    if (applying) return language;
+    applying = true;
+    try {
     untranslated = 0;
     document.documentElement.lang = language;
     const skip = node => node.parentElement?.closest("[data-i18n-skip], script, style");
@@ -109,18 +135,25 @@
       if (language !== "en" && !translated && /[A-Za-z]{3,}/.test(trimmed) && trimmed.length < 180) {
         untranslated += 1;
       }
-      if (!translated) {
-        node.nodeValue = source;
-        return;
-      }
       const padStart = source.match(/^\s*/)?.[0] || "";
       const padEnd = source.match(/\s*$/)?.[0] || "";
-      node.nodeValue = `${padStart}${translated}${padEnd}`;
+      const nextValue = translated ? `${padStart}${translated}${padEnd}` : source;
+      if (node.nodeValue !== nextValue) node.nodeValue = nextValue;
     });
     document.querySelectorAll("input[placeholder], textarea[placeholder]").forEach(field => {
       if (!field.dataset.i18nPlaceholder) field.dataset.i18nPlaceholder = field.placeholder;
       const translated = translate(field.dataset.i18nPlaceholder, language);
       field.placeholder = translated || field.dataset.i18nPlaceholder;
+    });
+    document.querySelectorAll("[aria-label], [title]").forEach(field => {
+      [["aria-label", "i18nAria"], ["title", "i18nTitle"]].forEach(([attribute, key]) => {
+        const current = field.getAttribute(attribute);
+        if (!current) return;
+        if (!field.dataset[key]) field.dataset[key] = current;
+        const translated = translate(field.dataset[key], language);
+        const next = translated || field.dataset[key];
+        if (field.getAttribute(attribute) !== next) field.setAttribute(attribute, next);
+      });
     });
     document.querySelectorAll("option").forEach(option => {
       if (!option.dataset.i18nLabel) option.dataset.i18nLabel = option.textContent;
@@ -138,7 +171,10 @@
     }
     note.setAttribute("data-i18n-skip", "");
     note.hidden = language === "en";
-    note.textContent = language === "en" ? "" : (translate(NOTE, language) || NOTE);
+    const interfaceNote = language === "en"
+      ? ""
+      : `${translate(NOTE, language) || NOTE} ${untranslated ? t("Some interface text is still shown in English.") : ""}`.trim();
+    note.textContent = interfaceNote;
     const button = document.getElementById("languageButton");
     if (button && !button.querySelector("select")) {
       const label = LANGUAGES.find(([code]) => code === language)?.[1] || "English";
@@ -150,7 +186,11 @@
       const match = `${language}-IN`;
       if ([...voice.options].some(option => option.value === match)) voice.value = match;
     }
+    document.dispatchEvent(new CustomEvent("govnexus:language", { detail: { language } }));
     return language;
+    } finally {
+      applying = false;
+    }
   }
 
   function persist(language) {
@@ -228,7 +268,14 @@
     document.head.appendChild(icon);
   }
 
-  window.GovNexusI18n = { apply, open, persist, languages: LANGUAGES };
+  window.GovNexusI18n = {
+    apply,
+    open,
+    persist,
+    t,
+    language: currentLanguage,
+    languages: LANGUAGES
+  };
   document.addEventListener("DOMContentLoaded", () => {
     mountButton();
     const existing = document.getElementById("languageButton");
@@ -241,5 +288,11 @@
       });
     }
     apply();
+    const observer = new MutationObserver(() => {
+      if (applying) return;
+      window.clearTimeout(observer.timer);
+      observer.timer = window.setTimeout(() => apply(currentLanguage()), 60);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
   });
 })();

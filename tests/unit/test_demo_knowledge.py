@@ -7,7 +7,7 @@ def test_demo_catalogue_has_official_provenance_and_is_local():
     assert all(item["demo"] for item in demo_items("scholarships"))
     assert all(item["official_url"].startswith("https://") for item in items)
     assert all(demo_source(item)["checked_on"] == item["checked_on"] for item in items)
-    assert all("not yet human-verified" in item["verification_label"] for item in items)
+    assert all("pending human verification" in item["verification_label"] for item in items)
 
 
 def test_state_selection_keeps_central_schemes_and_can_exclude_them():

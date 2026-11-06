@@ -50,6 +50,7 @@ def _list_item(item: dict) -> dict:
         "checked_on": item["checked_on"],
         "verification_label": item.get("verification_label"),
         "jurisdiction_code": item["jurisdiction_code"],
+        "level": "central" if item.get("jurisdiction_code") == "IN" else "state",
     }
 
 
@@ -82,7 +83,7 @@ def list_demo_services(
         "pagination": {"page": page, "limit": limit, "total": total, "pages": pages},
         "demo": True,
         "notice": (
-            "AI-researched demo information — not yet human-verified. "
+            "AI-researched information — pending human verification. "
             "Confirm current details on the linked government page."
         ),
     }
@@ -114,17 +115,17 @@ def get_demo_service(service_id: str):
             "department": {"name": item["publisher"], "website_url": item["official_url"]},
         },
         "jurisdictions": [{"location": {"name": item["jurisdiction"]}}],
-        "version": {"number": "demo", "effective_from": None, "change_summary": "Local demonstration record; not a published service version."},
+        "version": {"number": "catalogue", "effective_from": None, "change_summary": "Catalogue record pending human verification. Not a published service version."},
         "eligibility": details["eligibility"],
         "benefits": details.get("benefits", []),
         "required_documents": details["documents"],
         "application_steps": details["steps"],
-        "verification_label": item.get("verification_label") or "AI-researched demo information — not yet human-verified.",
+        "verification_label": item.get("verification_label") or "AI-researched information — pending human verification.",
         "checked_on": item.get("checked_on"),
-        "evidence": {"items": [{"relationship_type": "general_information", "source": {"publisher": item["publisher"], "url": item["official_url"], "authority_status": "official source link; demo record"}, "value": item["evidence"]}]},
+        "evidence": {"items": [{"relationship_type": "general_information", "source": {"publisher": item["publisher"], "url": item["official_url"], "authority_status": "official source link; not production-verified"}, "value": item["evidence"]}]},
         "disclaimer": (
-            f"{item.get('verification_label') or 'AI-researched demo information — not yet human-verified.'} "
+            f"{item.get('verification_label') or 'AI-researched information — pending human verification.'} "
             f"Source checked on {item.get('checked_on') or '2026-11-06'}. "
-            "This is not a published production service record. Confirm current details on the linked government portal."
+            "This is not a published service record. Confirm current details on the linked government portal."
         ),
     }

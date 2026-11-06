@@ -208,13 +208,9 @@
   const languageButton = document.getElementById("languageButton");
 
   function updateLanguageButton() {
-    if (!languageButton || !languageSelect.value) return;
-    const option = languageSelect.options[languageSelect.selectedIndex];
-    languageButton.childNodes.forEach(node => {
-      if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-        node.textContent = ` ${option.textContent.split("—").pop().trim()} `;
-      }
-    });
+    if (!languageSelect?.value || !window.GovNexusI18n?.persist) return;
+    const code = languageSelect.value.split("-")[0].toLowerCase();
+    if (window.GovNexusI18n.language() !== code) window.GovNexusI18n.persist(code);
   }
 
   let microphoneStream = null;

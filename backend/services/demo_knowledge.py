@@ -14,7 +14,7 @@ from typing import Any
 DEMO_CHECKED_ON = date(2026, 11, 6).isoformat()
 PM_KISAN_CHECKED_ON = date(2026, 11, 7).isoformat()
 MYSCHEME_CHECKED_ON = date(2026, 11, 7).isoformat()
-VERIFICATION_LABEL = "AI-researched demo information — not yet human-verified."
+VERIFICATION_LABEL = "AI-researched information — pending human verification."
 
 
 DEMO_SERVICES: list[dict[str, Any]] = [
@@ -142,7 +142,7 @@ DEMO_SERVICES: list[dict[str, Any]] = [
             "eligible families as per scheme guidelines. The page says all institutional land holders "
             "shall not be eligible, and lists further higher-economic-status exclusion categories. "
             "The page also states that eKYC is mandatory for PMKISAN registered farmers. "
-            "AI-researched demo information — not yet human-verified."
+            + VERIFICATION_LABEL
         ),
         "details": {
             "eligibility": [
@@ -305,7 +305,7 @@ DEMO_SERVICES: list[dict[str, Any]] = [
             "then open a scheme page for eligibility, benefits, documents, application process, and "
             "the application URL. Contact shown on the page: 4th Floor, NeGD, Electronics Niketan, "
             "6 CGO Complex, Lodhi Road, New Delhi - 110003; phone (011) 24303714 (9:00 AM to 5:30 PM). "
-            "AI-researched demo information — not yet human-verified."
+            + VERIFICATION_LABEL
         ),
         "details": {
             "eligibility": [],
@@ -347,7 +347,7 @@ def demo_source(item: dict[str, Any]) -> dict[str, Any]:
         "title": item["title"],
         "publisher": item["publisher"],
         "url": item["official_url"],
-        "authority_status": "official source link; demonstration record not production-verified",
+        "authority_status": "official source link; not production-verified",
         "checked_on": item.get("checked_on") or DEMO_CHECKED_ON,
         "verification_label": item.get("verification_label") or VERIFICATION_LABEL,
     }
@@ -438,7 +438,7 @@ def demo_items(
 def demo_evidence(item: dict[str, Any]) -> dict[str, Any]:
     return {
         "fact_id": f"demo:{item['id']}",
-        "fact_type": "demonstration_source_summary",
+        "fact_type": "source_summary",
         "text": item["evidence"],
         "publisher": item["publisher"],
         "source_url": item["official_url"],
@@ -462,21 +462,44 @@ def demo_evidence(item: dict[str, Any]) -> dict[str, Any]:
 def demo_answer(question: str, items: list[dict[str, Any]], history: list[str] | None = None) -> str:
     if not items:
         return (
-            "I could not find a matching demonstration record. The production knowledge base still requires human verification and publication before it can answer from verified facts."
+            "I could not confirm a matching scheme from the available catalogue. "
+            "Please consult the relevant official government department."
         )
+    focus = items[0]
+    asked = f"{question} {' '.join(history or [])}".casefold()
     lines = [
-        "AI-researched demo information — not yet human-verified.",
+        f"{VERIFICATION_LABEL} [S1]",
         "",
-        "Relevant services:",
+        f"## {focus['title']}",
+        f"{focus['description']} [S1]",
     ]
-    for item in items[:5]:
-        lines.append(f"- {item['title']}: {item['description']} [S{items.index(item) + 1}]")
+    details = focus.get("details") or {}
+    if any(word in asked for word in ("document", "documents", "paper")):
+        documents = details.get("documents") or []
+        lines.append("")
+        lines.append("## Documents named in the stored record")
+        if documents:
+            for document in documents[:6]:
+                name = document.get("name") or "Document"
+                lines.append(f"{name} is listed in the stored record. [S1]")
+        else:
+            lines.append("A document list could not be confirmed from this record. [S1]")
+    elif any(word in asked for word in ("eligib", "qualify", "who can")):
+        rules = details.get("eligibility") or []
+        lines.append("")
+        lines.append("## Documented eligibility")
+        if rules:
+            for rule in rules[:6]:
+                text = rule.get("description") or rule.get("prompt")
+                if text:
+                    lines.append(f"{text} [S1]")
+        else:
+            lines.append("A checkable eligibility rule could not be confirmed from this record. [S1]")
     lines.extend(
         [
             "",
-            "The linked portal is the authoritative place to confirm current eligibility, documents, fees, deadlines, and application status. Those details are not asserted here unless shown above.",
-            "",
-            "If you tell me your state and the specific service, I can narrow this demonstration list.",
+            "Confirm current eligibility, documents, and application steps on the official page before you apply. [S1]",
+            "This is not an approval and it is not a human-verified publication. [S1]",
         ]
     )
     return "\n".join(lines)
