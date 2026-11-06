@@ -1,0 +1,586 @@
+{
+  "sources": [
+    {
+      "url": "https://agriwelfare.gov.in/en/Major",
+      "publisher_name": "Department of Agriculture and Farmers Welfare, Ministry of Agriculture and Farmers Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.dbtbharat.gov.in/central-scheme/list",
+      "publisher_name": "Direct Benefit Transfer Mission, Government of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmfby.gov.in/",
+      "publisher_name": "Department of Agriculture and Farmers Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmfby.gov.in/faq",
+      "publisher_name": "Department of Agriculture and Farmers Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmkisan.gov.in/",
+      "publisher_name": "Department of Agriculture and Farmers Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://agriinfra.dac.gov.in/",
+      "publisher_name": "Department of Agriculture and Farmers Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmksy.mowr.gov.in/",
+      "publisher_name": "Ministry of Jal Shakti, Department of Water Resources, River Development and Ganga Rejuvenation; components shared with Agriculture Department",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://bangalorerural.nic.in/en/schemes/",
+      "publisher_name": "District Administration, Bengaluru Rural, Government of Karnataka",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.dahd.gov.in/en/schemes/programmes/national_livestock_mission",
+      "publisher_name": "Department of Animal Husbandry and Dairying, Ministry of Fisheries, Animal Husbandry and Dairying",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.dahd.gov.in/en/schemes/programmes/rashtriya_gokul_mission",
+      "publisher_name": "Department of Animal Husbandry and Dairying",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://dahd.gov.in/en/schemes-programmes",
+      "publisher_name": "Department of Animal Husbandry and Dairying",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nfdp.dof.gov.in/nfdp/index.html",
+      "publisher_name": "Department of Fisheries, Ministry of Fisheries, Animal Husbandry and Dairying",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://dof.gov.in/",
+      "publisher_name": "Department of Fisheries",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmmsy.dof.gov.in/",
+      "publisher_name": "Department of Fisheries",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.dof.gov.in/offerings/schemes-and-services/details/pmmsy-whats-new-ADO4ATMtQWa",
+      "publisher_name": "Department of Fisheries",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://cooperation.gov.in/en/schemes-allied-ministriesdept",
+      "publisher_name": "Ministry of Cooperation",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.myscheme.gov.in/",
+      "publisher_name": "NeGD / MeitY platform; schemes administered by respective ministries/departments",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.india.gov.in/my-government/schemes",
+      "publisher_name": "National Portal of India / NIC",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.msme.gov.in/offerings/schemes-and-services/details/prime-minister-employment-generation-programme-and-other-credit-support-schemes-1-MDMzETMtQWa",
+      "publisher_name": "Ministry of Micro, Small and Medium Enterprises; KVIC nodal agency",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://my.msme.gov.in/mymsme/Scheme.aspx",
+      "publisher_name": "Ministry of Micro, Small and Medium Enterprises",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.msme.gov.in/static/uploads/2026/05/3040dc36fd7023c4d4d1f647ee816165.pdf",
+      "publisher_name": "Ministry of Micro, Small and Medium Enterprises",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://financialservices.gov.in/atal-pension-yojana",
+      "publisher_name": "Department of Financial Services, Ministry of Finance",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pmindia.gov.in/en/news_updates/cabinet-approves-continuation-of-the-national-social-assistance-programme-for-five-years-from-2026-27-to-2030-31/",
+      "publisher_name": "Prime Minister's Office / Union Cabinet; Department of Rural Development administers programme",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pib.gov.in/PressNoteDetails.aspx?ModuleId=3&NoteId=155928&id=155928&lang=2&reg=48",
+      "publisher_name": "Press Information Bureau / Ministry of Rural Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.msme.gov.in/offerings",
+      "publisher_name": "Ministry of Micro, Small and Medium Enterprises",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.myscheme.gov.in/search",
+      "publisher_name": "NeGD / MeitY platform; scheme owners vary",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nha.gov.in/",
+      "publisher_name": "National Health Authority, Ministry of Health and Family Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmjay.gov.in/",
+      "publisher_name": "National Health Authority",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nha.gov.in/img/resources/English_FAQs_related_to_the_benefits_for_senior_citizens.pdf",
+      "publisher_name": "National Health Authority",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://abdm.gov.in/",
+      "publisher_name": "National Health Authority / Ministry of Health and Family Welfare",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://ncs.gov.in/",
+      "publisher_name": "Directorate General of Employment, Ministry of Labour and Employment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://ncs.gov.in/careerSchemes",
+      "publisher_name": "Directorate General of Employment, Ministry of Labour and Employment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.skillindiadigital.gov.in/",
+      "publisher_name": "Ministry of Skill Development and Entrepreneurship",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://scholarships.gov.in/Students",
+      "publisher_name": "Ministry of Electronics and Information Technology / National Scholarship Portal; schemes owned by respective ministries",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.ugc.gov.in/Home/student_Corner",
+      "publisher_name": "University Grants Commission",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.education.gov.in/scholarships-education-loan",
+      "publisher_name": "Department of Higher Education, Ministry of Education",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://voters.eci.gov.in/",
+      "publisher_name": "Election Commission of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.eci.gov.in/electors",
+      "publisher_name": "Election Commission of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.passportindia.gov.in/",
+      "publisher_name": "Consular, Passport and Visa Division, Ministry of External Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.passportindia.gov.in/psp/Apply",
+      "publisher_name": "Ministry of External Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.incometax.gov.in/iec/foportal/help/how-to-generate-instant-e-pan",
+      "publisher_name": "Income Tax Department, Ministry of Finance",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.incometax.gov.in/iec/foportal/help/all-topics/e-filing-services/income-tax-forms",
+      "publisher_name": "Income Tax Department, Ministry of Finance",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://mparivahan.parivahan.gov.in/",
+      "publisher_name": "Ministry of Road Transport and Highways; NIC",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://parivahan.gov.in/",
+      "publisher_name": "Ministry of Road Transport and Highways; NIC",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.rtionline.gov.in/",
+      "publisher_name": "Department of Personnel and Training, Government of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pgportal.gov.in/",
+      "publisher_name": "Department of Administrative Reforms and Public Grievances",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://consumerhelpline.gov.in/",
+      "publisher_name": "Department of Consumer Affairs, Ministry of Consumer Affairs, Food and Public Distribution",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.india.gov.in/services",
+      "publisher_name": "National Portal of India / NIC",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://sevasindhu.karnataka.gov.in/",
+      "publisher_name": "Government of Karnataka; Directorate of Electronic Delivery of Citizen Services",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://bengaluruurban.nic.in/en/services/",
+      "publisher_name": "District Administration, Bengaluru Urban, Government of Karnataka / NIC district portal",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://raitamitra.karnataka.gov.in/",
+      "publisher_name": "Department of Agriculture, Government of Karnataka",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://fruits.karnataka.gov.in/",
+      "publisher_name": "Government of Karnataka; farmer registration and beneficiary information system",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://kkisan.karnataka.gov.in/",
+      "publisher_name": "Government of Karnataka",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://ssp.postmatric.karnataka.gov.in/",
+      "publisher_name": "Government of Karnataka; participating welfare/education departments",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://dssp.karnataka.gov.in/dssp/",
+      "publisher_name": "Directorate of Social Security and Pensions, Government of Karnataka",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://vijayapura.nic.in/en/service/social-security-pensions/",
+      "publisher_name": "District Administration, Vijayapura, Government of Karnataka / NIC district portal",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://bengaluruurban.nic.in/en/departments/agriculture-department/e-governance/",
+      "publisher_name": "District Administration, Bengaluru Urban, Government of Karnataka / NIC district portal",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://kodagu.nic.in/en/minority-welfare-department/",
+      "publisher_name": "District Administration, Kodagu, Government of Karnataka / NIC district portal",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://igod.gov.in/sg/KA/SPMA/organizations",
+      "publisher_name": "National Informatics Centre / MeitY",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://search.myscheme.gov.in/about",
+      "publisher_name": "NeGD / MeitY",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://igod.gov.in/sg/states",
+      "publisher_name": "NIC / MeitY",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://igod.gov.in/sectors",
+      "publisher_name": "NIC / MeitY",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://scholarships.gov.in/",
+      "publisher_name": "Government of India scholarship portal",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://socialjustice.gov.in/schemes",
+      "publisher_name": "Ministry of Social Justice and Empowerment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://uidai.gov.in/en/updating-data-on-aadhaar",
+      "publisher_name": "Unique Identification Authority of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.uidai.gov.in/en/aadhaar-seva-kendra",
+      "publisher_name": "Unique Identification Authority of India",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://eshram.gov.in/Schemes",
+      "publisher_name": "Ministry of Labour and Employment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://eshram.gov.in/faqs",
+      "publisher_name": "Ministry of Labour and Employment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmay-urban.gov.in/guideline",
+      "publisher_name": "Ministry of Housing and Urban Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.umang.gov.in/landing/services",
+      "publisher_name": "NeGD / MeitY; services owned by respective departments",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmaymis.gov.in/PMAYMIS2_2024/PmayUrban.aspx",
+      "publisher_name": "Ministry of Housing and Urban Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pmaymis.gov.in/PMAYMIS2_2024/PmayFAQ.aspx",
+      "publisher_name": "Ministry of Housing and Urban Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmayg.dord.gov.in/",
+      "publisher_name": "Department of Rural Development, Ministry of Rural Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://jaljeevanmission.gov.in/guidelines/",
+      "publisher_name": "Department of Drinking Water and Sanitation, Ministry of Jal Shakti",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://swachhbharatmission.ddws.gov.in/guidelines",
+      "publisher_name": "Department of Drinking Water and Sanitation, Ministry of Jal Shakti",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://swachhbharatmission.ddws.gov.in/faq",
+      "publisher_name": "Department of Drinking Water and Sanitation, Ministry of Jal Shakti",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pmuy.gov.in/faq.html",
+      "publisher_name": "Ministry of Petroleum and Natural Gas",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pmuy.gov.in/",
+      "publisher_name": "Ministry of Petroleum and Natural Gas",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://dfpd.gov.in/pradhan-mantri-garib-kalyan-anna-yojana/en",
+      "publisher_name": "Department of Food and Public Distribution, Ministry of Consumer Affairs, Food and Public Distribution",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nfsa.gov.in/portal/apply",
+      "publisher_name": "Department of Food and Public Distribution",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nfsa.gov.in/portal/ONORC",
+      "publisher_name": "Department of Food and Public Distribution",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://mnre.gov.in/en/pm-kusum/",
+      "publisher_name": "Ministry of New and Renewable Energy",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://nrega.nic.in/",
+      "publisher_name": "Ministry of Rural Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://rural.gov.in/en/acts-rules",
+      "publisher_name": "Department of Rural Development, Ministry of Rural Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://depwd.gov.in/en/adip-scheme/",
+      "publisher_name": "Department of Empowerment of Persons with Disabilities, Ministry of Social Justice and Empowerment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://depwd.gov.in/en/adip/",
+      "publisher_name": "Department of Empowerment of Persons with Disabilities",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://adip.depwd.gov.in/",
+      "publisher_name": "Department of Empowerment of Persons with Disabilities / ALIMCO",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://adip.depwd.gov.in/downloads",
+      "publisher_name": "Department of Empowerment of Persons with Disabilities / ALIMCO",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.wcd.gov.in/pregnant-lactating-women-children/poshan--abhiyaan",
+      "publisher_name": "Ministry of Women and Child Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://spniwcd.wcd.gov.in/mission-saksham-anganwadi-and-poshan-2-0/documents",
+      "publisher_name": "Savitribai Phule National Institute of Women and Child Development / MWCD",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.wcd.gov.in/women/pradhan-mantri-matru-vandana-yojna",
+      "publisher_name": "Ministry of Women and Child Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.wcd.gov.in/public/offerings/mission-shakti-guidelines-for-implementation-mission-shakti",
+      "publisher_name": "Ministry of Women and Child Development",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://tribal.gov.in/about/divisions/pm-janman",
+      "publisher_name": "Ministry of Tribal Affairs with 9 line ministries",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmvikas.minorityaffairs.gov.in/",
+      "publisher_name": "Ministry of Minority Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://pmvikas.minorityaffairs.gov.in/page/eligibility-criteria-for-beneficiaries",
+      "publisher_name": "Ministry of Minority Affairs",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://www.pib.gov.in/PressReleseDetailm.aspx?PRID=2326529&lang=1&reg=3",
+      "publisher_name": "Press Information Bureau reporting Union Cabinet / Department of Rural Development decision",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://socialjustice.gov.in/schemes/9",
+      "publisher_name": "Ministry of Social Justice and Empowerment",
+      "source_type": "government_portal",
+      "language_code": "en"
+    }
+  ]
+}

@@ -9,6 +9,8 @@ pymysql
 alembic
 
 httpx
+truststore
+PyMuPDF>=1.24,<2.0
 python-multipart
 email-validator
 python-jose[cryptography]

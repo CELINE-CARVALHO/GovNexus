@@ -21,7 +21,7 @@ from urllib.request import (
     Request,
     build_opener,
 )
-
+import pymupdf
 from sqlalchemy.orm import Session
 from backend.database.models.source import Source
 from backend.database.models.source_fact import SourceFact, SourceSnapshot
@@ -120,9 +120,10 @@ def validate_public_url(url: str) -> str:
 
 
 class SafeRedirectHandler(HTTPRedirectHandler):
-    def __init__(self):
+    def __init__(self, original_hostname: str):
         super().__init__()
         self.redirect_count = 0
+        self.original_hostname = original_hostname.rstrip(".").lower()
 
     def redirect_request(
         self,
@@ -139,6 +140,12 @@ class SafeRedirectHandler(HTTPRedirectHandler):
             raise UnsafeSourceURL("Too many redirects.")
 
         target = urljoin(req.full_url, newurl)
+        target_hostname = (urlsplit(target).hostname or "").rstrip(".").lower()
+        if target_hostname != self.original_hostname:
+            raise UnsafeSourceURL(
+                "Cross-host redirects are blocked. Review the destination host "
+                "and register it through an explicit source-approval process."
+            )
         validate_public_url(target)
 
         return super().redirect_request(
@@ -154,7 +161,8 @@ class SafeRedirectHandler(HTTPRedirectHandler):
 def fetch_page(url: str) -> dict:
     validate_public_url(url)
 
-    redirect_handler = SafeRedirectHandler()
+    original_hostname = (urlsplit(url).hostname or "").rstrip(".").lower()
+    redirect_handler = SafeRedirectHandler(original_hostname)
     ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     opener = build_opener(HTTPSHandler(context=ssl_context), redirect_handler)
 
@@ -203,11 +211,18 @@ def extract_page_text(content: bytes, encoding: str) -> str:
 
 
 def extract_pdf_text(content: bytes) -> str:
-    text = content.decode("latin-1", errors="ignore")
-    words = [part for part in text.split() if len(part) > 1]
-    if not words:
-        return ""
-    return "\n".join(words[:1000])
+    """Extract actual selectable text from a PDF; never decode PDF bytes as text."""
+    import fitz
+
+    text_parts: list[str] = []
+    with pymupdf.open(stream=content, filetype="pdf") as document:
+        if document.page_count > 500:
+            raise ValueError("PDF exceeds the 500-page extraction limit.")
+        for page_number, page in enumerate(document, start=1):
+            page_text = page.get_text("text").strip()
+            if page_text:
+                text_parts.append(f"[Page {page_number}]\n{page_text}")
+    return "\n\n".join(text_parts).strip()
 
 
 def get_snapshot_paths(source_id: str, content_hash: str, content_type: str = "text/html"):

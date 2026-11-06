@@ -50,7 +50,7 @@ def main() -> None:
         results = []
         for source_id in source_ids:
             source = by_id[source_id]
-            if not source.is_active or source.authority_status.lower() not in {
+            if not source.is_active or (source.authority_status or "").lower() not in {
                 "official",
                 "authoritative",
                 "verified",

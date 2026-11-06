@@ -1,0 +1,24 @@
+{
+  "reason": "Old National Government Services Portal migrated to india.gov.in/services; old portal announced discontinuation from 15 May 2026.",
+  "replacement_catalogue": "https://www.india.gov.in/services",
+  "records": [
+    {
+      "url": "https://services.india.gov.in/service/detail/civil-registration-system-birth-and-death-certificate",
+      "publisher_name": "National Government Services Portal / Office of Registrar General of India service",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://services.india.gov.in/service/detail/citizen-login-for-rti-online",
+      "publisher_name": "NIC / MeitY; Department of Personnel and Training service",
+      "source_type": "government_portal",
+      "language_code": "en"
+    },
+    {
+      "url": "https://services.india.gov.in/",
+      "publisher_name": "NIC / MeitY",
+      "source_type": "government_portal",
+      "language_code": "en"
+    }
+  ]
+}

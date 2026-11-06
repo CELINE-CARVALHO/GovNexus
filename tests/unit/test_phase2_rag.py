@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 from datetime import date, datetime, timedelta
 from uuid import uuid4
-
+from sqlalchemy import create_engine, text
 import httpx
 import pytest
 from fastapi import HTTPException
@@ -256,7 +256,14 @@ def test_retrieval_excludes_facts_from_superseded_source_snapshots(db):
 def test_retrieval_excludes_expired_published_service_version(db):
     fact = add_fact(db, "Applicants must be at least 18 years old.")
     version = db.info["version"]
-    version.effective_to = date.today() - timedelta(days=1)
+
+    database_today = db.execute(
+        text("SELECT CURRENT_DATE")
+    ).scalar_one()
+
+    version.effective_to = (
+        date.fromisoformat(database_today) - timedelta(days=1)
+    )
     db.commit()
 
     rows = retrieve_eligible_facts(

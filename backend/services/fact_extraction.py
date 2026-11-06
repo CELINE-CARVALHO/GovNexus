@@ -6,6 +6,7 @@ import re
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
@@ -276,8 +277,8 @@ def resolve_snapshot_text_path(storage_uri: str) -> Path:
     if not candidate.is_relative_to(snapshot_root):
         raise ValueError("Snapshot path is outside the snapshot directory.")
 
-    if candidate.suffix.lower() != ".html":
-        raise ValueError("Expected an HTML snapshot storage URI.")
+    if candidate.suffix.lower() not in {".html", ".pdf"}:
+        raise ValueError("Expected an HTML or PDF snapshot storage URI.")
 
     text_path = candidate.with_suffix(".txt")
     if not text_path.exists():
@@ -309,6 +310,19 @@ def classify_sentence(sentence: str) -> str | None:
 
 
 def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, Any]:
+    source = snapshot.source
+    if (
+        source is None
+        or not source.is_active
+        or source.authority_status not in {"official", "authoritative", "verified"}
+    ):
+        return {
+            "snapshot_id": str(snapshot.id),
+            "status": "skipped",
+            "reason": "Source is inactive or its authority has not been approved.",
+            "created": 0,
+            "existing": 0,
+        }
     if snapshot.http_status != 200:
         return {
             "snapshot_id": str(snapshot.id),
@@ -413,19 +427,47 @@ def extract_snapshot_facts(db: Session, snapshot: SourceSnapshot) -> dict[str, A
     }
 
 
-def extract_all_snapshot_facts(db: Session) -> list[dict[str, Any]]:
-    snapshots = (
-        db.query(SourceSnapshot)
-        .filter(SourceSnapshot.http_status == 200, SourceSnapshot.extraction_status == "completed")
-        .order_by(SourceSnapshot.fetched_at.asc())
-        .all()
-    )
+def extract_selected_snapshot_facts(
+    db: Session,
+    *,
+    snapshot_ids: list[str] | None = None,
+    source_ids: list[str] | None = None,
+    all_snapshots: bool = False,
+) -> list[dict[str, Any]]:
+    """Extract only explicitly selected snapshots unless --all is requested."""
+    from sqlalchemy import false
 
+    if all_snapshots and (snapshot_ids or source_ids):
+        raise ValueError("Use --all or explicit IDs, not both.")
+    if snapshot_ids and source_ids:
+        raise ValueError("Select by snapshot IDs or source IDs, not both.")
+    if not all_snapshots and not snapshot_ids and not source_ids:
+        raise ValueError(
+            "Select snapshots with snapshot_ids/source_ids or explicitly set all_snapshots=True."
+        )
+
+    try:
+        parsed_snapshot_ids = [UUID(value) for value in (snapshot_ids or [])]
+        parsed_source_ids = [UUID(value) for value in (source_ids or [])]
+    except (TypeError, ValueError, AttributeError) as exc:
+        raise ValueError("Snapshot and source IDs must be valid UUIDs.") from exc
+
+    query = db.query(SourceSnapshot).filter(
+        SourceSnapshot.http_status == 200,
+        SourceSnapshot.extraction_status == "completed",
+    )
+    if parsed_snapshot_ids:
+        query = query.filter(SourceSnapshot.id.in_(parsed_snapshot_ids))
+    elif parsed_source_ids:
+        query = query.filter(SourceSnapshot.source_id.in_(parsed_source_ids))
+    elif not all_snapshots:
+        query = query.filter(false())
+
+    snapshots = query.order_by(SourceSnapshot.fetched_at.asc()).all()
     results = []
     for snapshot in snapshots:
         try:
-            result = extract_snapshot_facts(db, snapshot)
-            results.append(result)
+            results.append(extract_snapshot_facts(db, snapshot))
         except Exception as exc:  # pragma: no cover - defensive path
             db.rollback()
             results.append({
@@ -435,5 +477,9 @@ def extract_all_snapshot_facts(db: Session) -> list[dict[str, Any]]:
                 "created": 0,
                 "existing": 0,
             })
-
     return results
+
+
+def extract_all_snapshot_facts(db: Session) -> list[dict[str, Any]]:
+    """Backward-compatible explicit all-snapshot API; CLI requires --all."""
+    return extract_selected_snapshot_facts(db, all_snapshots=True)
