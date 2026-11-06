@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         api.applyAccessibilityPreferences(profile.accessibility_preferences);
         api.cachePreferredLanguage(profile.preferred_language_code);
-        window.SchemeSathiLocalization?.apply();
+        window.GovNexusLocalization?.apply();
         setAccessibilityControls(currentAccessibility());
         updateSummary(profile);
         $("saveMessage").textContent = "Profile updated.";
@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     $("privacyInfo").addEventListener("click", event => {
         event.preventDefault();
-        notify("Profile data is retrieved from your signed-in SchemeSathi account.");
+        notify("Profile data is retrieved from your signed-in GovNexus account.");
     });
     const passwordForm = $("passwordForm");
     const passwordToggle = $("passwordToggle");

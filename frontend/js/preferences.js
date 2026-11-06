@@ -105,17 +105,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
     });
 
-    $("readAloudPreview").addEventListener("click", () => {
-        if (!("speechSynthesis" in window)) {
-            notify("Built-in read-aloud is not available in this browser.");
-            return;
+    $("readAloudPreview").addEventListener("click", async () => {
+        const language = `${(document.documentElement.lang || "en").split("-")[0]}-IN`;
+        try {
+            const audioBlob = await api.request("/voice/synthesize", {
+                method: "POST",
+                responseType: "blob",
+                body: JSON.stringify({
+                    text: "GovNexus can read this preview only through Prism. Text settings still work when voice is unavailable.",
+                    language_code: language,
+                    speed: 1
+                })
+            });
+            if (!audioBlob.size) throw new Error("Prism returned no audio.");
+            const audio = new Audio(URL.createObjectURL(audioBlob));
+            await audio.play();
+        } catch (error) {
+            notify(error.message || "Prism speech is not available. Text preferences still work.");
         }
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(
-            "Accessibility settings. You can adjust text size, contrast, spacing, button size, and read-aloud preferences."
-        );
-        utterance.lang = document.documentElement.lang || "en";
-        window.speechSynthesis.speak(utterance);
     });
 
     $("saveSettings").addEventListener("click", async () => {

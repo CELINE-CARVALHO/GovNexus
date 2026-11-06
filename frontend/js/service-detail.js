@@ -49,10 +49,177 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    function officialLink(url, label) {
+        return safeOfficialLink(url, label);
+    }
+
+    function renderBenefits(data) {
+        const benefits = Array.isArray(data.benefits) ? data.benefits : [];
+        const overview = $("overview");
+        const existing = overview.querySelector(".benefit-list");
+        if (existing) existing.remove();
+        if (!benefits.length) return;
+        const list = element("div", undefined, "benefit-list");
+        list.append(element("h3", "Documented benefits"));
+        benefits.forEach(item => {
+            const row = element("article", undefined, "locked-panel");
+            row.append(element("p", item.description || ""));
+            if (item.source_url) {
+                const link = officialLink(item.source_url, "Official source");
+                if (link) row.appendChild(link);
+            }
+            if (item.retrieved_on) row.append(element("p", `Retrieved on ${item.retrieved_on}`));
+            list.appendChild(row);
+        });
+        overview.appendChild(list);
+    }
+
+    function mountEligibilityChecker(data) {
+        const section = $("eligibility");
+        section.querySelector(".eligibility-checker")?.remove();
+        const items = (data.eligibility || []).filter(item => item && item.prompt && item.input === "yes_no" && item.expected);
+        const box = element("div", undefined, "eligibility-checker");
+        const source = data.evidence?.items?.[0]?.source?.url || data.service?.application_url;
+        if (!items.length) {
+            box.append(
+                element("strong", "Eligibility could not be confirmed from a structured condition in this record."),
+                element("p", "I couldn't confirm a checkable eligibility rule from the stored government source. Review the official page before you apply.")
+            );
+            const link = source ? officialLink(source, "Open the official source") : null;
+            if (link) box.appendChild(link);
+            section.appendChild(box);
+            return;
+        }
+        box.append(element("h3", "Check the documented conditions"));
+        box.append(element("p", "GovNexus asks only for the conditions stored with this scheme. It does not ask for Aadhaar, PAN, bank account, OTP, or password. This is not an approval."));
+        const form = document.createElement("form");
+        items.forEach((item, index) => {
+            const field = element("fieldset");
+            field.append(element("legend", item.prompt));
+            field.append(element("p", `Why this is asked: ${item.why || item.description || "The stored source lists this condition."}`));
+            ["yes", "no", "unknown"].forEach(value => {
+                const label = document.createElement("label");
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.name = `condition-${index}`;
+                input.value = value;
+                input.required = true;
+                label.append(input, document.createTextNode(value === "yes" ? " Yes" : value === "no" ? " No" : " I don't know"));
+                field.appendChild(label);
+            });
+            form.appendChild(field);
+        });
+        const result = element("div", undefined, "eligibility-result");
+        result.setAttribute("role", "status");
+        const button = document.createElement("button");
+        button.type = "submit";
+        button.className = "primary-btn";
+        button.textContent = "Check these conditions";
+        form.appendChild(button);
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            const failed = [];
+            const met = [];
+            const unknown = [];
+            items.forEach((item, index) => {
+                const selected = form.querySelector(`input[name="condition-${index}"]:checked`)?.value;
+                if (selected === "unknown" || !selected) unknown.push(item);
+                else if (selected === item.expected) met.push(item);
+                else failed.push(item);
+            });
+            result.replaceChildren();
+            if (failed.length) {
+                result.append(element("strong", "You may not qualify based on a condition you reported."));
+                failed.forEach(item => result.append(element("p", item.description)));
+                result.append(element("p", "Additional verification may be required. This is not a government decision."));
+            } else if (unknown.length) {
+                result.append(element("strong", "Eligibility could not be confirmed."));
+                result.append(element("p", "Some listed conditions were not answered. You may be eligible only if those conditions are also met."));
+            } else {
+                result.append(element("strong", "You appear to meet the listed conditions."));
+                result.append(element("p", "You may be eligible. Additional verification may be required. GovNexus cannot approve an application or guarantee a benefit."));
+            }
+            if (met.length) result.append(element("p", `${met.length} listed condition${met.length === 1 ? "" : "s"} appear satisfied from your answers.`));
+            const link = source ? officialLink(source, "Official scheme source") : null;
+            if (link) result.appendChild(link);
+        });
+        box.append(form, result);
+        section.appendChild(box);
+    }
+
+    function mountDocumentChecklist(data) {
+        const section = $("documents");
+        section.querySelector(".document-checklist")?.remove();
+        const documents = Array.isArray(data.required_documents) ? data.required_documents : [];
+        const box = element("div", undefined, "document-checklist");
+        const source = data.evidence?.items?.[0]?.source?.url || data.service?.application_url;
+        if (!documents.length) {
+            box.append(
+                element("strong", "No documented requirements are stored for this scheme."),
+                element("p", "I couldn't confirm the document list from a reliable government source in this record. Do not upload identity documents here.")
+            );
+            const link = source ? officialLink(source, "Check the official source") : null;
+            if (link) box.appendChild(link);
+            section.appendChild(box);
+            return;
+        }
+        const storageKey = `govnexus_documents_${data.service?.id || "scheme"}`;
+        let saved = {};
+        try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { saved = {}; }
+        const progress = element("p");
+        const missing = element("div");
+        function persist() {
+            const state = {};
+            box.querySelectorAll("select[data-doc]").forEach(select => { state[select.dataset.doc] = select.value; });
+            try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* private mode */ }
+            const values = Object.values(state);
+            const available = values.filter(value => value === "available").length;
+            progress.textContent = `${available} of ${documents.length} marked available.`;
+            missing.replaceChildren();
+            documents.forEach(item => {
+                const name = item.name || item.document_code || "Document";
+                if ((state[name] || "pending") !== "available") missing.append(element("p", `Still to prepare: ${name}`));
+            });
+        }
+        documents.forEach(item => {
+            const name = item.name || item.document_code || "Document";
+            const row = element("article", undefined, "document-empty");
+            row.append(element("strong", name));
+            if (item.description) row.append(element("p", item.description));
+            row.append(element("p", `Why it is listed: ${item.why || item.description || "The stored source names this document."}`));
+            const status = item.is_mandatory === false ? "Optional in the stored record" : "Required in the stored record";
+            const extras = [status];
+            if (item.copies_required != null) extras.push(`Copies: ${item.copies_required}`);
+            if (Array.isArray(item.accepted_formats) && item.accepted_formats.length) extras.push(`Accepted format: ${item.accepted_formats.join(", ")}`);
+            if (item.stage) extras.push(`Stage: ${item.stage}`);
+            row.append(element("p", extras.join(" · ")));
+            if (item.source_url) {
+                const link = officialLink(item.source_url, "Official source");
+                if (link) row.appendChild(link);
+            }
+            const select = document.createElement("select");
+            select.dataset.doc = name;
+            select.setAttribute("aria-label", `Status for ${name}`);
+            [["pending", "Pending"], ["available", "Available"]].forEach(([value, label]) => {
+                const option = document.createElement("option");
+                option.value = value;
+                option.textContent = label;
+                select.appendChild(option);
+            });
+            select.value = saved[name] === "available" ? "available" : "pending";
+            select.addEventListener("change", persist);
+            row.appendChild(select);
+            box.appendChild(row);
+        });
+        box.append(progress, missing);
+        section.appendChild(box);
+        persist();
+    }
+
     function renderService(data) {
         service = data.service;
         isDemoRecord = Boolean(data.demo);
-        document.title = `${service.title || service.code} | SchemeSathi`;
+        document.title = `${service.title || service.code} | GovNexus`;
         $("categoryTag").textContent = service.category?.name || service.category?.code || "PUBLISHED SERVICE";
         $("serviceTitle").textContent = service.title || service.code;
         $("serviceDescription").textContent =
@@ -169,6 +336,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             "No verified application steps are available for this published version."
         );
+        renderBenefits(data);
+        mountEligibilityChecker(data);
+        mountDocumentChecklist(data);
 
         const sourceList = $("sources");
         sourceList.querySelectorAll(".source-status, .data-placeholder").forEach(node => node.remove());
@@ -190,6 +360,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             sourceList.appendChild(list);
         }
         document.querySelector(".verification-legend")?.setAttribute("hidden", "");
+        window.GovNexusI18n?.apply();
 
         if (!data.demo) {
             const track = element("a", "Track this service");

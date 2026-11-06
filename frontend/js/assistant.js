@@ -156,7 +156,7 @@
     body.className = "message-body";
     const name = document.createElement("div");
     name.className = "message-name";
-    name.textContent = isUser ? "You" : "SchemeSathi AI";
+    name.textContent = isUser ? "You" : "GovNexus AI";
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
     bubble.textContent = messageText;
@@ -202,66 +202,31 @@
         .split("-")[0].toLowerCase();
       const listenButton = document.createElement("button");
       listenButton.type = "button";
-      if (voiceSupportedLanguages.has(code)) {
-        listenButton.textContent = "Listen";
-        listenButton.addEventListener("click", () => speakAnswer(
-          messageText,
-          message.languageCode || languageSelect.value,
-          listenButton,
-          audioStatus
-        ));
-        const replayButton = document.createElement("button");
-        replayButton.type = "button";
-        replayButton.textContent = "Replay";
-        replayButton.addEventListener("click", () => speakAnswer(
-          messageText,
-          message.languageCode || languageSelect.value,
-          replayButton,
-          audioStatus
-        ));
-        const stopButton = document.createElement("button");
-        stopButton.type = "button";
-        stopButton.textContent = "Stop";
-        stopButton.addEventListener("click", () => {
-          stopPlayback();
-          audioStatus.textContent = "Playback stopped.";
-        });
-        actions.append(listenButton, replayButton, stopButton, audioStatus);
-      } else {
-        listenButton.textContent = "Read aloud";
-        listenButton.addEventListener("click", () =>
-          speakWithBrowser(messageText, message.languageCode || languageSelect.value, audioStatus)
-        );
-        actions.append(listenButton, audioStatus);
+      listenButton.textContent = "Listen with Prism";
+      const speak = () => speakAnswer(
+        messageText,
+        message.languageCode || languageSelect.value,
+        listenButton,
+        audioStatus
+      );
+      listenButton.addEventListener("click", speak);
+      const replayButton = document.createElement("button");
+      replayButton.type = "button";
+      replayButton.textContent = "Replay";
+      replayButton.addEventListener("click", speak);
+      const stopButton = document.createElement("button");
+      stopButton.type = "button";
+      stopButton.textContent = "Stop";
+      stopButton.addEventListener("click", () => {
+        stopPlayback();
+        audioStatus.textContent = "Playback stopped.";
+      });
+      actions.append(listenButton, replayButton, stopButton, audioStatus);
+      if (!voiceSupportedLanguages.has(code)) {
+        audioStatus.textContent = "Prism speech is not available for this language. You can still read the text answer.";
+      } else if (options.autoSpeak || options.readAloud) {
+        speak();
       }
-      if (options.autoSpeak) {
-        speakAnswer(
-          messageText,
-          message.languageCode || languageSelect.value,
-          listenButton,
-          audioStatus
-        );
-      } else if (options.readAloud) {
-        speakWithBrowser(
-          messageText,
-          message.languageCode || languageSelect.value,
-          audioStatus
-        );
-      }
-    }
-
-    function speakWithBrowser(text, languageCode, status) {
-      if (!("speechSynthesis" in window)) {
-        status.textContent = "Built-in read-aloud is unavailable in this browser.";
-        return;
-      }
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = languageCode;
-      utterance.onstart = () => { status.textContent = "Reading aloud."; };
-      utterance.onend = () => { status.textContent = "Read-aloud finished."; };
-      utterance.onerror = () => { status.textContent = "Read-aloud could not be completed."; };
-      window.speechSynthesis.speak(utterance);
     }
 
     body.appendChild(actions);
@@ -382,7 +347,7 @@
     typing.innerHTML = `
       <div class="message-avatar">✳</div>
       <div class="message-body">
-        <div class="message-name">SchemeSathi AI</div>
+        <div class="message-name">GovNexus AI</div>
         <div class="message-bubble typing-dots"><i></i><i></i><i></i></div>
       </div>
     `;

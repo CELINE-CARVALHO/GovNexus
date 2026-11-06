@@ -1,16 +1,16 @@
-# SchemeSathi 2.0 — Local Demonstration Guide
+# GovNexus 2.0 — Local Demonstration Guide
 
-SchemeSathi is a FastAPI + MySQL backend with an HTML/CSS/vanilla JavaScript frontend. It provides citizen service discovery, grounded assistant guidance, profile/preferences, and an authenticated knowledge-management workflow.
+GovNexus is a FastAPI + MySQL backend with an HTML/CSS/vanilla JavaScript frontend. It provides citizen service discovery, grounded assistant guidance, profile/preferences, and an authenticated knowledge-management workflow.
 
 ## Prerequisites
 
 - Windows PowerShell
 - Python 3.11+
-- MySQL 8.x with the configured SchemeSathi database
+- MySQL 8.x with the configured GovNexus database
 - The repository virtual environment at `.venv`
 - Node.js only for the JavaScript syntax check
 
-Provider credentials are optional for the local UI and deterministic tests. Gemini, Pinecone, and Gnani features require their own configured credentials and network access.
+Provider credentials are optional for the local UI and deterministic tests. Groq is the primary assistant, Gemini is the fallback, and Prism speech uses the existing voice endpoints. Each provider needs its own credential and network access.
 
 ## Environment
 
@@ -68,7 +68,7 @@ Citizen accounts can be created from the citizen sign-in page. Do not use produc
 4. Open **Profile** and **Preferences**. Change language, accessibility settings, and location fields where master data exists. Save and reload to show persistence.
 5. Open **AI assistant**. Ask a general question, show the evidence-unavailable or grounded response state, and explain that unverified facts are not exposed as official guidance.
 6. If Gemini credentials are configured, demonstrate a grounded answer and its source references. If not, use the visible text fallback and state the limitation.
-7. If Gnani credentials and microphone access are configured, demonstrate STT/TTS. Otherwise show the text composer and the browser read-aloud fallback; do not claim a live provider call.
+7. If Prism credentials and microphone access are configured, demonstrate speech-to-text and text-to-speech. Otherwise use the text composer. Browser speech is not a fallback. Do not claim a live voice call when the credential is missing.
 8. Open the admin sign-in page and dashboard. Show live counts from the authenticated API and the zero published-service state if applicable.
 9. Open **Sources** and **Ingestion**. Inspect source metadata and existing snapshots. Do not activate unverified sources or start network ingestion during the demonstration.
 10. Open **Fact verification**. Inspect the UIDAI evidence quotations, offsets, confidence, and review tasks. Demonstrate the review controls without approving or rejecting facts unless an authorized reviewer explicitly chooses to do so.
@@ -122,4 +122,4 @@ The test suite uses isolated databases and mocked provider behavior. It does not
 - **Database health fails:** confirm MySQL is running and the five `MYSQL_*` values match the local database.
 - **CORS error:** serve the frontend at `http://127.0.0.1:5500` or `http://localhost:5500` and use the matching local API host.
 - **Empty catalogue:** this is expected until facts are verified, linked to a service version, and published through the admin workflow.
-- **Voice unavailable:** use text input or browser read-aloud and state that the live Gnani integration is not configured.
+- **Voice unavailable:** use text input and state that Prism is not configured. Do not use browser speech as a substitute.

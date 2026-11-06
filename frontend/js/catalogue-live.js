@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
         categoryId: "",
         search: new URLSearchParams(window.location.search).get("q") || "",
         stateId: "",
+        jurisdictionCode: "",
+        level: "all",
         page: 1,
         pages: 1,
         demo: false,
@@ -158,14 +160,15 @@ document.addEventListener("DOMContentLoaded", () => {
             empty.className = "live-catalogue-empty";
             empty.setAttribute("role", "status");
             const emptyTitle = document.createElement("h3");
-            emptyTitle.textContent = state.search || state.categoryId || state.stateId
-                ? "No matching published services"
+            const filtered = Boolean(state.search || state.categoryId || state.stateId || state.jurisdictionCode || (state.level && state.level !== "all"));
+            emptyTitle.textContent = filtered
+                ? "No matching schemes in this view"
                 : "No published services available";
             const detail = document.createElement("p");
-            detail.textContent = state.search || state.categoryId || state.stateId
-                ? "Try a different search or remove a filter."
-                : state.demo
-                    ? "No matching demonstration records are available."
+            detail.textContent = state.level === "state"
+                ? "No state or Union Territory scheme is recorded for this selection. GovNexus does not invent schemes to fill a state. Choose Central schemes or another jurisdiction."
+                : filtered
+                    ? "Try another search, category, or jurisdiction. Only records with a source link are shown."
                     : "Services will appear after their information and sources have been reviewed and published.";
             empty.append(emptyTitle, detail);
             section.appendChild(empty);
@@ -237,10 +240,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (state.search) params.set("search", state.search);
         if (state.categoryId) params.set("category_id", state.categoryId);
         if (state.stateId) params.set("state_id", state.stateId);
+        if (state.jurisdictionCode) params.set("jurisdiction_code", state.jurisdictionCode);
+        if (state.level && state.level !== "all") params.set("level", state.level);
         const section = createCatalogueSection();
         section.setAttribute("aria-busy", "true");
         try {
-            const result = await api.get(`/services?${params}`);
+            const useDemoFirst = Boolean(state.jurisdictionCode) || (state.level && state.level !== "all");
+            let result = { items: [], pagination: { page: 1, pages: 1, total: 0 } };
+            if (!useDemoFirst) {
+                result = await api.get(`/services?${params}`);
+            }
             if (requestId !== state.requestId) return;
             state.demo = false;
             state.services = Array.isArray(result.items) ? result.items : [];
@@ -305,9 +314,31 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
     stateFilter.addEventListener("change", () => {
-        state.stateId = stateFilter.value === "all" ? "" : stateFilter.value;
+        const option = stateFilter.selectedOptions[0];
+        const code = option?.dataset.code || "";
+        if (!option || option.value === "all") {
+            state.stateId = "";
+            state.jurisdictionCode = "";
+        } else if (code) {
+            state.stateId = "";
+            state.jurisdictionCode = code;
+        } else {
+            state.stateId = option.value;
+            state.jurisdictionCode = "";
+        }
         state.page = 1;
         loadServices();
+    });
+    $("levelFilter").addEventListener("change", () => {
+        state.level = $("levelFilter").value || "all";
+        state.page = 1;
+        loadServices();
+    });
+    $("jurisdictionSearch").addEventListener("input", () => {
+        const query = $("jurisdictionSearch").value.trim().toLowerCase();
+        [...stateFilter.options].forEach(option => {
+            option.hidden = option.value !== "all" && query && !option.textContent.toLowerCase().includes(query);
+        });
     });
     $("sortSelect").addEventListener("change", () => {
         const direction = $("sortSelect").value;
@@ -322,8 +353,12 @@ document.addEventListener("DOMContentLoaded", () => {
         state.search = "";
         state.categoryId = "";
         state.stateId = "";
+        state.jurisdictionCode = "";
+        state.level = "all";
         state.page = 1;
         stateFilter.value = "all";
+        $("levelFilter").value = "all";
+        $("jurisdictionSearch").value = "";
         syncCategoryFilters();
         loadServices();
     });
@@ -342,13 +377,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 getAllPages("/locations?location_type=state%2Cunion_territory&language=en&active_only=true")
             ]);
             state.categories = categories;
-            state.locations = locations.filter(item => item.location_type === "state");
+            const jurisdictionResponse = await api.get("/demo/jurisdictions");
+            const catalogueLocations = locations.filter(item =>
+                item.location_type === "state" || item.location_type === "union_territory"
+            );
+            const byName = new Map(
+                catalogueLocations.map(item => [String(item.name || "").toLowerCase(), item])
+            );
+            state.locations = (jurisdictionResponse.items || []).map(item => {
+                const existing = byName.get(item.name.toLowerCase());
+                return existing
+                    ? { ...existing, code: existing.code || item.code }
+                    : { id: item.code, code: item.code, name: item.name, location_type: item.type, useCode: true };
+            });
             renderCategories();
 
             state.locations.forEach(location => {
                 const option = document.createElement("option");
-                option.value = location.id;
+                option.value = location.useCode ? location.code : location.id;
                 option.textContent = location.name || location.code;
+                if (location.useCode) option.dataset.code = location.code;
+                else if (location.code) option.dataset.catalogueCode = location.code;
                 stateFilter.appendChild(option);
             });
             const params = new URLSearchParams(window.location.search);
@@ -370,6 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             await loadServices();
+            window.GovNexusI18n?.apply();
         } catch (error) {
             showError(error.message);
         }

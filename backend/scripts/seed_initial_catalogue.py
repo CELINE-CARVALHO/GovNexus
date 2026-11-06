@@ -267,7 +267,7 @@ def seed():
 
         db.commit()
 
-        print("\nSchemeSathi catalogue seed completed.")
+        print("\nGovNexus catalogue seed completed.")
         print(f"New services: {created_services}")
         print(f"Existing services: {existing_services}")
         print(f"New official source records: {created_sources}")

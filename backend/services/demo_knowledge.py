@@ -12,6 +12,9 @@ from typing import Any
 
 
 DEMO_CHECKED_ON = date(2026, 11, 6).isoformat()
+PM_KISAN_CHECKED_ON = date(2026, 11, 7).isoformat()
+MYSCHEME_CHECKED_ON = date(2026, 11, 7).isoformat()
+VERIFICATION_LABEL = "AI-researched demo information — not yet human-verified."
 
 
 DEMO_SERVICES: list[dict[str, Any]] = [
@@ -112,16 +115,92 @@ DEMO_SERVICES: list[dict[str, Any]] = [
         "id": "demo-pm-kisan",
         "title": "PM-KISAN",
         "code": "DEMO-PM-KISAN",
-        "description": "The official PM-KISAN portal provides information and citizen-facing services for the PM-KISAN programme. Check the portal for current eligibility and status guidance.",
+        "checked_on": PM_KISAN_CHECKED_ON,
+        "verification_label": VERIFICATION_LABEL,
+        "description": (
+            "The official PM-KISAN homepage, retrieved on 2026-11-07, describes PM-KISAN as a "
+            "Central Sector scheme with 100% funding from the Government of India, operational "
+            "from 1.12.2018. It states that an income support of 6,000/- per year in three equal "
+            "instalments will be provided to all landholding farmer families, and that the fund "
+            "will be directly transferred to the bank accounts of the beneficiaries. It defines "
+            "a family as husband, wife and minor children. It also states that eKYC is mandatory "
+            "for PM-KISAN registered farmers."
+        ),
         "category": "Agriculture",
         "category_code": "agriculture",
         "jurisdiction": "Central Government",
         "jurisdiction_code": "IN",
-        "publisher": "Government of India — PM-KISAN",
+        "publisher": "Department of Agriculture and Farmers Welfare — PM-KISAN",
         "official_url": "https://pmkisan.gov.in/",
         "sources": [{"title": "PM-KISAN official portal", "url": "https://pmkisan.gov.in/"}],
-        "evidence": "The record links to the official PM-KISAN programme portal; no benefit amount or eligibility claim is made.",
-        "details": {"eligibility": [], "benefits": [], "documents": [], "steps": []},
+        "evidence": (
+            "Retrieved from https://pmkisan.gov.in/ on 2026-11-07. The page says PM Kisan is a "
+            "Central Sector scheme with 100% funding from the Government of India, operational "
+            "from 1.12.2018, and that an income support of 6,000/- per year in three equal "
+            "instalments will be provided to all land holding farmer families. Family is defined "
+            "as husband, wife and minor children. State Governments and UT administrations identify "
+            "eligible families as per scheme guidelines. The page says all institutional land holders "
+            "shall not be eligible, and lists further higher-economic-status exclusion categories. "
+            "The page also states that eKYC is mandatory for PMKISAN registered farmers. "
+            "AI-researched demo information — not yet human-verified."
+        ),
+        "details": {
+            "eligibility": [
+                {
+                    "description": "The official page says income support will be provided to all land holding farmer families. It defines a family for the scheme as husband, wife and minor children.",
+                    "is_mandatory": True,
+                    "prompt": "Are you part of a landholding farmer family, using the page's definition of family as husband, wife and minor children?",
+                    "why": "The retrieved PM-KISAN page states that support is for all landholding farmer families and defines family as husband, wife and minor children.",
+                    "input": "yes_no",
+                    "expected": "yes",
+                    "source_url": "https://pmkisan.gov.in/",
+                    "retrieved_on": PM_KISAN_CHECKED_ON,
+                },
+                {
+                    "description": "The official page says: All Institutional Land holders shall not be eligible for benefit under the scheme.",
+                    "is_mandatory": True,
+                    "prompt": "Is the land held by an institution rather than a farmer family?",
+                    "why": "The retrieved page lists all institutional land holders as not eligible.",
+                    "input": "yes_no",
+                    "expected": "no",
+                    "source_url": "https://pmkisan.gov.in/",
+                    "retrieved_on": PM_KISAN_CHECKED_ON,
+                },
+                {
+                    "description": (
+                        "The official page says categories of beneficiaries of higher economic status shall not be eligible. "
+                        "The listed categories are: former and present holders of constitutional posts; former and present Ministers, State Ministers, members of Parliament or State legislatures, Mayors of Municipal Corporations, and Chairpersons of District Panchayats; "
+                        "all serving or retired officers and employees of Central or State Government Ministries, offices, departments and field units, Central or State PSEs and attached offices or autonomous institutions, and regular employees of local bodies, excluding Multi Tasking Staff / Class IV / Group D employees; "
+                        "all superannuated or retired pensioners whose monthly pension is Rs.10,000/- or more, excluding Multi Tasking Staff / Class IV / Group D employees, of the above category; "
+                        "all persons who paid Income Tax in the last assessment year; "
+                        "and professionals such as Doctors, Engineers, Lawyers, Chartered Accountants, and Architects registered with professional bodies and carrying out the profession by undertaking practices."
+                    ),
+                    "is_mandatory": True,
+                    "prompt": "Does the farmer family fall into one of the higher-economic-status exclusion categories printed on the official PM-KISAN page?",
+                    "why": "The retrieved page says those higher-economic-status categories shall not be eligible. This question asks you to compare your situation with that published list. It is not a government decision.",
+                    "input": "yes_no",
+                    "expected": "no",
+                    "source_url": "https://pmkisan.gov.in/",
+                    "retrieved_on": PM_KISAN_CHECKED_ON,
+                },
+            ],
+            "benefits": [
+                {
+                    "description": "The official page states an income support of 6,000/- per year in three equal instalments, transferred directly to the bank accounts of the beneficiaries.",
+                    "source_url": "https://pmkisan.gov.in/",
+                    "retrieved_on": PM_KISAN_CHECKED_ON,
+                }
+            ],
+            "documents": [],
+            "steps": [
+                {
+                    "step_number": 1,
+                    "title": "Use the official PM-KISAN portal",
+                    "instructions": "The retrieved homepage lists New Farmer Registration and Know Your Status in the farmer corner. Confirm the current route on the official portal. This record does not reproduce an application form.",
+                    "official_url": "https://pmkisan.gov.in/",
+                }
+            ],
+        },
     },
     {
         "id": "demo-ayushman-bharat",
@@ -198,6 +277,68 @@ DEMO_SERVICES: list[dict[str, Any]] = [
         "evidence": "The record links to the official Stand-Up India portal; detailed eligibility, finance, and document claims are not asserted.",
         "details": {"eligibility": [], "benefits": [], "documents": [], "steps": []},
     },
+    {
+        "id": "demo-myscheme",
+        "title": "myScheme",
+        "code": "DEMO-MYSCHEME",
+        "checked_on": MYSCHEME_CHECKED_ON,
+        "verification_label": VERIFICATION_LABEL,
+        "description": (
+            "myScheme's official homepage, retrieved on 2026-11-07, says myScheme is a national "
+            "platform that aims to offer one-stop search and discovery of government schemes. "
+            "It says the platform helps citizens find government schemes and guides them on how "
+            "to apply, so they do not need to visit multiple government websites."
+        ),
+        "category": "Scheme discovery",
+        "category_code": "discovery",
+        "jurisdiction": "Central Government",
+        "jurisdiction_code": "IN",
+        "publisher": "myScheme, National e-Governance Division",
+        "official_url": "https://www.myscheme.gov.in/",
+        "sources": [
+            {"title": "myScheme", "url": "https://www.myscheme.gov.in/"},
+        ],
+        "evidence": (
+            "Retrieved from https://www.myscheme.gov.in/ on 2026-11-07. The page says myScheme "
+            "is a national platform for search and discovery of government schemes from the Central "
+            "Government and State and UT Governments, and that a user can enter basic details and "
+            "then open a scheme page for eligibility, benefits, documents, application process, and "
+            "the application URL. Contact shown on the page: 4th Floor, NeGD, Electronics Niketan, "
+            "6 CGO Complex, Lodhi Road, New Delhi - 110003; phone (011) 24303714 (9:00 AM to 5:30 PM). "
+            "AI-researched demo information — not yet human-verified."
+        ),
+        "details": {
+            "eligibility": [],
+            "benefits": [
+                {
+                    "description": "The official page describes myScheme as a discovery platform. It does not state a cash benefit. It says citizens can discover schemes in one place instead of visiting multiple departmental websites.",
+                    "source_url": "https://www.myscheme.gov.in/",
+                    "retrieved_on": MYSCHEME_CHECKED_ON,
+                }
+            ],
+            "documents": [],
+            "steps": [
+                {
+                    "step_number": 1,
+                    "title": "Enter basic details on myScheme",
+                    "instructions": "The retrieved page says the user enters basic details such as demographic information, income, and social category.",
+                    "official_url": "https://www.myscheme.gov.in/",
+                },
+                {
+                    "step_number": 2,
+                    "title": "Review the schemes the platform lists",
+                    "instructions": "The retrieved page says myScheme then displays relevant schemes from the information provided. GovNexus does not repeat that matching result.",
+                    "official_url": "https://www.myscheme.gov.in/",
+                },
+                {
+                    "step_number": 3,
+                    "title": "Open the scheme page and its application link",
+                    "instructions": "The retrieved page says the user can open a scheme page for detailed knowledge, FAQs, and the application process, and can navigate to the respective application URL.",
+                    "official_url": "https://www.myscheme.gov.in/",
+                },
+            ],
+        },
+    },
 ]
 
 
@@ -207,11 +348,30 @@ def demo_source(item: dict[str, Any]) -> dict[str, Any]:
         "publisher": item["publisher"],
         "url": item["official_url"],
         "authority_status": "official source link; demonstration record not production-verified",
-        "checked_on": DEMO_CHECKED_ON,
+        "checked_on": item.get("checked_on") or DEMO_CHECKED_ON,
+        "verification_label": item.get("verification_label") or VERIFICATION_LABEL,
     }
 
 
-def demo_items(question: str = "", *, category: str = "", jurisdiction: str = "") -> list[dict[str, Any]]:
+def _matches_jurisdiction(item: dict[str, Any], jurisdiction: str) -> bool:
+    if not jurisdiction:
+        return True
+    wanted = jurisdiction.casefold().strip()
+    code = item["jurisdiction_code"].casefold()
+    name = item["jurisdiction"].casefold()
+    if wanted in {code, name}:
+        return True
+    # A state or UT selection still shows Central schemes.
+    return code == "in" and wanted not in {"in", "central", "central government"}
+
+
+def demo_items(
+    question: str = "",
+    *,
+    category: str = "",
+    jurisdiction: str = "",
+    level: str = "",
+) -> list[dict[str, Any]]:
     stop_words = {
         "what", "which", "where", "when", "how", "can", "could", "would", "should",
         "are", "is", "the", "for", "and", "with", "from", "about", "please", "tell",
@@ -233,6 +393,7 @@ def demo_items(question: str = "", *, category: str = "", jurisdiction: str = ""
         "social-welfare": {"pension", "welfare", "assistance", "nsap"},
         "entrepreneurship": {"msme", "udyam", "entrepreneur", "entrepreneurs", "entrepreneurship"},
         "women-entrepreneurs": {"women", "woman", "entrepreneur", "entrepreneurs", "stand-up"},
+        "discovery": {"myscheme", "my-scheme", "discover", "discovery"},
     }
     matched_domains = {
         code for code, keywords in keyword_groups.items() if terms.intersection(keywords)
@@ -246,7 +407,11 @@ def demo_items(question: str = "", *, category: str = "", jurisdiction: str = ""
         ).casefold()
         if category and category.casefold() not in item["category_code"].casefold() and category.casefold() not in item["category"].casefold():
             continue
-        if jurisdiction and jurisdiction.casefold() not in item["jurisdiction_code"].casefold() and jurisdiction.casefold() not in item["jurisdiction"].casefold():
+        if not _matches_jurisdiction(item, jurisdiction):
+            continue
+        if level == "central" and item["jurisdiction_code"] != "IN":
+            continue
+        if level == "state" and item["jurisdiction_code"] == "IN":
             continue
         item_keywords = keyword_groups.get(item["category_code"], set())
         if matched_domains and item["category_code"] not in matched_domains and not item_keywords.intersection(terms):
@@ -262,7 +427,8 @@ def demo_items(question: str = "", *, category: str = "", jurisdiction: str = ""
             continue
         copy = dict(item)
         copy["demo"] = True
-        copy["checked_on"] = DEMO_CHECKED_ON
+        copy["checked_on"] = item.get("checked_on") or DEMO_CHECKED_ON
+        copy["verification_label"] = item.get("verification_label") or VERIFICATION_LABEL
         copy["score"] = score
         result.append(copy)
     result.sort(key=lambda value: (-value["score"], value["title"]))
@@ -299,7 +465,7 @@ def demo_answer(question: str, items: list[dict[str, Any]], history: list[str] |
             "I could not find a matching demonstration record. The production knowledge base still requires human verification and publication before it can answer from verified facts."
         )
     lines = [
-        "Demonstration information (official links checked on 2026-11-06; this is not published production knowledge):",
+        "AI-researched demo information — not yet human-verified.",
         "",
         "Relevant services:",
     ]

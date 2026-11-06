@@ -34,7 +34,7 @@ SNAPSHOT_DIR = PROJECT_ROOT / "data" / "source_snapshots"
 MAX_RESPONSE_BYTES = 10 * 1024 * 1024
 MAX_REDIRECTS = 5
 REQUEST_TIMEOUT = 20
-USER_AGENT = "SchemeSathiKnowledgeBot/1.0"
+USER_AGENT = "GovNexusKnowledgeBot/1.0"
 
 
 class UnsafeSourceURL(ValueError):

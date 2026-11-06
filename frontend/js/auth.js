@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         password.autocomplete = isRegister ? "new-password" : "current-password";
         heading.textContent = isRegister ? "Create your account." : "Welcome back.";
         subheading.textContent = isRegister
-            ? "Start your SchemeSathi journey."
+            ? "Start your GovNexus journey."
             : "Sign in to continue your journey.";
         submitLabel.textContent = isRegister ? "Create account" : "Sign in";
         switchText.textContent = isRegister

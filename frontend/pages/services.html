@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f7f8fc">
-    <title>Explore Services | SchemeSathi</title>
-    <meta name="description" content="Explore Indian government schemes, services, certificates and citizen support through SchemeSathi.">
+    <title>Explore Services | GovNexus</title>
+    <meta name="description" content="Explore Indian government schemes, services, certificates and citizen support through GovNexus.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,8 +20,8 @@
 
 <header class="site-header">
     <a href="../index.html" class="brand">
-        <span class="brand-mark">S</span>
-        <span>Scheme<span class="brand-accent">Sathi</span></span>
+        <span class="brand-mark" aria-hidden="true">GN</span>
+        <span>Gov<span class="brand-accent">Nexus</span></span>
     </a>
 
     <nav class="main-nav" id="mainNav">
@@ -42,7 +42,7 @@
         <div class="hero-content">
             <div class="eyebrow"><span class="eyebrow-dot"></span> YOUR GOVERNMENT SERVICES COMPANION</div>
 
-            <h1>Government services,<br><span>made simpler.</span></h1>
+            <h1>Government services,<br><span>connected to you.</span></h1>
 
             <p>
                 Discover government schemes, essential services and application
@@ -51,7 +51,7 @@
 
             <div class="hero-actions">
                 <a href="#service-explorer" class="primary-button">Explore services <span>↓</span></a>
-                <a href="assistant.html" class="secondary-button">Talk to SchemeSathi <span>↗</span></a>
+                <a href="assistant.html" class="secondary-button">Talk to GovNexus <span>↗</span></a>
             </div>
 
             <div class="hero-trust">
@@ -129,15 +129,21 @@
 
                 <div class="filter-group">
                     <h4>Government level</h4>
-                    <p class="filter-note">The service catalogue does not currently expose a government-level filter.</p>
+                    <select id="levelFilter">
+                        <option value="all">Central and matching state or UT</option>
+                        <option value="central">Central only</option>
+                        <option value="state">Selected state or UT only</option>
+                    </select>
                 </div>
 
                 <div class="filter-group">
-                    <h4>Select state</h4>
-                    <select id="stateFilter">
-                        <option value="all">All states and UTs</option>
+                    <h4>State or Union Territory</h4>
+                    <label class="visually-hidden" for="jurisdictionSearch">Search states and Union Territories</label>
+                    <input id="jurisdictionSearch" type="search" placeholder="Search states and Union Territories" autocomplete="off">
+                    <select id="stateFilter" size="8" aria-label="State or Union Territory">
+                        <option value="all">All states and Union Territories</option>
                     </select>
-                    <p class="filter-note">State options come from the active government location catalogue.</p>
+                    <p class="filter-note">All 28 states and 8 Union Territories can be selected. Central schemes stay visible unless you choose state or UT only. If a state has no sourced scheme, the list says so.</p>
                 </div>
 
                 <div class="filter-group">
@@ -150,7 +156,7 @@
                     <div class="help-symbol">✦</div>
                     <h4>Not sure where to start?</h4>
                     <p>Tell our AI assistant what you need. It can help you find the right service.</p>
-                    <a href="assistant.html">Ask SchemeSathi →</a>
+                    <a href="assistant.html">Ask GovNexus →</a>
                 </div>
             </aside>
 
@@ -265,7 +271,7 @@
         <div>
             <div class="eyebrow">YOUR PERSONAL GOVERNMENT GUIDE</div>
             <h2>Have a question? Just ask.</h2>
-            <p>Describe what you need in your own words. SchemeSathi can guide you towards relevant services.</p>
+            <p>Describe what you need in your own words. GovNexus can guide you towards relevant services.</p>
         </div>
         <a href="assistant.html" class="banner-button">Talk to AI assistant <span>↗</span></a>
     </section>
@@ -274,11 +280,11 @@
 
 <footer class="site-footer">
     <a href="../index.html" class="brand footer-brand">
-        <span class="brand-mark">S</span>
-        <span>Scheme<span class="brand-accent">Sathi</span></span>
+        <span class="brand-mark" aria-hidden="true">GN</span>
+        <span>Gov<span class="brand-accent">Nexus</span></span>
     </a>
-    <p>Making government services easier to understand and access.</p>
-    <span class="footer-copy">© 2026 SchemeSathi</span>
+    <p>Government schemes and services, connected to you.</p>
+    <span class="footer-copy">© 2026 GovNexus</span>
 </footer>
 
 <script src="../js/api/client.js"></script>

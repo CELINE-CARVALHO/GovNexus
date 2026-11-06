@@ -6,7 +6,21 @@ def test_demo_catalogue_has_official_provenance_and_is_local():
     assert len(items) >= 10
     assert all(item["demo"] for item in demo_items("scholarships"))
     assert all(item["official_url"].startswith("https://") for item in items)
-    assert all(demo_source(item)["checked_on"] == "2026-11-06" for item in items)
+    assert all(demo_source(item)["checked_on"] == item["checked_on"] for item in items)
+    assert all("not yet human-verified" in item["verification_label"] for item in items)
+
+
+def test_state_selection_keeps_central_schemes_and_can_exclude_them():
+    karnataka = demo_items(jurisdiction="IN-KA")
+    codes = {item["jurisdiction_code"] for item in karnataka}
+    assert "IN" in codes
+    assert "IN-KA" in codes
+    assert "IN-MH" not in codes
+    state_only = demo_items(jurisdiction="IN-GA", level="state")
+    assert state_only == []
+    central = {item["title"] for item in demo_items(level="central")}
+    assert "PM-KISAN" in central
+    assert "Karnataka Seva Sindhu" not in central
 
 
 def test_demo_retrieval_prefers_the_relevant_service():

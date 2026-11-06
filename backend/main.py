@@ -49,7 +49,7 @@ app.include_router(services_router, prefix=settings.API_V1_PREFIX)
 @app.get("/")
 async def root():
     return {
-        "message": "Welcome to SchemeSathi 2.0",
+        "message": "Welcome to GovNexus 2.0",
         "version": settings.APP_VERSION,
         "status": "running",
     }

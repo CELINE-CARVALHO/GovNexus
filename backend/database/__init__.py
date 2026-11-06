@@ -1,5 +1,5 @@
 
-"""SchemeSathi database package."""
+"""GovNexus database package."""
 
 from backend.database.base import Base
 

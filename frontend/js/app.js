@@ -491,9 +491,13 @@
     }
     updateLanguageButton();
   });
-  languageButton?.addEventListener("click", () => {
-    document.getElementById("assistant").scrollIntoView({ behavior: "smooth", block: "center" });
-    languageSelect.focus();
+  languageButton?.addEventListener("click", event => {
+    if (window.GovNexusI18n) {
+      event.preventDefault();
+      window.GovNexusI18n.open(languageButton);
+      return;
+    }
+    languageSelect?.focus();
   });
 
   loadVoiceLanguages();
@@ -511,7 +515,7 @@
       })
     });
     if (!audioBlob.size || audioBlob.type !== "audio/wav") {
-      throw new Error("Gnani Timbre returned an unsupported audio file.");
+      throw new Error("Prism returned an unsupported audio file.");
     }
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);

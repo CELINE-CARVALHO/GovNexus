@@ -430,14 +430,14 @@ def test_no_evidence_does_not_call_gemini(monkeypatch, db):
     monkeypatch.setattr(chat, "generate_grounded_answer", should_not_generate)
     response = asyncio.run(
         chat.send_chat_message(
-            chat.ChatRequest(message="What is my benefit?", language_code="en"),
+            chat.ChatRequest(message="zzzzqqq xylofone", language_code="en"),
             db,
         )
     )
 
     assert response.evidence_found is False
     assert response.citations == []
-    assert "could not find" in response.answer.lower()
+    assert "couldn't confirm" in response.answer.lower()
 
 
 def test_generated_answer_cannot_cite_fact_outside_context():

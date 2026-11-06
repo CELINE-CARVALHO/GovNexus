@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!applications.length) {
             list.appendChild(createEmpty(
                 "No applications tracked yet",
-                "Add a citizen-recorded tracking entry for a published service. SchemeSathi does not receive live government portal status.",
+                "Add a citizen-recorded tracking entry for a published service. GovNexus does not receive live government portal status.",
                 { href: "applications.html", label: "Open application tracker →" }
             ));
             return;
@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!profile?.state_id) {
             reminders.push({
                 title: "Add your state to your profile",
-                detail: "This helps SchemeSathi show services relevant to your area.",
+                detail: "This helps GovNexus show services relevant to your area.",
                 href: "profile.html"
             });
         }
@@ -293,7 +293,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "applications.html";
     });
     $("logoutButton")?.addEventListener("click", async () => {
-        if (!window.confirm("Sign out of SchemeSathi?")) return;
+        if (!window.confirm("Sign out of GovNexus?")) return;
         try {
             await api.post("/auth/citizen/logout", undefined, "citizen");
             api.clearSession("citizen");

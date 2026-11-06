@@ -48,6 +48,8 @@ def _list_item(item: dict) -> dict:
         "publisher": item["publisher"],
         "demo": True,
         "checked_on": item["checked_on"],
+        "verification_label": item.get("verification_label"),
+        "jurisdiction_code": item["jurisdiction_code"],
     }
 
 
@@ -56,14 +58,20 @@ def list_demo_services(
     search: str = Query(default="", max_length=150),
     category_id: str | None = None,
     state_id: str | None = None,
+    jurisdiction_code: str = Query(default="", max_length=32),
+    level: str = Query(default="", max_length=16),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
+    jurisdiction = jurisdiction_code or _jurisdiction_code(db, state_id)
+    if level not in {"", "central", "state", "all"}:
+        raise HTTPException(status_code=422, detail="Unknown coverage filter.")
     items = demo_items(
         search,
         category=_category_code(db, category_id),
-        jurisdiction=_jurisdiction_code(db, state_id),
+        jurisdiction=jurisdiction,
+        level="" if level == "all" else level,
     )
     total = len(items)
     start = (page - 1) * limit
@@ -73,7 +81,23 @@ def list_demo_services(
         "items": [_list_item(item) for item in page_items],
         "pagination": {"page": page, "limit": limit, "total": total, "pages": pages},
         "demo": True,
-        "notice": "Local demonstration content from official source links; not production-published knowledge.",
+        "notice": (
+            "AI-researched demo information — not yet human-verified. "
+            "Confirm current details on the linked government page."
+        ),
+    }
+
+
+@router.get("/jurisdictions")
+def list_demo_jurisdictions():
+    from backend.master_data import INDIAN_SUBDIVISIONS
+
+    return {
+        "central": {"code": "IN", "name": "Central Government", "type": "central"},
+        "items": [
+            {"code": code, "type": kind, "name": name}
+            for code, kind, name in INDIAN_SUBDIVISIONS
+        ],
     }
 
 
@@ -92,8 +116,15 @@ def get_demo_service(service_id: str):
         "jurisdictions": [{"location": {"name": item["jurisdiction"]}}],
         "version": {"number": "demo", "effective_from": None, "change_summary": "Local demonstration record; not a published service version."},
         "eligibility": details["eligibility"],
+        "benefits": details.get("benefits", []),
         "required_documents": details["documents"],
         "application_steps": details["steps"],
+        "verification_label": item.get("verification_label") or "AI-researched demo information — not yet human-verified.",
+        "checked_on": item.get("checked_on"),
         "evidence": {"items": [{"relationship_type": "general_information", "source": {"publisher": item["publisher"], "url": item["official_url"], "authority_status": "official source link; demo record"}, "value": item["evidence"]}]},
-        "disclaimer": "Demonstration content based on official source links checked on 2026-11-06. It is not a published production service record; confirm current details on the linked government portal.",
+        "disclaimer": (
+            f"{item.get('verification_label') or 'AI-researched demo information — not yet human-verified.'} "
+            f"Source checked on {item.get('checked_on') or '2026-11-06'}. "
+            "This is not a published production service record. Confirm current details on the linked government portal."
+        ),
     }

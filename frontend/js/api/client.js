@@ -94,6 +94,7 @@
     }
     document.documentElement.lang = normalized;
     document.documentElement.dataset.language = normalized;
+    window.GovNexusI18n?.apply();
     return normalized;
   }
 
@@ -130,7 +131,7 @@
       window.sessionStorage.removeItem(SESSION_KEYS[scope]);
     } catch (error) {
       sessionStorageUnavailable = true;
-      console.error("Could not clear the SchemeSathi sign-in state.", error);
+      console.error("Could not clear the GovNexus sign-in state.", error);
     }
   }
 
@@ -187,7 +188,7 @@
         headers
       });
     } catch (error) {
-      throw new Error("Could not reach the SchemeSathi server. Check your connection and try again.");
+      throw new Error("Could not reach the GovNexus server. Check your connection and try again.");
     }
 
     if (response.status === 401 && auth) {
@@ -304,4 +305,5 @@
 
   loadCachedAccessibilityPreferences();
   window.SchemeSathiAPI = api;
+  window.GovNexusAPI = api;
 })();

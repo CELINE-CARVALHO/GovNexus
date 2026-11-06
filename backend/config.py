@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "SchemeSathi"
+    APP_NAME: str = "GovNexus"
     APP_VERSION: str = "2.0.0"
     DEBUG: bool = True
     API_V1_PREFIX: str = "/api/v1"
@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-3.6-flash"
     GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
     GEMINI_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0, le=120)
+
+    # Primary chat model. Default ID is a production model on
+    # https://console.groq.com/docs/models (retrieved 2026-11-07).
+    # The client confirms the configured ID against Groq's model list
+    # before a completion call when a key is present.
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
+    GROQ_TIMEOUT_SECONDS: float = Field(default=30.0, gt=0, le=120)
 
     PINECONE_API_KEY: str = ""
     PINECONE_INDEX_NAME: str = ""

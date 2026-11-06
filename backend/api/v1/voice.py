@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field, field_validator
 from backend.config import settings
 
 
-router = APIRouter(prefix="/voice", tags=["Gnani Voice"])
+router = APIRouter(prefix="/voice", tags=["Prism Voice"])
 
 SUPPORTED_LANGUAGES = {
     "bn-IN",
@@ -63,7 +63,7 @@ def require_gnani_key() -> str:
     if not key:
         raise HTTPException(
             status_code=503,
-            detail="Gnani API key is not configured on the server.",
+            detail="Prism speech is not configured on the server.",
         )
     return key
 
@@ -100,14 +100,14 @@ def _provider_error_detail(response: httpx.Response, service: str) -> str:
         message = message.strip()
 
     if response.status_code in {401, 403}:
-        return "Gnani authentication failed. Check the API key ID."
+        return "Prism authentication failed. Check the server voice credential."
     if response.status_code == 429:
-        return f"Gnani {service} rate limit reached. Please try again shortly."
+        return f"Prism {service} rate limit reached. Please try again shortly."
     if response.status_code >= 500:
-        return f"Gnani {service} is temporarily unavailable."
+        return f"Prism {service} is temporarily unavailable."
     if response.status_code in {413, 422}:
-        return message or f"Gnani {service} rejected the supplied media."
-    return message or f"Gnani {service} rejected the request."
+        return message or f"Prism {service} rejected the supplied media."
+    return message or f"Prism {service} rejected the request."
 
 
 def _raise_gnani_error(response: httpx.Response, service: str) -> None:
@@ -126,7 +126,7 @@ async def transcribe_audio(
     if language_code not in SUPPORTED_LANGUAGES:
         raise HTTPException(
             status_code=422,
-            detail="Unsupported language. Choose one of the ten Gnani Prisma languages.",
+            detail="Unsupported language. Choose one of the ten Prism languages.",
         )
 
     content_type = (audio_file.content_type or "").lower().split(";")[0].strip()
@@ -164,7 +164,7 @@ async def transcribe_audio(
     if settings.GNANI_STT_MODEL not in {"prisma-v2.5", "prisma-v3.0"}:
         raise HTTPException(
             status_code=503,
-            detail="Gnani Prisma model configuration is invalid.",
+            detail="Prism speech model configuration is invalid.",
         )
     data = {
         "model": settings.GNANI_STT_MODEL,
@@ -187,12 +187,12 @@ async def transcribe_audio(
     except httpx.TimeoutException as exc:
         raise HTTPException(
             status_code=504,
-            detail="Gnani transcription timed out.",
+            detail="Prism transcription timed out.",
         ) from exc
     except httpx.RequestError as exc:
         raise HTTPException(
             status_code=502,
-            detail="Could not reach Gnani Prisma.",
+            detail="Could not reach Prism speech recognition.",
         ) from exc
 
     if response.status_code != 200:
@@ -202,12 +202,12 @@ async def transcribe_audio(
     except ValueError as exc:
         raise HTTPException(
             status_code=502,
-            detail="Gnani returned an invalid response.",
+            detail="Prism returned an invalid response.",
         ) from exc
     if not isinstance(result, dict):
         raise HTTPException(
             status_code=502,
-            detail="Gnani returned an invalid response.",
+            detail="Prism returned an invalid response.",
         )
     if result.get("truncated"):
         raise HTTPException(
@@ -224,7 +224,7 @@ async def transcribe_audio(
 
     return {
         "success": True,
-        "provider": "Gnani Prisma",
+        "provider": "Prism",
         "request_id": result.get("request_id"),
         "language_code": language_code,
         "detected_language_code": result.get("detected_language_code"),
@@ -250,7 +250,7 @@ class SynthesizeRequest(BaseModel):
     def validate_language_code(cls, value: str) -> str:
         if value not in SUPPORTED_LANGUAGES:
             raise ValueError(
-                "Unsupported language. Choose one of the ten Gnani Timbre languages."
+                "Unsupported language. Choose one of the ten Prism languages."
             )
         return value
 
@@ -286,30 +286,30 @@ async def synthesize_speech(payload: SynthesizeRequest):
     except httpx.TimeoutException as exc:
         raise HTTPException(
             status_code=504,
-            detail="Gnani speech generation timed out.",
+            detail="Prism speech generation timed out.",
         ) from exc
     except httpx.RequestError as exc:
         raise HTTPException(
             status_code=502,
-            detail="Could not reach Gnani Timbre.",
+            detail="Could not reach Prism speech synthesis.",
         ) from exc
 
     if response.status_code != 200:
-        _raise_gnani_error(response, "Timbre speech generation")
+        _raise_gnani_error(response, "speech generation")
     if not response.content:
-        raise HTTPException(status_code=502, detail="Gnani returned empty audio.")
+        raise HTTPException(status_code=502, detail="Prism returned empty audio.")
 
     content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
     if content_type != "audio/wav":
         raise HTTPException(
             status_code=502,
-            detail="Gnani returned an unsupported audio format.",
+            detail="Prism returned an unsupported audio format.",
         )
     return Response(
         content=response.content,
         media_type="audio/wav",
         headers={
             "Cache-Control": "no-store",
-            "Content-Disposition": 'inline; filename="schemesathi-response.wav"',
+            "Content-Disposition": 'inline; filename="govnexus-response.wav"',
         },
     )

@@ -1,6 +1,6 @@
-# SchemeSathi 2.0
+# GovNexus 2.0
 
-SchemeSathi is a citizen assistance platform for discovering government services and asking questions grounded in reviewed evidence. The frontend is HTML/CSS/Vanilla JavaScript; the backend is FastAPI, SQLAlchemy and Alembic.
+GovNexus is a citizen assistance platform for discovering government services and asking questions grounded in reviewed evidence. The frontend is HTML/CSS/Vanilla JavaScript; the backend is FastAPI, SQLAlchemy and Alembic.
 
 ## Requirements
 
@@ -8,7 +8,7 @@ SchemeSathi is a citizen assistance platform for discovering government services
 - Python 3.11 or newer
 - MySQL 8.x, with a local database and credentials
 - Node.js for the optional JavaScript syntax check
-- Provider credentials only for live Gemini, Pinecone or Gnani functionality
+- Provider credentials only for live Groq, Gemini, Pinecone, or Prism voice functionality
 
 ## Python environment and configuration
 
@@ -46,9 +46,10 @@ Do not commit `.env` or paste secrets into source files, browser storage, or sup
 | `MYSQL_*` | MySQL connection settings; all five values are used by the SQLAlchemy engine |
 | `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES` | JWT signing and citizen token lifetime; admin tokens currently expire after eight hours |
 | `SOURCE_ADMIN_API_KEY` | Server-side authentication for source registration and ingestion endpoints |
-| `GEMINI_*` | Gemini generation, embeddings and request timeout |
+| `GROQ_API_KEY`, `GROQ_MODEL`, `GROQ_BASE_URL`, `GROQ_TIMEOUT_SECONDS` | Primary assistant. Default model `openai/gpt-oss-20b` is a Groq production model. The server checks that ID against Groq's model list before calling it. |
+| `GEMINI_*` | Fallback generation when Groq is unavailable, plus embeddings |
 | `PINECONE_*`, `RAG_*` | Optional Pinecone index connection and retrieval thresholds |
-| `GNANI_*` | Optional Gnani STT/TTS credentials, endpoints, models and timeout |
+| `GNANI_*` | Optional Prism speech-to-text and text-to-speech. The existing Vachana Prisma endpoints and model IDs are preserved. Browser speech is not used as a fallback. |
 | `REDIS_URL` | Redis connection setting for queue-worker deployments |
 
 ## MySQL database
