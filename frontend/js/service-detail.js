@@ -58,7 +58,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const overview = $("overview");
         const existing = overview.querySelector(".benefit-list");
         if (existing) existing.remove();
-        if (!benefits.length) return;
+        if (!benefits.length) {
+            const note = element("p", "No benefit amount is stored for this record. Check the official portal before relying on a payment figure.");
+            note.className = "benefit-list";
+            overview.appendChild(note);
+            return;
+        }
         const list = element("div", undefined, "benefit-list");
         list.append(element("h3", "Documented benefits"));
         benefits.forEach(item => {
@@ -153,65 +158,87 @@ document.addEventListener("DOMContentLoaded", async () => {
         const documents = Array.isArray(data.required_documents) ? data.required_documents : [];
         const box = element("div", undefined, "document-checklist");
         const source = data.evidence?.items?.[0]?.source?.url || data.service?.application_url;
-        if (!documents.length) {
+        const guidance = data.document_guidance || {};
+        const confirmed = Array.isArray(guidance.confirmed) && guidance.confirmed.length
+            ? guidance.confirmed
+            : documents.map(item => ({
+                name: item.name || item.document_code || "Document",
+                why: item.why || item.description || "The stored source names this document.",
+                requirement: item.is_mandatory === false ? "conditional" : item.is_mandatory ? "mandatory" : "stated",
+                confirmed: true,
+                source_url: item.source_url,
+                alternatives: item.accepted_formats || []
+            }));
+        const useful = Array.isArray(guidance.commonly_useful) ? guidance.commonly_useful : [];
+        if (guidance.message) box.append(element("p", guidance.message));
+        else if (!confirmed.length && !useful.length) {
             box.append(
-                element("strong", "No documented requirements are stored for this scheme."),
-                element("p", "I couldn't confirm the document list from a reliable government source in this record. Do not upload identity documents here.")
+                element("strong", "We could not confirm the complete document list for this scheme from the sources currently available."),
+                element("p", "You can prepare commonly useful identity, address, and bank documents where relevant, but please check the official application portal for the exact requirements before applying.")
             );
-            const link = source ? officialLink(source, "Check the official source") : null;
-            if (link) box.appendChild(link);
-            section.appendChild(box);
-            return;
         }
+        if (guidance.aadhaar_note) box.append(element("p", guidance.aadhaar_note));
+        if (guidance.progress_note) box.append(element("p", guidance.progress_note));
+        const link = source ? officialLink(source, "Check the official source") : null;
+        if (link && !confirmed.length) box.appendChild(link);
+        const rows = confirmed.map(item => ({ ...item, confirmed: true })).concat(useful);
+        if (useful.length && guidance.section_title) box.append(element("h3", guidance.section_title));
         const storageKey = `govnexus_documents_${data.service?.id || "scheme"}`;
         let saved = {};
         try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { saved = {}; }
         const progress = element("p");
-        const missing = element("div");
         function persist() {
             const state = {};
             box.querySelectorAll("select[data-doc]").forEach(select => { state[select.dataset.doc] = select.value; });
             try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch { /* private mode */ }
             const values = Object.values(state);
             const available = values.filter(value => value === "available").length;
-            progress.textContent = `${available} of ${documents.length} marked available.`;
-            missing.replaceChildren();
-            documents.forEach(item => {
-                const name = item.name || item.document_code || "Document";
-                if ((state[name] || "pending") !== "available") missing.append(element("p", `Still to prepare: ${name}`));
-            });
+            progress.textContent = rows.length
+                ? `${available} of ${rows.length} marked available. This does not mean the application is ready.`
+                : "";
         }
-        documents.forEach(item => {
+        const statuses = [
+            ["available", "Available"],
+            ["obtain", "Need to obtain"],
+            ["not_applicable", "Not applicable"],
+            ["confirm", "Need to confirm"]
+        ];
+        rows.forEach(item => {
             const name = item.name || item.document_code || "Document";
-            const row = element("article", undefined, "document-empty");
+            const row = element("article");
             row.append(element("strong", name));
-            if (item.description) row.append(element("p", item.description));
-            row.append(element("p", `Why it is listed: ${item.why || item.description || "The stored source names this document."}`));
-            const status = item.is_mandatory === false ? "Optional in the stored record" : "Required in the stored record";
-            const extras = [status];
-            if (item.copies_required != null) extras.push(`Copies: ${item.copies_required}`);
-            if (Array.isArray(item.accepted_formats) && item.accepted_formats.length) extras.push(`Accepted format: ${item.accepted_formats.join(", ")}`);
-            if (item.stage) extras.push(`Stage: ${item.stage}`);
-            row.append(element("p", extras.join(" · ")));
+            if (item.why) row.append(element("p", item.why));
+            else if (item.description) row.append(element("p", item.description));
+            const requirement = item.requirement === "mandatory"
+                ? "Required in the stored record"
+                : item.requirement === "conditional"
+                    ? "Conditional in the stored record"
+                    : item.confirmed
+                        ? "Named in the stored record"
+                        : "Preparation suggestion — confirm before applying";
+            row.append(element("p", requirement));
+            if (Array.isArray(item.alternatives) && item.alternatives.length) {
+                row.append(element("p", `Accepted alternatives: ${item.alternatives.join(", ")}`));
+            }
             if (item.source_url) {
-                const link = officialLink(item.source_url, "Official source");
-                if (link) row.appendChild(link);
+                const sourceLink = officialLink(item.source_url, "Official source");
+                if (sourceLink) row.appendChild(sourceLink);
             }
             const select = document.createElement("select");
             select.dataset.doc = name;
             select.setAttribute("aria-label", `Status for ${name}`);
-            [["pending", "Pending"], ["available", "Available"]].forEach(([value, label]) => {
+            statuses.forEach(([value, label]) => {
                 const option = document.createElement("option");
                 option.value = value;
                 option.textContent = label;
                 select.appendChild(option);
             });
-            select.value = saved[name] === "available" ? "available" : "pending";
+            select.value = statuses.some(([value]) => value === saved[name]) ? saved[name] : "confirm";
             select.addEventListener("change", persist);
             row.appendChild(select);
             box.appendChild(row);
         });
-        box.append(progress, missing);
+        if (rows.length) box.append(progress);
         section.appendChild(box);
         persist();
     }
@@ -292,8 +319,17 @@ document.addEventListener("DOMContentLoaded", async () => {
             data.eligibility,
             item => {
                 const row = element("article", undefined, "locked-panel");
-                row.append(element("strong", item.description || "Published eligibility condition"));
+                row.append(element("strong", "Official wording"));
+                row.append(element("p", item.description || "Published eligibility condition"));
+                if (item.why && item.why !== item.description) {
+                    row.append(element("strong", "What this means"));
+                    row.append(element("p", item.why));
+                }
                 row.append(element("span", item.is_mandatory ? "Mandatory" : "Optional", "status-pill"));
+                if (item.source_url) {
+                    const sourceLink = safeOfficialLink(item.source_url, "Official source");
+                    if (sourceLink) row.appendChild(sourceLink);
+                }
                 return row;
             },
             "No verified eligibility information is available for this published version."
@@ -316,7 +352,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (details.length) row.append(element("p", details.join(" · ")));
                 return row;
             },
-            "No verified document requirements are available for this published version."
+            "No document requirements are stored for this record."
         );
         renderListSection(
             "process",
@@ -345,8 +381,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const sources = [...new Map((data.evidence?.items || [])
             .map(item => [item.source?.url, item.source])
             .filter(([url, source]) => url && source)).values()];
+        const sourceIntro = sourceList.querySelector(".section-intro");
+        if (sourceIntro) {
+            sourceIntro.textContent = sources.length
+                ? "These links come from the stored scheme record. Confirm them on the official page."
+                : "No official source link is stored for this record.";
+        }
         if (!sources.length) {
-            sourceList.appendChild(element("div", "No verified official sources are linked to the published evidence.", "source-status"));
+            sourceList.appendChild(element("div", "No official source link is stored for this record.", "source-status"));
         } else {
             const list = element("div", undefined, "source-status");
             sources.forEach(source => {
@@ -359,8 +401,68 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             sourceList.appendChild(list);
         }
+        if (data.checked_on || data.verification_label) {
+            sourceList.append(element(
+                "p",
+                `Information status: ${data.verification_label || "Published service record."}${data.checked_on ? ` Last checked: ${data.checked_on}.` : ""}`
+            ));
+        }
         document.querySelector(".verification-legend")?.setAttribute("hidden", "");
         window.GovNexusI18n?.apply();
+
+        document.querySelector(".journey-actions")?.remove();
+        document.querySelector(".hero-actions a.primary-btn")?.remove();
+        const journey = element("div", undefined, "journey-actions");
+        const schemeQuery = encodeURIComponent(service.id);
+        [
+            ["Check my eligibility", "#eligibility"],
+            ["Prepare my documents", "#documents"],
+            ["Ask GovNexus AI", `assistant.html?scheme=${schemeQuery}`],
+            ["Help me apply", `apply.html?scheme=${schemeQuery}`],
+        ].forEach(([label, href]) => {
+            const anchor = element("a", label);
+            anchor.href = href;
+            journey.appendChild(anchor);
+        });
+        if (service.application_url && String(service.application_url).startsWith("https://")) {
+            const portal = element("a", "Open the official portal");
+            portal.href = service.application_url;
+            portal.target = "_blank";
+            portal.rel = "noopener noreferrer";
+            journey.appendChild(portal);
+        }
+        document.querySelector(".hero-actions")?.insertAdjacentElement("afterend", journey);
+        const official = service.application_url;
+        if (official && official.startsWith("https://")) {
+            const copy = element("button", "Copy official link");
+            copy.type = "button";
+            copy.className = "secondary-btn";
+            copy.addEventListener("click", async () => {
+                if (!navigator.clipboard?.writeText) {
+                    notify("Clipboard access is unavailable.");
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(official);
+                    notify("Official link copied.");
+                } catch (error) {
+                    notify("Clipboard access is unavailable.");
+                }
+            });
+            document.querySelector(".hero-actions")?.appendChild(copy);
+        }
+        document.querySelectorAll(".detail-section").forEach(section => {
+            const heading = section.querySelector(".section-heading");
+            if (!heading || heading.querySelector(".section-toggle")) return;
+            const toggle = element("button", "Hide section");
+            toggle.type = "button";
+            toggle.className = "section-toggle secondary-btn";
+            toggle.addEventListener("click", () => {
+                const collapsed = section.classList.toggle("collapsed");
+                toggle.textContent = collapsed ? "Show section" : "Hide section";
+            });
+            heading.appendChild(toggle);
+        });
 
         if (!data.demo) {
             const track = element("a", "Track this service");
@@ -427,9 +529,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function askAssistant(prompt) {
         const initialPrompt = `I am exploring ${service?.title || service?.code || "a government service"}. ${prompt}`;
+        const scheme = service?.id ? `?scheme=${encodeURIComponent(service.id)}` : "";
         try {
             sessionStorage.setItem("schemesathi_initial_prompt", initialPrompt);
-            window.location.href = "assistant.html";
+            if (service?.id) sessionStorage.setItem("govnexus_active_scheme", service.id);
+            window.location.href = `assistant.html${scheme}`;
         } catch (error) {
             notify("Could not open the assistant prompt in this browser session.");
         }

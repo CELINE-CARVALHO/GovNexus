@@ -9,7 +9,7 @@
   --surface: #ffffff;
   --page: #f6f8fb;
   --green: #9be6c3;
-  --font: "DM Sans", sans-serif;
+  --font: "DM Sans", "Nirmala UI", "Noto Sans", "Noto Sans Kannada", "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Malayalam", "Noto Sans Bengali", "Noto Sans Gujarati", "Noto Sans Gurmukhi", sans-serif;
   --display: "Manrope", sans-serif;
   --radius: 12px;
   --shadow: 0 12px 32px rgba(14, 77, 108, 0.08);

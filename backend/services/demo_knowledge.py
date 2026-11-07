@@ -459,12 +459,18 @@ def demo_evidence(item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def demo_answer(question: str, items: list[dict[str, Any]], history: list[str] | None = None) -> str:
+def demo_answer(
+    question: str,
+    items: list[dict[str, Any]],
+    history: list[str] | None = None,
+    language_code: str = "en",
+) -> str:
+    from backend.services.conversation_language import citizen_text, language_base
+
     if not items:
-        return (
-            "I could not confirm a matching scheme from the available catalogue. "
-            "Please consult the relevant official government department."
-        )
+        return citizen_text("insufficient", language_code)
+    if language_base(language_code) != "en":
+        preface = citizen_text("source_original", language_code)
     focus = items[0]
     asked = f"{question} {' '.join(history or [])}".casefold()
     lines = [
@@ -473,6 +479,9 @@ def demo_answer(question: str, items: list[dict[str, Any]], history: list[str] |
         f"## {focus['title']}",
         f"{focus['description']} [S1]",
     ]
+    if language_base(language_code) != "en":
+        lines.insert(0, preface)
+        lines.insert(1, "")
     details = focus.get("details") or {}
     if any(word in asked for word in ("document", "documents", "paper")):
         documents = details.get("documents") or []

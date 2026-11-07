@@ -58,6 +58,31 @@ MAX_AUDIO_DURATION_SECONDS = 30
 MAX_TTS_TEXT_LENGTH = 5000
 
 
+def normalize_stt_language(language_code: str) -> str:
+    """Accept one Prism language, indic-auto, or up to four Prisma v3 hints."""
+    value = (language_code or "").strip()
+    if value == "indic-auto":
+        if settings.GNANI_STT_MODEL != "prisma-v3.0":
+            raise HTTPException(
+                status_code=422,
+                detail="Automatic language detection requires Prism Prisma v3.0.",
+            )
+        return value
+    parts = [part.strip() for part in value.split(",") if part.strip()]
+    if (
+        settings.GNANI_STT_MODEL == "prisma-v3.0"
+        and 1 < len(parts) <= 4
+        and all(part in SUPPORTED_LANGUAGES for part in parts)
+    ):
+        return ",".join(parts)
+    if len(parts) == 1 and parts[0] in SUPPORTED_LANGUAGES:
+        return parts[0]
+    raise HTTPException(
+        status_code=422,
+        detail="Unsupported language. Choose one of the ten Prism languages.",
+    )
+
+
 def require_gnani_key() -> str:
     key = settings.GNANI_API_KEY_ID.strip()
     if not key:
@@ -123,11 +148,7 @@ async def transcribe_audio(
     language_code: str = Form(...),
     format: Literal["verbatim", "transcribe"] = Form("transcribe"),
 ):
-    if language_code not in SUPPORTED_LANGUAGES:
-        raise HTTPException(
-            status_code=422,
-            detail="Unsupported language. Choose one of the ten Prism languages.",
-        )
+    language_code = normalize_stt_language(language_code)
 
     content_type = (audio_file.content_type or "").lower().split(";")[0].strip()
     allowed_extensions = AUDIO_TYPE_EXTENSIONS.get(content_type)
@@ -222,12 +243,19 @@ async def transcribe_audio(
             detail="No speech could be transcribed. Please try recording again.",
         )
 
+    from backend.services.conversation_language import resolve_conversation_language
+
+    detected = result.get("detected_language_code")
+    if not isinstance(detected, str) or not detected.strip():
+        detected = resolve_conversation_language(transcript, language_code)
+        if detected and "-" not in detected:
+            detected = f"{detected}-IN"
     return {
         "success": True,
         "provider": "Prism",
         "request_id": result.get("request_id"),
         "language_code": language_code,
-        "detected_language_code": result.get("detected_language_code"),
+        "detected_language_code": detected,
         "transcript": transcript.strip(),
     }
 

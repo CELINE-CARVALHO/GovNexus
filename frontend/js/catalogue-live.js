@@ -196,7 +196,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 const link = document.createElement("a");
                 link.href = `service-detail.html?id=${encodeURIComponent(service.id)}`;
                 link.textContent = "View details";
-                card.append(cardContent, link);
+                const guide = document.createElement("a");
+                guide.href = `apply.html?scheme=${encodeURIComponent(service.id)}`;
+                guide.textContent = "Help me apply";
+                card.append(cardContent, link, guide);
                 grid.appendChild(card);
             });
             section.appendChild(grid);

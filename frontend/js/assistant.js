@@ -28,7 +28,12 @@
   let activeAudioUrl = null;
   let guestSessionToken = null;
   let conversationId = null;
+  let activeSchemeId = "";
+  let guidanceStage = "";
   let requestPending = false;
+  let transcribeInFlight = false;
+  let conversationPinned = false;
+  let detectedLanguageCode = "";
   let lastRequest = null;
 
   function t(text) {
@@ -147,8 +152,8 @@
       status.textContent = t("Playing answer.");
       audio.disabled = false;
     } catch (error) {
-      status.textContent = "Audio is ready to retry.";
-      notify(error.message || "Could not play the spoken answer.");
+      status.textContent = t("Speech could not be played. The written answer is still shown.");
+      notify(error.message || t("Speech could not be played. The written answer is still shown."));
     }
   }
 
@@ -164,7 +169,8 @@
     name.textContent = isUser ? t("You") : "GovNexus AI";
     const bubble = document.createElement("div");
     bubble.className = "message-bubble";
-    bubble.textContent = messageText;
+    if (isUser) bubble.textContent = messageText;
+    else renderRichText(bubble, messageText);
     body.append(name, bubble);
 
     if (!isUser && options.citations?.length) {
@@ -205,15 +211,17 @@
       audioStatus.className = "audio-status";
       const code = String(message.languageCode || languageSelect.value)
         .split("-")[0].toLowerCase();
+      const spokenCode = voiceSupportedLanguages.has(code) ? `${code}-IN` : "";
       const listenButton = document.createElement("button");
       listenButton.type = "button";
       listenButton.textContent = t("Listen with Prism");
-      const speak = () => speakAnswer(
-        messageText,
-        message.languageCode || languageSelect.value,
-        listenButton,
-        audioStatus
-      );
+      const speak = () => {
+        if (!spokenCode) {
+          audioStatus.textContent = t("Prism speech is not available for this language. You can still read the text answer.");
+          return;
+        }
+        speakAnswer(messageText, spokenCode, listenButton, audioStatus);
+      };
       listenButton.addEventListener("click", speak);
       const replayButton = document.createElement("button");
       replayButton.type = "button";
@@ -227,8 +235,8 @@
         audioStatus.textContent = t("Playback stopped.");
       });
       actions.append(listenButton, replayButton, stopButton, audioStatus);
-      if (!voiceSupportedLanguages.has(code)) {
-        audioStatus.textContent = "Prism speech is not available for this language. You can still read the text answer.";
+      if (!spokenCode) {
+        audioStatus.textContent = t("Prism speech is not available for this language. You can still read the text answer.");
       } else if (options.autoSpeak || options.readAloud) {
         speak();
       }
@@ -239,7 +247,84 @@
     avatar.className = "message-avatar";
     avatar.textContent = isUser ? "◎" : "✳";
     wrapper.append(avatar, body);
+    if (!isUser && options.scheme?.id) {
+      const schemeId = encodeURIComponent(options.scheme.id);
+      const links = document.createElement("div");
+      links.className = "scheme-actions";
+      const schemeLinks = [
+        ["View scheme details", `service-detail.html?id=${schemeId}`],
+        ["Check eligibility", `service-detail.html?id=${schemeId}#eligibility`],
+        ["Review document requirements", `service-detail.html?id=${schemeId}#documents`],
+        ["Help me apply", `apply.html?scheme=${schemeId}`],
+      ];
+      if (options.scheme.official_url && String(options.scheme.official_url).startsWith("https://")) {
+        schemeLinks.push(["Open the official portal", options.scheme.official_url]);
+      }
+      schemeLinks.forEach(([label, href]) => {
+        const anchor = document.createElement("a");
+        anchor.href = href;
+        anchor.textContent = t(label);
+        if (String(href).startsWith("https://")) {
+          anchor.target = "_blank";
+          anchor.rel = "noopener noreferrer";
+        }
+        links.appendChild(anchor);
+      });
+      actions.appendChild(links);
+      ["Am I eligible?", "What documents do I need?", "How do I apply?"].forEach(prompt => {
+        const suggestion = document.createElement("button");
+        suggestion.type = "button";
+        suggestion.textContent = prompt;
+        suggestion.addEventListener("click", () => sendMessage(prompt));
+        actions.appendChild(suggestion);
+      });
+      if (options.scheme.verification_label) {
+        const status = document.createElement("p");
+        status.className = "verification-note";
+        status.textContent = options.scheme.verification_label;
+        body.appendChild(status);
+      }
+    }
     conversation.appendChild(wrapper);
+    window.GovNexusI18n?.apply();
+  }
+
+  function renderRichText(container, text) {
+    const lines = String(text || "").split(/\n/);
+    let list = null;
+    const flush = () => {
+      if (list) container.appendChild(list);
+      list = null;
+    };
+    lines.forEach(line => {
+      const heading = line.match(/^(#{1,3})\s+(.+)$/);
+      const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+      const numbered = line.match(/^\s*(\d+)[.)]\s+(.+)$/);
+      if (heading) {
+        flush();
+        const node = document.createElement("h3");
+        node.textContent = heading[2];
+        container.appendChild(node);
+      } else if (bullet || numbered) {
+        const ordered = Boolean(numbered);
+        if (!list || list.dataset.ordered !== String(ordered)) {
+          flush();
+          list = document.createElement(ordered ? "ol" : "ul");
+          list.dataset.ordered = String(ordered);
+        }
+        const item = document.createElement("li");
+        item.textContent = ordered ? numbered[2] : bullet[1];
+        list.appendChild(item);
+      } else if (!line.trim()) {
+        flush();
+      } else {
+        flush();
+        const paragraph = document.createElement("p");
+        paragraph.textContent = line;
+        container.appendChild(paragraph);
+      }
+    });
+    flush();
   }
 
   function renderHistoryEmpty(message) {
@@ -368,8 +453,6 @@
     form.querySelector(".submit-message").disabled = true;
     showConversation();
     renderMessage({ role: "user", text: cleanText });
-    input.value = "";
-    input.style.height = "auto";
     const typing = addTypingIndicator();
     lastRequest = { text: cleanText, fromVoice };
     setVoiceStatus(t("Finding verified information…"));
@@ -379,23 +462,31 @@
         message: cleanText,
         language_code: languageSelect.value
       };
+      if (detectedLanguageCode) payload.detected_language_code = detectedLanguageCode;
       const citizenSession = await api.isAuthenticated("citizen");
       if (!citizenSession && guestSessionToken) payload.guest_session_token = guestSessionToken;
       if (conversationId) payload.conversation_id = conversationId;
+      if (activeSchemeId) payload.scheme_id = activeSchemeId;
+      if (guidanceStage) payload.guidance_stage = guidanceStage;
       const result = await api.post("/chat/message", payload, citizenSession ? "citizen" : null);
       guestSessionToken = result.guest_session_token || guestSessionToken;
       conversationId = result.conversation_id || conversationId;
+      if (result.active_scheme?.id) {
+        activeSchemeId = result.active_scheme.id;
+        try { sessionStorage.setItem("govnexus_active_scheme", activeSchemeId); } catch { /* private mode */ }
+      }
       if (citizenSession && conversationId) addHistoryItem(conversationId, cleanText);
       typing.remove();
       renderMessage(
         {
           role: "assistant",
           text: result.answer,
-          languageCode: payload.language_code
+          languageCode: result.response_language || payload.language_code
         },
         {
           citations: result.citations,
           grounded: result.grounded,
+          scheme: result.active_scheme,
           autoSpeak: fromVoice,
           readAloud: api.getAccessibilityPreferences().read_aloud
         }
@@ -405,9 +496,13 @@
           ? "Verified source text is available in another language."
           : "Ask in your preferred language"
       ));
+      detectedLanguageCode = "";
+      input.value = "";
+      input.style.height = "auto";
       conversation.scrollIntoView({ behavior: "smooth", block: "end" });
     } catch (error) {
       typing.remove();
+      input.value = cleanText;
       const failed = lastRequest;
       renderMessage({
         role: "assistant",
@@ -577,12 +672,16 @@
       return;
     }
 
+    transcribeInFlight = true;
     voiceButton.disabled = true;
     setVoiceStatus(t("Transcribing your question…"));
     try {
       const formData = new FormData();
       formData.append("audio_file", blob, "schemesathi-recording.wav");
-      formData.append("language_code", languageSelect.value);
+      formData.append(
+        "language_code",
+        conversationPinned && languageSelect.value ? languageSelect.value : "indic-auto"
+      );
       formData.append("format", "transcribe");
       const result = await api.request("/voice/transcribe", {
         method: "POST",
@@ -597,21 +696,33 @@
           ? `Recognized · ${result.detected_language_code}`
           : "Transcription complete"
       );
-      await sendMessage(transcript, { fromVoice: true });
+      conversationPinned = true;
+      if (result.detected_language_code) {
+        const detected = String(result.detected_language_code);
+        detectedLanguageCode = detected;
+        const optionValue = detected.includes("-") ? detected : `${detected}-IN`;
+        if ([...languageSelect.options].some(option => option.value === optionValue)) {
+          languageSelect.value = optionValue;
+        }
+      }
+      setVoiceStatus(t("Review the transcript, then send."));
+      input.focus();
     } catch (error) {
-      notify(error.message || "Could not transcribe the recording.");
-      setVoiceStatus("Ask in your preferred language");
+      notify(error.message || t("Transcription failed. You can type your question or try again."));
+      setVoiceStatus(t("Transcription failed. You can type your question or try again."));
     } finally {
+      transcribeInFlight = false;
       voiceButton.disabled = false;
-      if (!requestPending && !recording) {
-        setTimeout(() => setVoiceStatus("Ask in your preferred language"), 5000);
+      if (!requestPending && !recording && !input.value) {
+        setTimeout(() => setVoiceStatus(t("Ask in your preferred language")), 5000);
       }
     }
   }
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    sendMessage(input.value);
+    if (recording || transcribeInFlight || requestPending) return;
+    sendMessage(input.value, { fromVoice: Boolean(detectedLanguageCode) });
   });
   input.addEventListener("input", () => {
     input.style.height = "auto";
@@ -621,10 +732,12 @@
     button.addEventListener("click", () => sendMessage(button.dataset.prompt || ""));
   });
   voiceButton.addEventListener("click", () => {
+    if (transcribeInFlight || requestPending) return;
     if (recording) stopRecording();
     else startRecording();
   });
   languageSelect.addEventListener("change", () => {
+    conversationPinned = true;
     const selectedCode = languageSelect.value.split("-")[0].toLowerCase();
     window.GovNexusI18n?.persist?.(selectedCode);
     if (updateVoiceAvailability()) {
@@ -653,6 +766,9 @@
         conversationId = null;
         guestSessionToken = null;
       }
+      activeSchemeId = "";
+      guidanceStage = "";
+      try { sessionStorage.removeItem("govnexus_active_scheme"); } catch { /* private mode */ }
       await stopPlayback();
       if (recording) cleanupRecording();
       conversation.replaceChildren();
@@ -669,16 +785,21 @@
     }
   });
   document.getElementById("clearChatButton")?.addEventListener("click", async () => {
+    if (!window.confirm(t("Clear this conversation on this screen?"))) return;
     await stopPlayback();
     if (recording) cleanupRecording();
     conversation.replaceChildren();
     conversation.classList.remove("active");
     welcome.style.display = "";
     input.value = "";
+    activeSchemeId = "";
+    guidanceStage = "";
+    try { sessionStorage.removeItem("govnexus_active_scheme"); } catch { /* private mode */ }
     input.focus();
     setVoiceStatus(t("Ask in your preferred language"));
   });
   document.addEventListener("govnexus:language", event => {
+    if (conversationPinned) return;
     const requested = `${event.detail?.language || "en"}-IN`;
     if ([...languageSelect.options].some(option => option.value === requested) && languageSelect.value !== requested) {
       languageSelect.value = requested;
@@ -740,6 +861,15 @@
       notify("Could not read the selected language from this browser session.");
     }
   }).catch(error => notify(`Could not check your sign-in session: ${error.message}`));
+
+  const pageQuery = new URLSearchParams(window.location.search);
+  const queryScheme = pageQuery.get("scheme") || "";
+  const queryStage = pageQuery.get("stage") || "";
+  if (/^[A-Za-z0-9_-]{1,80}$/.test(queryScheme)) activeSchemeId = queryScheme;
+  if (/^[A-Za-z0-9_-]{1,40}$/.test(queryStage)) guidanceStage = queryStage;
+  if (!activeSchemeId) {
+    try { activeSchemeId = sessionStorage.getItem("govnexus_active_scheme") || ""; } catch { activeSchemeId = ""; }
+  }
 
   let initialPrompt = "";
   try {

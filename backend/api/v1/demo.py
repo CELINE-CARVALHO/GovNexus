@@ -8,6 +8,7 @@ from backend.database.connection import get_db
 from backend.database.models.category import Category
 from backend.database.models.location import Location
 from backend.services.demo_knowledge import DEMO_SERVICES, demo_items
+from backend.services.document_guidance import build_document_guidance
 
 
 router = APIRouter(prefix="/demo", tags=["Local demonstration catalogue"])
@@ -119,6 +120,11 @@ def get_demo_service(service_id: str):
         "eligibility": details["eligibility"],
         "benefits": details.get("benefits", []),
         "required_documents": details["documents"],
+        "document_guidance": build_document_guidance(
+            details["documents"],
+            category=item.get("category") or "",
+            title=item.get("title") or "",
+        ),
         "application_steps": details["steps"],
         "verification_label": item.get("verification_label") or "AI-researched information — pending human verification.",
         "checked_on": item.get("checked_on"),

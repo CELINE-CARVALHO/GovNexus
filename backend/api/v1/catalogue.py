@@ -557,6 +557,7 @@ from backend.database.models.source_fact import (
 
 from backend.database.models.source import Source
 from backend.database.models.verification import FactVerification
+from backend.services.document_guidance import build_document_guidance
 
 
 def translated_value(rows, language, field, fallback_field=None):
@@ -1134,6 +1135,11 @@ def get_service_details(
             documents
             if "required_document" in verified_relationships
             else None
+        ),
+        "document_guidance": build_document_guidance(
+            documents if "required_document" in verified_relationships else [],
+            category=(category_translation.name if category_translation else "") or "",
+            title=title or "",
         ),
         "application_steps": (
             steps

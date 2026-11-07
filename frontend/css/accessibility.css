@@ -81,3 +81,43 @@ body.reduced-motion *::after {
     scroll-behavior: auto;
   }
 }
+
+/* One layout for every supported language. Indic text wraps; it is not squeezed. */
+html { overflow-x: clip; }
+html[lang]:not([lang="en"]) {
+  --font: "Nirmala UI", "Noto Sans", "DM Sans", sans-serif;
+}
+html[lang]:not([lang="en"]) body {
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.7;
+}
+html[lang]:not([lang="en"]) :is(
+  h1, h2, h3, h4, .brand, .brand-name, .sidebar-brand, .section-kicker, .eyebrow,
+  .welcome-badge, .prompt-heading, .history-heading, .sidebar-section-label,
+  .insight-kicker, .insight-footer, .hero-copy h1, .section-heading h2, .tab
+) {
+  letter-spacing: 0 !important;
+}
+:is(
+  .main-nav, .header-actions, .top-right, .chat-sidebar, .chat-main, .chat-topbar,
+  .sidebar-link, .new-chat-button, .prompt-card, .message-composer, .composer-tools,
+  .composer-left, .scheme-actions, .stepper, .stage-actions, .journey-actions,
+  .content-layout, .details-column, .hero-actions, .breadcrumb, .language-control,
+  .history-item, .info-tile, .document-checklist, .fact-list
+) {
+  min-width: 0;
+}
+:is(.sidebar-link, .new-chat-button, .prompt-card strong, .prompt-card small, .history-item, .nav-link, .composer-hint, .login-button, .language-button) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: unset;
+  height: auto;
+}
+.prompt-card, .sidebar-link, .new-chat-button, .composer-tools, .chat-topbar, .topbar, .apply-header {
+  align-items: flex-start;
+}
+.history-item {
+  display: block;
+  white-space: normal;
+}

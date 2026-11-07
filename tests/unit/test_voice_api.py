@@ -148,6 +148,22 @@ def test_stt_rejects_wav_longer_than_provider_duration_limit():
     assert error.value.status_code == 413
 
 
+def test_stt_auto_detects_language_and_keeps_the_detected_code():
+    MockAsyncClient.response = provider_response(
+        json={"success": True, "transcript": "ನಮಸ್ಕಾರ", "request_id": "request-kn"}
+    )
+    result = asyncio.run(
+        voice.transcribe_audio(
+            upload_audio(),
+            language_code="indic-auto",
+            format="transcribe",
+        )
+    )
+    assert MockAsyncClient.requests[0]["data"]["language_code"] == "indic-auto"
+    assert result["detected_language_code"] == "kn-IN"
+    assert result["transcript"] == "ನಮಸ್ಕಾರ"
+
+
 def test_stt_rejects_unsupported_language():
     with pytest.raises(HTTPException) as error:
         asyncio.run(
